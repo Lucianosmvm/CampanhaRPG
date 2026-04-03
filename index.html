@@ -3,86 +3,101 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ordem Paranormal — Organizador</title>
+<title>Ordem Paranormal — Organizador de Campanhas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:#0c0b09;color:#d6d0c4;font-family:'Share Tech Mono','Courier New',monospace}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#0c0b09}
-::-webkit-scrollbar-thumb{background:#302c24;border-radius:3px}
+body{background:#0c0b09;color:#d6d0c4;font-family:'Share Tech Mono','Courier New',monospace;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0c0b09}::-webkit-scrollbar-thumb{background:#302c24;border-radius:3px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.fade-up{animation:fadeUp .35s ease both}
-.fade-in{animation:fadeIn .25s ease both}
-input,textarea,select{background:#0c0b09;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;padding:9px 12px;border-radius:2px;width:100%;transition:border-color .2s}
+.fade-up{animation:fadeUp .3s ease both}.fade-in{animation:fadeIn .2s ease both}
+a{color:inherit;text-decoration:none}
+input,textarea,select{background:#0c0b09;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;padding:9px 12px;border-radius:2px;width:100%;transition:border-color .2s;box-sizing:border-box}
 input:focus,textarea:focus,select:focus{border-color:#c0392b}
 input::placeholder,textarea::placeholder{color:#7a7060}
 textarea{resize:vertical;line-height:1.6}
 select option{background:#141210}
-button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outline:none}
-.del-btn{background:none;border:1px solid transparent;color:#7a7060;font-size:14px;width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.del-btn:hover{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
-.pill{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.tab-btn{padding:8px 16px;background:none;border:1px solid #2c2820;color:#7a7060;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;transition:all .2s}
-.tab-btn:hover{border-color:#b8860b;color:#b8860b}
-.tab-btn.active{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
-.card-hover{transition:border-color .2s}
-.card-hover:hover{border-color:#b8860b!important}
-.primary-btn{background:#c0392b;color:#fff;border:none;padding:10px 20px;border-radius:2px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;transition:background .2s;display:inline-flex;align-items:center;gap:8px}
-.primary-btn:hover{background:#a93226}
-.ghost-btn{background:none;border:1px solid #2c2820;color:#7a7060;padding:8px 16px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.ghost-btn:hover{border-color:#d6d0c4;color:#d6d0c4}
-.green-btn{background:none;border:1px solid #276749;color:#4ade80;padding:7px 14px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.green-btn:hover{background:#27674922}
-.add-btn{background:none;border:1px dashed #302c24;color:#7a7060;width:100%;padding:10px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
-.add-btn:hover{border-color:#276749;color:#276749}
-.section-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.section-title::after{content:'';flex:1;height:1px;background:#302c24}
-.entry-card{border:1px solid #2c2820;border-radius:3px;background:#1a1814;margin-bottom:8px;overflow:hidden}
-.entry-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
-.entry-arrow{color:#7a7060;font-size:11px;transition:transform .2s;flex-shrink:0}
-.entry-body{padding:14px;border-top:1px solid #302c24}
-.topbar{border-bottom:1px solid #2c2820;padding:0 24px;background:#141210ee;backdrop-filter:blur(8px);position:sticky;top:0;z-index:50;display:flex;align-items:center;height:54px;gap:16px}
-.main{max-width:960px;margin:0 auto;padding:32px 20px 80px}
-.modal-overlay{position:fixed;inset:0;background:#000000dd;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-box{background:#141210;border:1px solid #c0392b;border-radius:4px;padding:28px;max-width:380px;width:100%;text-align:center}
-.field-label{display:block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#7a7060;margin-bottom:5px;font-weight:700}
-.form-wrap{background:#141210;border:1px solid #2c2820;border-radius:3px;overflow:hidden}
-.form-header{padding:20px 24px;border-bottom:1px solid #302c24;background:linear-gradient(135deg,#1a1814,#7f1d1d18);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.form-tabs{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid #302c24;flex-wrap:wrap}
-.form-body{padding:24px;max-height:62vh;overflow-y:auto}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid2 .span2{grid-column:1/-1}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}.grid2 .span2{grid-column:1}}
+button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outline:none;transition:all .2s}
+
+/* ── BUTTONS ── */
+.btn-primary{background:#c0392b;color:#fff;padding:9px 18px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.btn-primary:hover{background:#a93226}
+.btn-ghost{background:none;border:1px solid #2c2820;color:#7a7060;padding:8px 16px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{border-color:#d6d0c4;color:#d6d0c4}
+.btn-del{background:none;border:1px solid transparent;color:#7a7060;font-size:14px;width:28px;height:28px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-del:hover{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
+.btn-add{background:none;border:1px dashed #302c24;color:#7a7060;width:100%;padding:10px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-add:hover{border-color:#276749;color:#276749}
+.btn-tab{padding:8px 14px;background:none;border:1px solid #2c2820;color:#7a7060;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-radius:2px}
+.btn-tab:hover{border-color:#b8860b;color:#b8860b}
+.btn-tab.active{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
+.btn-green{background:none;border:1px solid #276749;color:#4ade80;padding:6px 12px;border-radius:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.btn-green:hover{background:#27674922}
+
+/* ── LAYOUT ── */
+.topbar{border-bottom:1px solid #2c2820;padding:0 24px;background:#141210;position:sticky;top:0;z-index:50;display:flex;align-items:center;height:54px;gap:14px}
+.logo-icon{width:28px;height:28px;border-radius:2px;background:#c0392b20;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.logo-text{font-family:'Playfair Display',Georgia,serif;font-size:16px;color:#ede8dc;font-weight:700;letter-spacing:.03em}
+.main{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+
+/* ── PILLS ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+
+/* ── CARDS ── */
+.campaign-row{background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;margin-bottom:10px;transition:border-color .2s}
+.campaign-row:hover{border-color:#b8860b}
+.accent-bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
 .hero{background:linear-gradient(135deg,#141210,#7f1d1d15);border:1px solid #2c2820;border-radius:3px;padding:28px;margin-bottom:16px;position:relative;overflow:hidden}
 .hero-deco{position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle at top right,#7f1d1d20,transparent);pointer-events:none}
 .stats-bar{display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1px solid #302c24;flex-wrap:wrap}
 .stat-num{font-size:20px;color:#c0392b;font-weight:700}
 .stat-label{font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase}
-.session-num{width:42px;height:42px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-size:15px;font-weight:700;flex-shrink:0}
-.campaign-row{background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px 20px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;gap:16px;margin-bottom:10px}
-.campaign-row:hover{border-color:#b8860b}
-.accent-bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
-.empty-state{text-align:center;padding:40px 0;color:#7a7060;font-size:13px;border:1px dashed #302c24;border-radius:3px}
-.empty-big{text-align:center;padding:64px 24px;border:1px dashed #302c24;border-radius:3px}
-.serif{font-family:'Playfair Display',Georgia,serif}
-.ink{color:#ede8dc}
-.red{color:#c0392b}
-.gold{color:#b8860b}
-.muted{color:#7a7060}
-.body-text{color:#d6d0c4;font-size:13px;line-height:1.7;font-family:Georgia,serif}
-.secret-box{background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:8px 12px;margin-top:8px}
-.effect-box{background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:8px 12px;margin-top:8px}
-.note-box{margin-top:12px;padding:10px 14px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px}
+
+/* ── FORM ── */
+.form-wrap{background:#141210;border:1px solid #2c2820;border-radius:3px;overflow:hidden}
+.form-header{padding:20px 24px;border-bottom:1px solid #302c24;background:linear-gradient(135deg,#1a1814,#7f1d1d18);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.form-tabs{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid #302c24;flex-wrap:wrap}
+.form-body{padding:24px;max-height:62vh;overflow-y:auto}
+.field{margin-bottom:14px}
+.field-label{display:block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#7a7060;margin-bottom:5px;font-weight:700}
+.field-hint{font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#302c24}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid2 .span2{grid-column:1/-1}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}.grid2 .span2{grid-column:1}}
+
+/* ── ENTRY CARD ── */
+.entry-card{border:1px solid #2c2820;border-radius:3px;background:#1a1814;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.entry-card:hover{border-color:#b8860b}
+.entry-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
+.entry-arrow{color:#7a7060;font-size:11px;transition:transform .2s;flex-shrink:0;display:inline-block}
+.entry-body{padding:14px;border-top:1px solid #302c24}
+
+/* ── VIEW CARDS ── */
 .npc-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:16px;margin-bottom:10px}
 .loc-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #b8860b;border-radius:3px;padding:16px;margin-bottom:10px}
 .item-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #7c3aed;border-radius:3px;padding:16px;margin-bottom:10px}
 .sess-card{background:#141210;border:1px solid #2c2820;border-radius:3px;padding:20px;margin-bottom:12px}
-/* MODO MESA */
+.secret-box{background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:8px 12px;margin-top:8px}
+.effect-box{background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:8px 12px;margin-top:8px}
+.note-box{margin-top:12px;padding:10px 14px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px}
+.session-num{width:42px;height:42px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-size:15px;font-weight:700;flex-shrink:0}
+.section-divider{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-divider::after{content:'';flex:1;height:1px;background:#302c24}
+.empty-state{text-align:center;padding:40px 0;color:#7a7060;font-size:13px;border:1px dashed #302c24;border-radius:3px}
+.empty-big{text-align:center;padding:64px 24px;border:1px dashed #302c24;border-radius:3px}
+.body-text{color:#d6d0c4;font-size:13px;line-height:1.7;font-family:Georgia,serif}
+.serif{font-family:'Playfair Display',Georgia,serif}
+.ink{color:#ede8dc}
+.muted{color:#7a7060}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:#000000dd;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:#141210;border:1px solid #c0392b;border-radius:4px;padding:28px;max-width:400px;width:100%;text-align:center}
+
+/* ── MESA MODE ── */
 .mesa-overlay{position:fixed;inset:0;background:#080706;z-index:300;overflow-y:auto;display:flex;flex-direction:column}
 .mesa-top{background:#0c0b09;border-bottom:1px solid #2c2820;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;flex-wrap:wrap}
 .mesa-body{flex:1;padding:24px;max-width:1100px;margin:0 auto;width:100%}
@@ -91,978 +106,1087 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .mesa-card{background:#0f0e0c;border:1px solid #2c2820;border-radius:3px;padding:16px}
 .mesa-card-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .mesa-card-title::after{content:'';flex:1;height:1px;background:#302c24}
-.mesa-pista-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #302c24}
-.mesa-pista-check{width:18px;height:18px;border:1px solid #302c24;border-radius:2px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
-.mesa-pista-check.done{background:#276749;border-color:#276749;color:#fff}
-.sess-status-btn{padding:5px 12px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border:1px solid;cursor:pointer;transition:all .15s;background:none}
+.mesa-pista{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #302c24;cursor:pointer}
+.pista-check{width:18px;height:18px;border:1px solid #302c24;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.pista-check.done{background:#276749;border-color:#276749;color:#fff}
+.sess-status-btn{padding:5px 12px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border:1px solid;cursor:pointer;background:none;font-family:'Share Tech Mono',monospace}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:2px;font-size:12px;z-index:999;animation:fadeIn .2s ease;white-space:nowrap;pointer-events:none}
 </style>
 </head>
 <body>
-<div id="app"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script type="text/babel">
-const {useState,useRef}=React;
-const KEY="op_v3";
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch{return[];}}
-function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch{}}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 
-const blankCamp=()=>({id:uid(),title:"",synopsis:"",sessions:1,status:"Em Andamento",nex:"5%",createdAt:new Date().toISOString(),antagonist:{name:"",nature:"",motivation:"",power:""},npcs:[],locations:[],items:[],sessions_data:[],notes:""});
-const blankNPC=()=>({id:uid(),name:"",role:"",description:"",secret:""});
-const blankLoc=()=>({id:uid(),name:"",type:"",description:"",danger:"Baixo"});
-const blankItem=()=>({id:uid(),name:"",type:"",description:"",effect:""});
-const blankSess=(n)=>({id:uid(),number:n,title:"",synopsis:"",objectives:"",encounters:"",rewards:"",notes:"",status:"Pendente",clues:[]});
-const blankClue=()=>({id:uid(),text:"",found:false});
+<div class="topbar" id="topbar">
+  <div class="logo-icon">☠</div>
+  <span class="logo-text" style="cursor:pointer" id="logo-btn">Ordem Paranormal</span>
+  <span id="bc-sep" style="color:#302c24;display:none">›</span>
+  <span id="bc-current" style="color:#7a7060;font-size:12px;letter-spacing:.06em;text-transform:uppercase;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
+  <div style="flex:1"></div>
+  <span id="topbar-count" style="color:#302c24;font-size:11px"></span>
+</div>
 
-function StatusPill({status}){
-  const m={"Em Andamento":{bg:"#27674922",bo:"#27674955",c:"#4ade80"},"Concluída":{bg:"#b8860b22",bo:"#b8860b55",c:"#b8860b"},"Pausada":{bg:"#7a706022",bo:"#7a706055",c:"#7a7060"},"Planejada":{bg:"#c0392b22",bo:"#c0392b55",c:"#c0392b"}};
-  const s=m[status]||m["Em Andamento"];
-  return <span className="pill" style={{background:s.bg,border:`1px solid ${s.bo}`,color:s.c}}>{status}</span>;
-}
-function DangerPill({level}){
-  const m={"Baixo":{c:"#4ade80",bg:"#27674922",bo:"#27674944"},"Médio":{c:"#b8860b",bg:"#b8860b22",bo:"#b8860b44"},"Alto":{c:"#fb923c",bg:"#7c2d1222",bo:"#7c2d1244"},"Extremo":{c:"#c0392b",bg:"#7f1d1d22",bo:"#7f1d1d44"}};
-  const s=m[level]||m["Baixo"];
-  return <span className="pill" style={{background:s.bg,border:`1px solid ${s.bo}`,color:s.c}}>{level}</span>;
-}
-function SessBadge({status}){
-  const m={"Pendente":{c:"#7a7060",bo:"#7a706044",bg:"transparent"},"Jogada":{c:"#4ade80",bo:"#27674955",bg:"#27674922"},"Pulada":{c:"#b8860b",bo:"#b8860b55",bg:"#b8860b22"}};
-  const s=m[status]||m["Pendente"];
-  return <span className="pill" style={{color:s.c,border:`1px solid ${s.bo}`,background:s.bg}}>{status}</span>;
-}
-function Field({label,hint,children}){
-  return(
-    <div style={{marginBottom:14}}>
-      <label className="field-label">{label}{hint&&<span style={{fontWeight:400,textTransform:"none",letterSpacing:0,marginLeft:6,color:"#302c24"}}>{hint}</span>}</label>
-      {children}
+<div class="main" id="main"></div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-bg" id="modal-del" style="display:none">
+  <div class="modal-box">
+    <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+    <div class="serif ink" style="font-size:18px;margin-bottom:8px">Excluir campanha?</div>
+    <p class="muted" style="font-size:13px;line-height:1.6;margin-bottom:20px">Essa ação não pode ser desfeita.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-ghost" onclick="closeDelModal()">Cancelar</button>
+      <button class="btn-primary" id="btn-del-confirm">Excluir</button>
     </div>
-  );
-}
-function EntryCard({title,subtitle,badge,onDelete,defaultOpen,children}){
-  const [open,setOpen]=useState(!!defaultOpen);
-  return(
-    <div className="entry-card card-hover">
-      <div className="entry-header" onClick={()=>setOpen(o=>!o)}>
-        <span className="entry-arrow" style={{transform:open?"rotate(90deg)":"rotate(0deg)"}}>▶</span>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{color:"#ede8dc",fontSize:13,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title||<em style={{color:"#7a7060"}}>Sem nome</em>}</div>
-          {subtitle&&<div style={{color:"#7a7060",fontSize:11,marginTop:2}}>{subtitle}</div>}
-        </div>
-        {badge}
-        {onDelete&&<button className="del-btn" onClick={e=>{e.stopPropagation();onDelete();}}>✕</button>}
-      </div>
-      {open&&<div className="entry-body fade-in">{children}</div>}
-    </div>
-  );
-}
+  </div>
+</div>
 
-/* ── MODO MESA ─────────────────────────────────────────────── */
-function ModoMesa({campaign,sessionId,onClose,onUpdateSession}){
-  const sess=campaign.sessions_data.find(s=>s.id===sessionId);
-  if(!sess)return null;
-  const toggleClue=(id)=>onUpdateSession({...sess,clues:sess.clues.map(c=>c.id===id?{...c,found:!c.found}:c)});
-  const setStatus=(st)=>onUpdateSession({...sess,status:st});
-  const anta=campaign.antagonist;
-  return(
-    <div className="mesa-overlay fade-in">
-      <div className="mesa-top">
-        <div className="session-num">{String(sess.number).padStart(2,"0")}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase"}}>Modo Mesa · {campaign.title}</div>
-          <div className="serif ink" style={{fontSize:18,fontWeight:700,lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sess.title||"Sessão "+sess.number}</div>
-        </div>
-        <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-          {["Pendente","Jogada","Pulada"].map(st=>(
-            <button key={st} className="sess-status-btn"
-              style={{color:sess.status===st?"#ede8dc":"#7a7060",borderColor:sess.status===st?"#c0392b":"#302c24",background:sess.status===st?"#c0392b22":"none"}}
-              onClick={()=>setStatus(st)}>{st}</button>
-          ))}
-          <button className="ghost-btn" onClick={onClose}>✕ Fechar</button>
-        </div>
-      </div>
-      <div className="mesa-body">
-        {sess.synopsis&&(
-          <div style={{background:"#0f0e0c",border:"1px solid #2c2820",borderLeft:"3px solid #c0392b",borderRadius:3,padding:16,marginBottom:16}}>
-            <div className="mesa-card-title">Sinopse</div>
-            <p className="body-text" style={{margin:0,fontStyle:"italic"}}>{sess.synopsis}</p>
-          </div>
-        )}
-        <div className="mesa-grid">
-          {sess.objectives&&(
-            <div className="mesa-card">
-              <div className="mesa-card-title">🎯 Objetivos</div>
-              <p className="body-text" style={{margin:0}}>{sess.objectives}</p>
-            </div>
-          )}
-          {sess.encounters&&(
-            <div className="mesa-card">
-              <div className="mesa-card-title">⚔️ Encontros / Cenas</div>
-              <p className="body-text" style={{margin:0}}>{sess.encounters}</p>
-            </div>
-          )}
-          <div className="mesa-card">
-            <div className="mesa-card-title">🔍 Pistas</div>
-            {sess.clues.length===0&&<div style={{color:"#7a7060",fontSize:12}}>Nenhuma pista cadastrada</div>}
-            {sess.clues.map(c=>(
-              <div key={c.id} className="mesa-pista-item">
-                <div className={`mesa-pista-check${c.found?" done":""}`} onClick={()=>toggleClue(c.id)}>{c.found&&"✓"}</div>
-                <span style={{color:c.found?"#7a7060":"#d6d0c4",fontSize:13,lineHeight:1.6,textDecoration:c.found?"line-through":"none",transition:"all .2s"}}>{c.text||<em style={{color:"#7a7060"}}>Sem texto</em>}</span>
-              </div>
-            ))}
-          </div>
-          {campaign.npcs.length>0&&(
-            <div className="mesa-card">
-              <div className="mesa-card-title">👤 NPCs</div>
-              {campaign.npcs.map(n=>(
-                <div key={n.id} style={{padding:"8px 0",borderBottom:"1px solid #302c24"}}>
-                  <div style={{color:"#ede8dc",fontSize:13,fontWeight:700}}>{n.name||"Sem nome"}</div>
-                  {n.role&&<div style={{color:"#b8860b",fontSize:11,textTransform:"uppercase",letterSpacing:".06em"}}>{n.role}</div>}
-                  {n.description&&<div style={{color:"#7a7060",fontSize:12,marginTop:3,lineHeight:1.5}}>{n.description}</div>}
-                </div>
-              ))}
-            </div>
-          )}
-          {campaign.locations.length>0&&(
-            <div className="mesa-card">
-              <div className="mesa-card-title">📍 Locais</div>
-              {campaign.locations.map(l=>(
-                <div key={l.id} style={{padding:"7px 0",borderBottom:"1px solid #302c24",display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
-                  <div>
-                    <div style={{color:"#ede8dc",fontSize:13}}>{l.name}</div>
-                    {l.type&&<div style={{color:"#7a7060",fontSize:11}}>{l.type}</div>}
-                  </div>
-                  <DangerPill level={l.danger}/>
-                </div>
-              ))}
-            </div>
-          )}
-          {sess.rewards&&(
-            <div className="mesa-card">
-              <div className="mesa-card-title">🏆 Recompensas</div>
-              <p className="body-text" style={{margin:0}}>{sess.rewards}</p>
-            </div>
-          )}
-          {sess.notes&&(
-            <div className="mesa-card" style={{borderColor:"#b8860b44"}}>
-              <div className="mesa-card-title">📝 Notas do Mestre</div>
-              <p style={{color:"#d4b26a",fontSize:13,lineHeight:1.7,margin:0,fontFamily:"Georgia,serif"}}>{sess.notes}</p>
-            </div>
-          )}
-          {anta?.name&&(
-            <div className="mesa-card" style={{borderColor:"#7f1d1d44"}}>
-              <div className="mesa-card-title">☠ Antagonista</div>
-              <div className="serif ink" style={{fontSize:16,fontWeight:700,marginBottom:8}}>{anta.name}</div>
-              {anta.nature&&<div style={{color:"#7a7060",fontSize:12,marginBottom:4}}><span className="red">Natureza:</span> {anta.nature}</div>}
-              {anta.motivation&&<div style={{color:"#7a7060",fontSize:12,marginBottom:4}}><span className="red">Motivação:</span> {anta.motivation}</div>}
-              {anta.power&&<div style={{color:"#7a7060",fontSize:12}}><span className="red">Poder:</span> {anta.power}</div>}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+<!-- Mesa Mode -->
+<div class="mesa-overlay" id="mesa-overlay" style="display:none">
+  <div class="mesa-top" id="mesa-top"></div>
+  <div class="mesa-body" id="mesa-body"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+const KEY = 'op_v3';
+let camps = [];
+try { camps = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { camps = []; }
+
+let view = 'list';      // list | form | detail
+let viewingId = null;
+let editingId = null;
+let delTargetId = null;
+let formData = null;
+let activeFormTab = 'info';
+let activeDetailTab = 'overview';
+let mesaSessionId = null;
+
+function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(camps)); } catch(e) {}
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nl(t) { return esc(t).replace(/\n/g,'<br>'); }
+
+/* ═══════════════════════════════════════
+   BLANKS
+═══════════════════════════════════════ */
+function blankCamp() {
+  return { id:uid(), title:'', synopsis:'', sessions:1, status:'Em Andamento', nex:'5%',
+    createdAt:new Date().toISOString(),
+    antagonist:{name:'',nature:'',motivation:'',power:''},
+    npcs:[], locations:[], items:[], sessions_data:[], notes:'' };
+}
+function blankNPC()  { return { id:uid(), name:'', role:'', description:'', secret:'' }; }
+function blankLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo' }; }
+function blankItem() { return { id:uid(), name:'', type:'', description:'', effect:'' }; }
+function blankSess(n){ return { id:uid(), number:n, title:'', synopsis:'', objectives:'', encounters:'', rewards:'', notes:'', status:'Pendente', clues:[] }; }
+function blankClue() { return { id:uid(), text:'', found:false }; }
+
+/* ═══════════════════════════════════════
+   PILLS & HELPERS
+═══════════════════════════════════════ */
+const STATUS_COLORS = {'Em Andamento':'#276749','Concluída':'#b8860b','Pausada':'#7a7060','Planejada':'#c0392b'};
+const DANGER_COLORS = {'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
+const SESS_COLORS   = {'Pendente':'#7a7060','Jogada':'#276749','Pulada':'#b8860b'};
+
+function statusPill(s) {
+  const c = STATUS_COLORS[s]||'#7a7060';
+  return `<span class="pill" style="background:${c}22;border:1px solid ${c}55;color:${c}">${esc(s)}</span>`;
+}
+function dangerPill(d) {
+  const c = DANGER_COLORS[d]||'#7a7060';
+  return `<span class="pill" style="background:${c}22;border:1px solid ${c}55;color:${c}">${esc(d)}</span>`;
+}
+function sessPill(s) {
+  const c = SESS_COLORS[s]||'#7a7060';
+  return `<span class="pill" style="background:${c}22;border:1px solid ${c}55;color:${c}">${esc(s)}</span>`;
+}
+function accentColor(status) { return STATUS_COLORS[status]||'#276749'; }
+function fieldHtml(label, inputHtml, hint='') {
+  return `<div class="field"><label class="field-label">${label}${hint?`<span class="field-hint">${hint}</span>`:''}</label>${inputHtml}</div>`;
 }
 
-/* ── CAMPAIGN FORM ─────────────────────────────────────────── */
-function CampaignForm({initial,onSave,onCancel}){
-  const [data,setData]=useState(initial);
-  const [tab,setTab]=useState("info");
-  const set=(k,v)=>setData(d=>({...d,[k]:v}));
-  const setA=(k,v)=>setData(d=>({...d,antagonist:{...d.antagonist,[k]:v}}));
-  const addNPC=()=>set("npcs",[...data.npcs,blankNPC()]);
-  const setNPC=(id,k,v)=>set("npcs",data.npcs.map(n=>n.id===id?{...n,[k]:v}:n));
-  const delNPC=(id)=>set("npcs",data.npcs.filter(n=>n.id!==id));
-  const addLoc=()=>set("locations",[...data.locations,blankLoc()]);
-  const setLoc=(id,k,v)=>set("locations",data.locations.map(l=>l.id===id?{...l,[k]:v}:l));
-  const delLoc=(id)=>set("locations",data.locations.filter(l=>l.id!==id));
-  const addItem=()=>set("items",[...data.items,blankItem()]);
-  const setItem=(id,k,v)=>set("items",data.items.map(i=>i.id===id?{...i,[k]:v}:i));
-  const delItem=(id)=>set("items",data.items.filter(i=>i.id!==id));
-  const setSess=(id,k,v)=>set("sessions_data",data.sessions_data.map(s=>s.id===id?{...s,[k]:v}:s));
-  const addClue=(sid)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:[...s.clues,blankClue()]}:s));
-  const setClue=(sid,cid,v)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:s.clues.map(c=>c.id===cid?{...c,text:v}:c)}:s));
-  const delClue=(sid,cid)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:s.clues.filter(c=>c.id!==cid)}:s));
-  const syncSess=(n)=>{
-    const num=Math.max(1,Math.min(20,parseInt(n)||1));
-    set("sessions",num);
-    const cur=data.sessions_data;
-    if(num>cur.length){set("sessions_data",[...cur,...Array.from({length:num-cur.length},(_,i)=>blankSess(cur.length+i+1))]);}
-    else{set("sessions_data",cur.slice(0,num));}
-  };
-  const tabs=[{k:"info",l:"📋 Info"},{k:"antagonist",l:"☠ Antagonista"},{k:"npcs",l:`👤 NPCs (${data.npcs.length})`},{k:"locations",l:`📍 Locais (${data.locations.length})`},{k:"items",l:`🗡 Itens (${data.items.length})`},{k:"sessions",l:`📅 Sessões (${data.sessions})`},{k:"notes",l:"📝 Notas"}];
-  return(
-    <div className="form-wrap fade-up">
-      <div className="form-header">
-        <div>
-          <div style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"#c0392b",marginBottom:4}}>{initial.title?"Editando Campanha":"Nova Campanha"}</div>
-          <div className="serif ink" style={{fontSize:22,fontWeight:700}}>{data.title||"Sem título"}</div>
-        </div>
-        <div style={{display:"flex",gap:8}}>
-          <button className="ghost-btn" onClick={onCancel}>Cancelar</button>
-          <button className="primary-btn" onClick={()=>onSave(data)}>💾 Salvar</button>
-        </div>
-      </div>
-      <div className="form-tabs">{tabs.map(t=><button key={t.k} className={`tab-btn ${tab===t.k?"active":""}`} onClick={()=>setTab(t.k)}>{t.l}</button>)}</div>
-      <div className="form-body">
-        {tab==="info"&&(
-          <div className="grid2 fade-in">
-            <div className="span2"><Field label="Título da Campanha"><input value={data.title} onChange={e=>set("title",e.target.value)} placeholder="Ex: O Silêncio da Carne" style={{fontSize:16}}/></Field></div>
-            <Field label="Número de Sessões"><input type="number" min={1} max={20} value={data.sessions} onChange={e=>syncSess(e.target.value)}/></Field>
-            <Field label="Status"><select value={data.status} onChange={e=>set("status",e.target.value)}>{["Em Andamento","Planejada","Pausada","Concluída"].map(s=><option key={s}>{s}</option>)}</select></Field>
-            <Field label="NEX dos Agentes" hint="(Nível de Exposição ao Paranormal)"><select value={data.nex} onChange={e=>set("nex",e.target.value)}>{["5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","99%"].map(n=><option key={n}>{n}</option>)}</select></Field>
-            <div className="span2"><Field label="Sinopse / Premissa"><textarea rows={5} value={data.synopsis} onChange={e=>set("synopsis",e.target.value)} placeholder="Descreva o arco central, o mistério principal..."/></Field></div>
-          </div>
-        )}
-        {tab==="antagonist"&&(
-          <div className="grid2 fade-in">
-            <Field label="Nome / Designação"><input value={data.antagonist.name} onChange={e=>setA("name",e.target.value)} placeholder="Ex: O Devorador de Nomes"/></Field>
-            <Field label="Natureza"><input value={data.antagonist.nature} onChange={e=>setA("nature",e.target.value)} placeholder="Ex: Entidade do Outro Lado, Cultista"/></Field>
-            <div className="span2"><Field label="Motivação / Objetivo"><textarea rows={3} value={data.antagonist.motivation} onChange={e=>setA("motivation",e.target.value)} placeholder="O que esse antagonista quer? Qual seu plano?"/></Field></div>
-            <div className="span2"><Field label="Poder / Habilidade Paranormal"><textarea rows={3} value={data.antagonist.power} onChange={e=>setA("power",e.target.value)} placeholder="Quais habilidades sobrenaturais ele possui?"/></Field></div>
-          </div>
-        )}
-        {tab==="npcs"&&(
-          <div className="fade-in">
-            {data.npcs.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum NPC ainda.</div>}
-            {data.npcs.map(n=>(
-              <EntryCard key={n.id} title={n.name} subtitle={n.role} onDelete={()=>delNPC(n.id)}>
-                <div className="grid2">
-                  <Field label="Nome"><input value={n.name} onChange={e=>setNPC(n.id,"name",e.target.value)} placeholder="Nome do NPC"/></Field>
-                  <Field label="Papel"><input value={n.role} onChange={e=>setNPC(n.id,"role",e.target.value)} placeholder="Ex: Informante, Aliado, Antagonista"/></Field>
-                  <div className="span2"><Field label="Descrição"><textarea rows={3} value={n.description} onChange={e=>setNPC(n.id,"description",e.target.value)} placeholder="Aparência, personalidade, motivações..."/></Field></div>
-                  <div className="span2"><Field label="Segredo" hint="(só o mestre vê)"><textarea rows={2} value={n.secret} onChange={e=>setNPC(n.id,"secret",e.target.value)} placeholder="O que esse NPC esconde?"/></Field></div>
-                </div>
-              </EntryCard>
-            ))}
-            <button className="add-btn" onClick={addNPC}>+ Adicionar NPC</button>
-          </div>
-        )}
-        {tab==="locations"&&(
-          <div className="fade-in">
-            {data.locations.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum local ainda.</div>}
-            {data.locations.map(l=>(
-              <EntryCard key={l.id} title={l.name} subtitle={l.type} badge={<DangerPill level={l.danger}/>} onDelete={()=>delLoc(l.id)}>
-                <div className="grid2">
-                  <Field label="Nome"><input value={l.name} onChange={e=>setLoc(l.id,"name",e.target.value)} placeholder="Ex: Fábrica Abandonada"/></Field>
-                  <Field label="Tipo"><input value={l.type} onChange={e=>setLoc(l.id,"type",e.target.value)} placeholder="Ex: Urbano, Rural, Outro Lado"/></Field>
-                  <div className="span2"><Field label="Descrição"><textarea rows={3} value={l.description} onChange={e=>setLoc(l.id,"description",e.target.value)} placeholder="Ambiente, atmosfera..."/></Field></div>
-                  <Field label="Nível de Perigo"><select value={l.danger} onChange={e=>setLoc(l.id,"danger",e.target.value)}>{["Baixo","Médio","Alto","Extremo"].map(d=><option key={d}>{d}</option>)}</select></Field>
-                </div>
-              </EntryCard>
-            ))}
-            <button className="add-btn" onClick={addLoc}>+ Adicionar Local</button>
-          </div>
-        )}
-        {tab==="items"&&(
-          <div className="fade-in">
-            {data.items.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum item ainda.</div>}
-            {data.items.map(item=>(
-              <EntryCard key={item.id} title={item.name} subtitle={item.type} onDelete={()=>delItem(item.id)}>
-                <div className="grid2">
-                  <Field label="Nome"><input value={item.name} onChange={e=>setItem(item.id,"name",e.target.value)} placeholder="Ex: Espelho de Madalena"/></Field>
-                  <Field label="Tipo"><input value={item.type} onChange={e=>setItem(item.id,"type",e.target.value)} placeholder="Ex: Artefato, Pista, Ritual"/></Field>
-                  <div className="span2"><Field label="Descrição"><textarea rows={2} value={item.description} onChange={e=>setItem(item.id,"description",e.target.value)} placeholder="Aparência, origem..."/></Field></div>
-                  <div className="span2"><Field label="Efeito / Significado"><textarea rows={2} value={item.effect} onChange={e=>setItem(item.id,"effect",e.target.value)} placeholder="O que esse item faz ou revela?"/></Field></div>
-                </div>
-              </EntryCard>
-            ))}
-            <button className="add-btn" onClick={addItem}>+ Adicionar Item</button>
-          </div>
-        )}
-        {tab==="sessions"&&(
-          <div className="fade-in">
-            {data.sessions_data.map((s,i)=>(
-              <EntryCard key={s.id} defaultOpen={i===0} title={`Sessão ${s.number}${s.title?" — "+s.title:""}`} subtitle={s.synopsis?.slice(0,55)+(s.synopsis?.length>55?"...":"")} badge={<SessBadge status={s.status}/>}>
-                <div className="grid2">
-                  <Field label="Título"><input value={s.title} onChange={e=>setSess(s.id,"title",e.target.value)} placeholder="Ex: A Noite do Coletor"/></Field>
-                  <Field label="Status"><select value={s.status} onChange={e=>setSess(s.id,"status",e.target.value)}>{["Pendente","Jogada","Pulada"].map(st=><option key={st}>{st}</option>)}</select></Field>
-                  <div className="span2"><Field label="Sinopse"><textarea rows={3} value={s.synopsis} onChange={e=>setSess(s.id,"synopsis",e.target.value)} placeholder="O que acontece nessa sessão?"/></Field></div>
-                  <Field label="Objetivos dos Agentes"><textarea rows={3} value={s.objectives} onChange={e=>setSess(s.id,"objectives",e.target.value)} placeholder="O que devem descobrir ou realizar?"/></Field>
-                  <Field label="Encontros / Cenas-Chave"><textarea rows={3} value={s.encounters} onChange={e=>setSess(s.id,"encounters",e.target.value)} placeholder="Combates, investigações, roleplay..."/></Field>
-                  <Field label="Recompensas / Consequências"><textarea rows={2} value={s.rewards} onChange={e=>setSess(s.id,"rewards",e.target.value)} placeholder="XP, itens, gancho para próxima sessão..."/></Field>
-                  <Field label="Notas do Mestre"><textarea rows={2} value={s.notes} onChange={e=>setSess(s.id,"notes",e.target.value)} placeholder="Observações internas, segredos..."/></Field>
-                  <div className="span2">
-                    <div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>🔍 Pistas / Evidências</div>
-                    {s.clues.length===0&&<div style={{color:"#7a7060",fontSize:12,marginBottom:8}}>Nenhuma pista.</div>}
-                    {s.clues.map(c=>(
-                      <div key={c.id} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:8}}>
-                        <textarea rows={1} value={c.text} onChange={e=>setClue(s.id,c.id,e.target.value)} placeholder="Descreva a pista..." style={{resize:"none"}}/>
-                        <button className="del-btn" onClick={()=>delClue(s.id,c.id)}>✕</button>
-                      </div>
-                    ))}
-                    <button className="add-btn" style={{marginTop:4}} onClick={()=>addClue(s.id)}>+ Adicionar Pista</button>
-                  </div>
-                </div>
-              </EntryCard>
-            ))}
-          </div>
-        )}
-        {tab==="notes"&&(
-          <div className="fade-in"><Field label="Notas Gerais"><textarea rows={18} value={data.notes} onChange={e=>set("notes",e.target.value)} placeholder="Anotações livres: arcos secundários, inspirações, improvisos..."/></Field></div>
-        )}
-      </div>
-    </div>
-  );
+/* ═══════════════════════════════════════
+   RENDER ENGINE
+═══════════════════════════════════════ */
+function render() {
+  const main = document.getElementById('main');
+  updateTopbar();
+  if (view === 'list')   { main.innerHTML = renderList();   main.className='main fade-up'; bindList(); }
+  if (view === 'form')   { main.innerHTML = renderForm();   main.className='main fade-up'; bindForm(); }
+  if (view === 'detail') { main.innerHTML = renderDetail(); main.className='main fade-up'; bindDetail(); }
 }
 
-/* ── CAMPAIGN VIEWER ───────────────────────────────────────── */
-function CampaignViewer({campaign,onEdit,onBack,onOpenMesa,onExportPDF}){
-  const [tab,setTab]=useState("overview");
-  const tabs=[{k:"overview",l:"Visão Geral"},{k:"antagonist",l:"☠ Antagonista"},{k:"npcs",l:`NPCs (${campaign.npcs.length})`},{k:"locations",l:`Locais (${campaign.locations.length})`},{k:"items",l:`Itens (${campaign.items.length})`},{k:"sessions",l:`Sessões (${campaign.sessions})`},{k:"notes",l:"Notas"}];
-  const ac=(st)=>({Jogada:"#276749",Pulada:"#b8860b",Pendente:"#302c24"}[st]||"#302c24");
-  return(
-    <div className="fade-up">
-      <div className="hero">
-        <div className="hero-deco"/>
-        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,flexWrap:"wrap"}}>
-          <div>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,flexWrap:"wrap"}}>
-              <StatusPill status={campaign.status}/>
-              <span className="muted" style={{fontSize:11}}>NEX {campaign.nex}</span>
-              <span className="muted" style={{fontSize:11}}>{campaign.sessions} sessão{campaign.sessions!==1?"s":""}</span>
-            </div>
-            <h1 className="serif ink" style={{fontSize:"clamp(20px,4vw,32px)",fontWeight:900,lineHeight:1.15,marginBottom:12}}>{campaign.title||"Sem título"}</h1>
-            {campaign.synopsis&&<p style={{color:"#d6d0c4",fontSize:14,lineHeight:1.7,maxWidth:620,fontFamily:"Georgia,serif",fontStyle:"italic"}}>{campaign.synopsis}</p>}
-          </div>
-          <div style={{display:"flex",gap:8,flexShrink:0,flexWrap:"wrap"}}>
-            <button className="ghost-btn" onClick={onBack}>← Voltar</button>
-            <button className="ghost-btn" onClick={()=>onExportPDF()}>📄 Exportar PDF</button>
-            <button className="primary-btn" onClick={onEdit}>✏️ Editar</button>
-          </div>
-        </div>
-        <div className="stats-bar">
-          {[["NPCs",campaign.npcs.length],["Locais",campaign.locations.length],["Itens",campaign.items.length],["Sessões",campaign.sessions],["Jogadas",campaign.sessions_data.filter(s=>s.status==="Jogada").length]].map(([l,v])=>(
-            <div key={l} style={{textAlign:"center"}}><div className="stat-num">{v}</div><div className="stat-label">{l}</div></div>
-          ))}
-        </div>
-      </div>
-      <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
-        {tabs.map(t=><button key={t.k} className={`tab-btn ${tab===t.k?"active":""}`} onClick={()=>setTab(t.k)}>{t.l}</button>)}
-      </div>
-      <div className="fade-in">
-        {tab==="overview"&&(
-          <div className="grid2">
-            <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:16}}>
-              <div className="section-title">Sessões</div>
-              {campaign.sessions_data.length===0&&<span className="muted" style={{fontSize:12}}>Nenhuma sessão</span>}
-              {campaign.sessions_data.map(s=>(
-                <div key={s.id} style={{display:"flex",gap:8,alignItems:"center",padding:"7px 0",borderBottom:"1px solid #302c24"}}>
-                  <span style={{width:6,height:6,borderRadius:"50%",background:ac(s.status),flexShrink:0,display:"inline-block"}}/>
-                  <span className="red" style={{fontFamily:"monospace",fontSize:12,fontWeight:700,flexShrink:0}}>{String(s.number).padStart(2,"0")}</span>
-                  <span style={{color:s.title?"#ede8dc":"#7a7060",fontSize:13,flex:1,fontStyle:s.title?"normal":"italic",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.title||"Sem título"}</span>
-                  <SessBadge status={s.status}/>
-                  <button className="green-btn" style={{padding:"3px 10px",fontSize:10}} onClick={()=>onOpenMesa(s.id)}>▶ Mesa</button>
-                </div>
-              ))}
-            </div>
-            <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:16}}>
-              <div className="section-title">NPCs</div>
-              {campaign.npcs.length===0&&<span className="muted" style={{fontSize:12}}>Nenhum NPC</span>}
-              {campaign.npcs.map(n=>(
-                <div key={n.id} style={{padding:"7px 0",borderBottom:"1px solid #302c24"}}>
-                  <div style={{color:"#ede8dc",fontSize:13}}>{n.name||<em style={{color:"#7a7060"}}>Sem nome</em>}</div>
-                  {n.role&&<div className="muted" style={{fontSize:11}}>{n.role}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {tab==="antagonist"&&(
-          <div>
-            {!campaign.antagonist?.name&&<div className="empty-state">Nenhum antagonista cadastrado</div>}
-            {campaign.antagonist?.name&&(
-              <div style={{background:"#141210",border:"1px solid #7f1d1d44",borderLeft:"3px solid #c0392b",borderRadius:3,padding:24}}>
-                <div className="serif ink" style={{fontSize:24,fontWeight:900,marginBottom:6}}>{campaign.antagonist.name}</div>
-                {campaign.antagonist.nature&&<div style={{color:"#c0392b",fontSize:11,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16}}>{campaign.antagonist.nature}</div>}
-                <div className="grid2" style={{gap:20}}>
-                  {campaign.antagonist.motivation&&<div><div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>Motivação</div><p className="body-text">{campaign.antagonist.motivation}</p></div>}
-                  {campaign.antagonist.power&&<div><div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>Poder Paranormal</div><p className="body-text">{campaign.antagonist.power}</p></div>}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-        {tab==="npcs"&&(
-          <div>
-            {campaign.npcs.length===0?<div className="empty-state">Nenhum NPC cadastrado</div>:campaign.npcs.map(n=>(
-              <div key={n.id} className="npc-card">
-                <div style={{marginBottom:8}}>
-                  <div className="serif ink" style={{fontSize:17,fontWeight:700}}>{n.name}</div>
-                  {n.role&&<span style={{fontSize:11,color:"#b8860b",letterSpacing:".08em",textTransform:"uppercase"}}>{n.role}</span>}
-                </div>
-                {n.description&&<p className="body-text" style={{marginBottom:n.secret?10:0}}>{n.description}</p>}
-                {n.secret&&<div className="secret-box"><div style={{fontSize:10,color:"#c0392b",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>🔒 Segredo</div><p style={{color:"#c0a0a0",fontSize:12,lineHeight:1.6,margin:0}}>{n.secret}</p></div>}
-              </div>
-            ))}
-          </div>
-        )}
-        {tab==="locations"&&(
-          <div>
-            {campaign.locations.length===0?<div className="empty-state">Nenhum local cadastrado</div>:campaign.locations.map(l=>(
-              <div key={l.id} className="loc-card">
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-                  <div><div className="serif ink" style={{fontSize:17,fontWeight:700}}>{l.name}</div>{l.type&&<span className="muted" style={{fontSize:11,letterSpacing:".08em",textTransform:"uppercase"}}>{l.type}</span>}</div>
-                  <DangerPill level={l.danger}/>
-                </div>
-                {l.description&&<p className="body-text" style={{margin:0}}>{l.description}</p>}
-              </div>
-            ))}
-          </div>
-        )}
-        {tab==="items"&&(
-          <div>
-            {campaign.items.length===0?<div className="empty-state">Nenhum item cadastrado</div>:campaign.items.map(item=>(
-              <div key={item.id} className="item-card">
-                <div style={{marginBottom:8}}>
-                  <div className="serif ink" style={{fontSize:17,fontWeight:700}}>{item.name}</div>
-                  {item.type&&<span style={{fontSize:11,color:"#a78bfa",letterSpacing:".08em",textTransform:"uppercase"}}>{item.type}</span>}
-                </div>
-                {item.description&&<p className="body-text" style={{marginBottom:item.effect?10:0}}>{item.description}</p>}
-                {item.effect&&<div className="effect-box"><div style={{fontSize:10,color:"#a78bfa",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>⚡ Efeito</div><p style={{color:"#c4b5fd",fontSize:12,lineHeight:1.6,margin:0}}>{item.effect}</p></div>}
-              </div>
-            ))}
-          </div>
-        )}
-        {tab==="sessions"&&(
-          <div>
-            {campaign.sessions_data.length===0?<div className="empty-state">Nenhuma sessão cadastrada</div>:campaign.sessions_data.map(s=>(
-              <div key={s.id} className="sess-card">
-                <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14,flexWrap:"wrap"}}>
-                  <div className="session-num">{String(s.number).padStart(2,"0")}</div>
-                  <div style={{flex:1}}><div className="serif ink" style={{fontSize:18,fontWeight:700}}>{s.title||<em style={{color:"#7a7060"}}>Sem título</em>}</div></div>
-                  <SessBadge status={s.status}/>
-                  <button className="green-btn" onClick={()=>onOpenMesa(s.id)}>▶ Modo Mesa</button>
-                </div>
-                <div className="grid2">
-                  {[["Sinopse",s.synopsis],["Objetivos",s.objectives],["Encontros / Cenas",s.encounters],["Recompensas",s.rewards]].map(([label,val])=>val?(
-                    <div key={label}><div style={{fontSize:10,color:"#7a7060",letterSpacing:".12em",textTransform:"uppercase",marginBottom:6,fontWeight:700}}>{label}</div><p className="body-text" style={{margin:0}}>{val}</p></div>
-                  ):null)}
-                </div>
-                {s.clues?.length>0&&(
-                  <div style={{marginTop:14}}>
-                    <div style={{fontSize:10,color:"#7a7060",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>🔍 Pistas</div>
-                    {s.clues.map(c=>(
-                      <div key={c.id} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"5px 0",borderBottom:"1px solid #302c24"}}>
-                        <span style={{color:c.found?"#4ade80":"#7a7060",fontSize:12,flexShrink:0,marginTop:1}}>{c.found?"✓":"○"}</span>
-                        <span style={{color:c.found?"#7a7060":"#d6d0c4",fontSize:13,textDecoration:c.found?"line-through":"none"}}>{c.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {s.notes&&<div className="note-box"><div style={{fontSize:10,color:"#b8860b",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>📝 Notas do Mestre</div><p style={{color:"#d4b26a",fontSize:12,lineHeight:1.6,margin:0}}>{s.notes}</p></div>}
-              </div>
-            ))}
-          </div>
-        )}
-        {tab==="notes"&&(
-          <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:20}}>
-            {campaign.notes?<p className="body-text" style={{whiteSpace:"pre-wrap"}}>{campaign.notes}</p>:<div className="empty-state">Sem notas</div>}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function updateTopbar() {
+  const c = camps.find(x=>x.id===viewingId);
+  document.getElementById('topbar-count').textContent = camps.length + ' campanha' + (camps.length!==1?'s':'');
+  const sep = document.getElementById('bc-sep');
+  const cur = document.getElementById('bc-current');
+  if (view !== 'list' && c) {
+    sep.style.display='inline'; cur.style.display='inline';
+    cur.textContent = view==='form' ? (editingId?'Editando':'Nova Campanha') : c.title||'Campanha';
+  } else if (view === 'form' && !editingId) {
+    sep.style.display='inline'; cur.style.display='inline'; cur.textContent='Nova Campanha';
+  } else {
+    sep.style.display='none'; cur.style.display='none';
+  }
 }
 
-/* ── CAMPAIGN LIST ─────────────────────────────────────────── */
-function CampaignList({campaigns,onSelect,onCreate,onDelete,onExport,onImport}){
-  const [search,setSearch]=useState("");
-  const fileRef=useRef();
-  const filtered=campaigns.filter(c=>c.title.toLowerCase().includes(search.toLowerCase())||c.synopsis.toLowerCase().includes(search.toLowerCase()));
-  const ac=(st)=>({["Em Andamento"]:"#276749","Concluída":"#b8860b","Pausada":"#7a7060","Planejada":"#c0392b"}[st]||"#276749");
-  return(
-    <div className="fade-up">
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24,gap:12,flexWrap:"wrap"}}>
-        <div>
-          <div className="serif ink" style={{fontSize:"clamp(20px,4vw,28px)",fontWeight:900,letterSpacing:".02em"}}>Arquivo de Campanhas</div>
-          <div className="muted" style={{fontSize:12,marginTop:4}}>{campaigns.length} campanha{campaigns.length!==1?"s":""} registrada{campaigns.length!==1?"s":""}</div>
-        </div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=ev=>onImport(ev.target.result);r.readAsText(f);}e.target.value="";}}/>
-          {campaigns.length>0&&<button className="ghost-btn" onClick={onExport}>⬇ Exportar JSON</button>}
-          <button className="ghost-btn" onClick={()=>fileRef.current.click()}>⬆ Importar JSON</button>
-          <button className="primary-btn" onClick={onCreate}>＋ Nova Campanha</button>
-        </div>
-      </div>
-      {campaigns.length>2&&<div style={{marginBottom:16}}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍  Buscar campanha..." style={{maxWidth:360}}/></div>}
-      {campaigns.length===0&&(
-        <div className="empty-big">
-          <div style={{fontSize:40,marginBottom:16}}>📁</div>
-          <div className="serif ink" style={{fontSize:16,marginBottom:8}}>Nenhuma campanha ainda</div>
-          <div className="muted" style={{fontSize:13,marginBottom:24}}>Crie sua primeira campanha de Ordem Paranormal</div>
-          <button className="primary-btn" style={{margin:"0 auto"}} onClick={onCreate}>＋ Criar Campanha</button>
-        </div>
-      )}
-      {filtered.length===0&&campaigns.length>0&&<div className="empty-state">Nenhuma campanha encontrada</div>}
-      {filtered.map(c=>(
-        <div key={c.id} className="campaign-row" onClick={()=>onSelect(c.id)}>
-          <div className="accent-bar" style={{background:ac(c.status)}}/>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
-              <span className="serif ink" style={{fontSize:17,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.title||<em style={{color:"#7a7060"}}>Sem título</em>}</span>
-              <StatusPill status={c.status}/>
-              {c.nex&&<span className="muted" style={{fontSize:11}}>NEX {c.nex}</span>}
-            </div>
-            {c.synopsis&&<p className="muted" style={{fontSize:12,lineHeight:1.5,margin:0,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{c.synopsis}</p>}
-            <div style={{display:"flex",gap:14,marginTop:8,flexWrap:"wrap"}}>
-              {[`${c.sessions} sessão${c.sessions!==1?"s":""}`,`${c.npcs.length} NPC${c.npcs.length!==1?"s":""}`,`${c.locations.length} local${c.locations.length!==1?"is":""}`,`${c.items.length} item${c.items.length!==1?"s":""}`,`${c.sessions_data.filter(s=>s.status==="Jogada").length} jogada${c.sessions_data.filter(s=>s.status==="Jogada").length!==1?"s":""}`].map(label=>(
-                <span key={label} style={{fontSize:11,color:"#302c24",fontFamily:"monospace"}}>{label}</span>
-              ))}
-            </div>
-          </div>
-          <button className="del-btn" onClick={e=>{e.stopPropagation();onDelete(c.id);}}>✕</button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── PDF EXPORT ────────────────────────────────────────────── */
-function exportCampaignPDF(c) {
-  const dangerColor = d => ({
-    Baixo:"#276749", Médio:"#b8860b", Alto:"#e65c00", Extremo:"#c0392b"
-  }[d]||"#7a7060");
-
-  const statusColor = s => ({
-    "Em Andamento":"#276749","Concluída":"#b8860b","Pausada":"#7a7060","Planejada":"#c0392b"
-  }[s]||"#7a7060");
-
-  const sessStatusColor = s => ({Jogada:"#276749",Pulada:"#b8860b",Pendente:"#7a7060"}[s]||"#7a7060");
-
-  const esc = t => String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br/>");
-
-  const section = (title, color="#c0392b") =>
-    `<div style="margin:32px 0 14px;padding-bottom:6px;border-bottom:2px solid ${color};display:flex;align-items:center;gap:10px">
-       <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0"></span>
-       <span style="font-family:'Playfair Display',Georgia,serif;font-size:17px;font-weight:900;color:#ede8dc;letter-spacing:.03em;text-transform:uppercase">${title}</span>
-     </div>`;
-
-  const pill = (label, color) =>
-    `<span style="display:inline-block;padding:2px 9px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;background:${color}22;border:1px solid ${color}55;color:${color}">${label}</span>`;
-
-  const card = (content, borderColor="#2c2820", bg="#141210") =>
-    `<div style="background:${bg};border:1px solid ${borderColor};border-radius:3px;padding:14px 16px;margin-bottom:10px">${content}</div>`;
-
-  const labeledBlock = (label, value, color="#7a7060") => value
-    ? `<div style="margin-bottom:10px">
-         <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:${color};font-weight:700;margin-bottom:4px">${label}</div>
-         <div style="color:#c8c0b8;font-size:13px;line-height:1.7;font-family:Georgia,serif">${esc(value)}</div>
-       </div>` : "";
-
-  // ── Cover Page ──────────────────────────────────────────────
-  const cover = `
-    <div style="page-break-after:always;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:60px;background:linear-gradient(135deg,#0c0b09,#1a0a08)">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#c0392b;margin-bottom:20px">☠ ORDEM PARANORMAL — DOSSIÊ DE CAMPANHA</div>
-      <div style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,6vw,58px);font-weight:900;color:#ede8dc;line-height:1.1;margin-bottom:20px;max-width:700px">${esc(c.title||"Sem Título")}</div>
-      ${c.synopsis ? `<div style="font-family:Georgia,serif;font-size:15px;color:#a09890;line-height:1.8;max-width:600px;font-style:italic;margin-bottom:32px;border-left:3px solid #c0392b;padding-left:16px">${esc(c.synopsis)}</div>` : ""}
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px">
-        ${pill(c.status, statusColor(c.status))}
-        ${pill("NEX "+c.nex, "#7a7060")}
-        ${pill(c.sessions+" sessão"+(c.sessions!==1?"s":""), "#7a7060")}
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(5,auto);gap:32px;margin-top:auto;padding-top:32px;border-top:1px solid #2c2820">
-        ${[["NPCs",c.npcs.length],["Locais",c.locations.length],["Itens",c.items.length],["Sessões",c.sessions],["Jogadas",c.sessions_data.filter(s=>s.status==="Jogada").length]].map(([l,v])=>
-          `<div style="text-align:center"><div style="font-size:28px;color:#c0392b;font-weight:700;font-family:'Share Tech Mono',monospace">${v}</div><div style="font-size:9px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase;margin-top:2px">${l}</div></div>`
-        ).join("")}
-      </div>
-      <div style="margin-top:40px;font-size:10px;color:#302c24;font-family:'Share Tech Mono',monospace">Gerado em ${new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"})}</div>
+/* ═══════════════════════════════════════
+   LIST VIEW
+═══════════════════════════════════════ */
+function renderList() {
+  if (camps.length === 0) return `
+    <div class="empty-big fade-up">
+      <div style="font-size:40px;margin-bottom:16px">📁</div>
+      <div class="serif ink" style="font-size:18px;margin-bottom:8px">Nenhuma campanha ainda</div>
+      <div class="muted" style="font-size:13px;margin-bottom:24px">Crie sua primeira campanha de Ordem Paranormal</div>
+      <button class="btn-primary" onclick="goCreate()" style="margin:0 auto">＋ Criar Campanha</button>
     </div>`;
 
-  // ── Antagonist ───────────────────────────────────────────────
-  const antagonistSection = c.antagonist?.name ? `
-    ${section("Antagonista Principal","#c0392b")}
-    <div style="background:#7f1d1d12;border:1px solid #7f1d1d55;border-left:4px solid #c0392b;border-radius:3px;padding:20px;margin-bottom:10px">
-      <div style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:900;color:#ede8dc;margin-bottom:4px">${esc(c.antagonist.name)}</div>
-      ${c.antagonist.nature ? `<div style="font-size:11px;color:#c0392b;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">${esc(c.antagonist.nature)}</div>` : ""}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        ${labeledBlock("Motivação",c.antagonist.motivation)}
-        ${labeledBlock("Poder Paranormal",c.antagonist.power)}
+  const rows = camps.map(c => {
+    const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
+    return `
+    <div class="campaign-row" onclick="goDetail('${c.id}')">
+      <div class="accent-bar" style="background:${accentColor(c.status)}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <span class="serif ink" style="font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)||'<em style="color:#7a7060">Sem título</em>'}</span>
+          ${statusPill(c.status)}
+          ${c.nex?`<span class="muted" style="font-size:11px">NEX ${c.nex}</span>`:''}
+        </div>
+        ${c.synopsis?`<p class="muted" style="font-size:12px;line-height:1.5;margin:0 0 8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(c.synopsis)}</p>`:''}
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          ${[`${c.sessions} sessão${c.sessions!==1?'s':''}`,`${(c.npcs||[]).length} NPC${(c.npcs||[]).length!==1?'s':''}`,`${(c.locations||[]).length} local${(c.locations||[]).length!==1?'is':''}`,`${(c.items||[]).length} item${(c.items||[]).length!==1?'s':''}`,`${jogadas} jogada${jogadas!==1?'s':''}`].map(l=>`<span style="font-size:11px;color:#302c24">${l}</span>`).join('')}
+        </div>
       </div>
-    </div>` : "";
+      <button class="btn-del" onclick="event.stopPropagation();askDelete('${c.id}')">✕</button>
+    </div>`;
+  }).join('');
 
-  // ── NPCs ─────────────────────────────────────────────────────
-  const npcsSection = c.npcs.length ? `
-    ${section("NPCs","#b8860b")}
-    ${c.npcs.map(n => card(`
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+  return `
+    <div class="fade-up">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(n.name)}</div>
-          ${n.role ? `<div style="font-size:10px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin-top:2px">${esc(n.role)}</div>` : ""}
+          <div class="serif ink" style="font-size:28px;font-weight:900">Arquivo de Campanhas</div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${camps.length} campanha${camps.length!==1?'s':''} registrada${camps.length!==1?'s':''}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${camps.length?`<button class="btn-ghost" onclick="exportJSON()">⬇ Exportar JSON</button>`:''}
+          <button class="btn-ghost" onclick="document.getElementById('file-import').click()">⬆ Importar JSON</button>
+          <input type="file" id="file-import" accept=".json" style="display:none" onchange="importJSON(this)"/>
+          <button class="btn-primary" onclick="goCreate()">＋ Nova Campanha</button>
         </div>
       </div>
-      ${n.description ? `<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:${n.secret?"10px":"0"}">${esc(n.description)}</div>` : ""}
-      ${n.secret ? `<div style="background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:8px 12px"><div style="font-size:9px;color:#c0392b;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px;line-height:1.6">${esc(n.secret)}</div></div>` : ""}
-    `,"#b8860b55")).join("")}` : "";
+      ${rows}
+    </div>`;
+}
 
-  // ── Locations ────────────────────────────────────────────────
-  const locsSection = c.locations.length ? `
-    ${section("Locais","#276749")}
-    ${c.locations.map(l => card(`
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+function bindList() {
+  document.getElementById('logo-btn').onclick = () => { view='list'; viewingId=null; editingId=null; render(); };
+}
+
+/* ═══════════════════════════════════════
+   FORM VIEW
+═══════════════════════════════════════ */
+function renderForm() {
+  const d = formData;
+  const tabs = [
+    {k:'info',    l:'📋 Info'},
+    {k:'antagonist',l:'☠ Antagonista'},
+    {k:'npcs',    l:`👤 NPCs (${d.npcs.length})`},
+    {k:'locations',l:`📍 Locais (${d.locations.length})`},
+    {k:'items',   l:`🗡 Itens (${d.items.length})`},
+    {k:'sessions',l:`📅 Sessões (${d.sessions})`},
+    {k:'notes',   l:'📝 Notas'},
+  ];
+
+  let body = '';
+
+  if (activeFormTab === 'info') body = `
+    <div class="grid2">
+      <div class="span2">${fieldHtml('Título da Campanha','<input id="f-title" value="'+esc(d.title)+'" placeholder="Ex: O Silêncio da Carne" style="font-size:16px"/>')}</div>
+      ${fieldHtml('Número de Sessões','<input id="f-sessions" type="number" min="1" max="20" value="'+d.sessions+'"/>')}
+      ${fieldHtml('Status','<select id="f-status">'+['Em Andamento','Planejada','Pausada','Concluída'].map(s=>`<option${s===d.status?' selected':''}>${s}</option>`).join('')+'</select>')}
+      ${fieldHtml('NEX dos Agentes','<select id="f-nex">'+['5%','10%','15%','20%','25%','30%','35%','40%','45%','50%','55%','60%','65%','70%','75%','80%','85%','90%','95%','99%'].map(n=>`<option${n===d.nex?' selected':''}>${n}</option>`).join('')+'</select>','(Nível de Exposição ao Paranormal)')}
+      <div class="span2">${fieldHtml('Sinopse / Premissa','<textarea id="f-synopsis" rows="5" placeholder="Descreva o arco central, o mistério principal...">'+esc(d.synopsis)+'</textarea>')}</div>
+    </div>`;
+
+  if (activeFormTab === 'antagonist') body = `
+    <div class="grid2">
+      ${fieldHtml('Nome / Designação','<input id="a-name" value="'+esc(d.antagonist.name)+'" placeholder="Ex: O Devorador de Nomes"/>')}
+      ${fieldHtml('Natureza','<input id="a-nature" value="'+esc(d.antagonist.nature)+'" placeholder="Ex: Entidade do Outro Lado, Cultista"/>')}
+      <div class="span2">${fieldHtml('Motivação / Objetivo','<textarea id="a-motivation" rows="3" placeholder="O que esse antagonista quer?">'+esc(d.antagonist.motivation)+'</textarea>')}</div>
+      <div class="span2">${fieldHtml('Poder / Habilidade Paranormal','<textarea id="a-power" rows="3" placeholder="Quais habilidades sobrenaturais?">'+esc(d.antagonist.power)+'</textarea>')}</div>
+    </div>`;
+
+  if (activeFormTab === 'npcs') body = `
+    <div id="npcs-list">${d.npcs.map((n,i)=>renderEntryCard('npc',n,i)).join('')}</div>
+    <button class="btn-add" onclick="addEntry('npcs')">+ Adicionar NPC</button>`;
+
+  if (activeFormTab === 'locations') body = `
+    <div id="locs-list">${d.locations.map((l,i)=>renderLocCard(l,i)).join('')}</div>
+    <button class="btn-add" onclick="addLoc()">+ Adicionar Local</button>`;
+
+  if (activeFormTab === 'items') body = `
+    <div id="items-list">${d.items.map((item,i)=>renderEntryCard('item',item,i)).join('')}</div>
+    <button class="btn-add" onclick="addEntry('items')">+ Adicionar Item</button>`;
+
+  if (activeFormTab === 'sessions') body = d.sessions_data.map((s,i)=>`
+    <div class="entry-card" id="sess-card-${s.id}">
+      <div class="entry-head" onclick="toggleEntry('sess-body-${s.id}','sess-arrow-${s.id}')">
+        <span class="entry-arrow" id="sess-arrow-${s.id}" style="transform:${i===0?'rotate(90deg)':'rotate(0deg)'}">▶</span>
+        <div style="flex:1;min-width:0">
+          <div style="color:#ede8dc;font-size:13px">Sessão ${s.number}${s.title?' — '+esc(s.title):''}</div>
+          ${s.synopsis?`<div style="color:#7a7060;font-size:11px;margin-top:2px">${esc(s.synopsis.slice(0,55))}${s.synopsis.length>55?'...':''}</div>`:''}
+        </div>
+        ${sessPill(s.status)}
+      </div>
+      <div class="entry-body" id="sess-body-${s.id}" style="display:${i===0?'block':'none'}">
+        <div class="grid2">
+          ${fieldHtml('Título','<input onchange="setSessField(\''+s.id+'\',\'title\',this.value)" value="'+esc(s.title)+'" placeholder="Ex: A Noite do Coletor"/>')}
+          ${fieldHtml('Status','<select onchange="setSessField(\''+s.id+'\',\'status\',this.value)">'+['Pendente','Jogada','Pulada'].map(st=>`<option${st===s.status?' selected':''}>${st}</option>`).join('')+'</select>')}
+          <div class="span2">${fieldHtml('Sinopse','<textarea rows="3" onchange="setSessField(\''+s.id+'\',\'synopsis\',this.value)" placeholder="O que acontece nessa sessão?">'+esc(s.synopsis)+'</textarea>')}</div>
+          ${fieldHtml('Objetivos dos Agentes','<textarea rows="3" onchange="setSessField(\''+s.id+'\',\'objectives\',this.value)" placeholder="O que devem descobrir?">'+esc(s.objectives)+'</textarea>')}
+          ${fieldHtml('Encontros / Cenas-Chave','<textarea rows="3" onchange="setSessField(\''+s.id+'\',\'encounters\',this.value)" placeholder="Combates, investigações...">'+esc(s.encounters)+'</textarea>')}
+          ${fieldHtml('Recompensas / Consequências','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'rewards\',this.value)" placeholder="XP, itens, gancho...">'+esc(s.rewards)+'</textarea>')}
+          ${fieldHtml('Notas do Mestre','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'notes\',this.value)" placeholder="Observações internas...">'+esc(s.notes)+'</textarea>')}
+          <div class="span2">
+            <div class="field-label">🔍 Pistas / Evidências</div>
+            <div id="clues-${s.id}">
+              ${(s.clues||[]).map(cl=>`
+                <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px" id="clue-row-${cl.id}">
+                  <textarea rows="1" style="resize:none" placeholder="Descreva a pista..." onchange="setClue('${s.id}','${cl.id}',this.value)">${esc(cl.text)}</textarea>
+                  <button class="btn-del" onclick="delClue('${s.id}','${cl.id}')">✕</button>
+                </div>`).join('')}
+            </div>
+            <button class="btn-add" style="margin-top:4px" onclick="addClue('${s.id}')">+ Adicionar Pista</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  if (activeFormTab === 'notes') body = fieldHtml('Notas Gerais','<textarea id="f-notes" rows="18" placeholder="Anotações livres...">'+esc(d.notes)+'</textarea>');
+
+  return `
+    <div class="form-wrap fade-up">
+      <div class="form-header">
         <div>
-          <div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(l.name)}</div>
-          ${l.type ? `<div style="font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase;margin-top:2px">${esc(l.type)}</div>` : ""}
+          <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#c0392b;margin-bottom:4px">${editingId?'Editando Campanha':'Nova Campanha'}</div>
+          <div class="serif ink" style="font-size:22px;font-weight:700">${esc(formData.title)||'Sem título'}</div>
         </div>
-        ${pill(l.danger||"Baixo", dangerColor(l.danger||"Baixo"))}
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" onclick="cancelForm()">Cancelar</button>
+          <button class="btn-primary" onclick="saveForm()">💾 Salvar</button>
+        </div>
       </div>
-      ${l.description ? `<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif">${esc(l.description)}</div>` : ""}
-    `,"#27674955")).join("")}` : "";
+      <div class="form-tabs">${tabs.map(t=>`<button class="btn-tab ${activeFormTab===t.k?'active':''}" onclick="switchFormTab('${t.k}')">${t.l}</button>`).join('')}</div>
+      <div class="form-body">${body}</div>
+    </div>`;
+}
 
-  // ── Items ────────────────────────────────────────────────────
-  const itemsSection = c.items.length ? `
-    ${section("Itens & Artefatos","#7c3aed")}
-    ${c.items.map(i => card(`
-      <div style="margin-bottom:6px">
-        <div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(i.name)}</div>
-        ${i.type ? `<div style="font-size:10px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-top:2px">${esc(i.type)}</div>` : ""}
+function renderEntryCard(type, entry, idx) {
+  const id = entry.id;
+  let title='', subtitle='', badge='', body='';
+
+  if (type==='npc') {
+    title=entry.name; subtitle=entry.role;
+    body = `<div class="grid2">
+      ${fieldHtml('Nome','<input value="'+esc(entry.name)+'" oninput="setEntryField(\'npcs\',\''+id+'\',\'name\',this.value)"/>')}
+      ${fieldHtml('Papel','<input value="'+esc(entry.role)+'" oninput="setEntryField(\'npcs\',\''+id+'\',\'role\',this.value)" placeholder="Ex: Informante, Aliado"/>')}
+      <div class="span2">${fieldHtml('Descrição','<textarea rows="3" oninput="setEntryField(\'npcs\',\''+id+'\',\'description\',this.value)" placeholder="Aparência, personalidade...">'+esc(entry.description)+'</textarea>')}</div>
+      <div class="span2">${fieldHtml('Segredo','<textarea rows="2" oninput="setEntryField(\'npcs\',\''+id+'\',\'secret\',this.value)" placeholder="O que esse NPC esconde?">'+esc(entry.secret)+'</textarea>','(só o mestre vê)')}</div>
+    </div>`;
+  }
+  if (type==='loc') {
+    title=entry.name; subtitle=entry.type; badge=dangerPill(entry.danger);
+    body = `<div class="grid2">
+      ${fieldHtml('Nome','<input value="'+esc(entry.name)+'" oninput="setEntryField(\'locations\',\''+id+'\',\'name\',this.value)" placeholder="Ex: Fábrica Abandonada"/>')}
+      ${fieldHtml('Tipo','<input value="'+esc(entry.type)+'" oninput="setEntryField(\'locations\',\''+id+'\',\'type\',this.value)" placeholder="Ex: Urbano, Outro Lado"/>')}
+      <div class="span2">${fieldHtml('Descrição','<textarea rows="3" oninput="setEntryField(\'locations\',\''+id+'\',\'description\',this.value)" placeholder="Ambiente, atmosfera...">'+esc(entry.description)+'</textarea>')}</div>
+      ${fieldHtml('Nível de Perigo','<select onchange="setEntryField(\'locations\',\''+id+'\',\'danger\',this.value)">'+['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===entry.danger?' selected':''}>${d}</option>`).join('')+'</select>')}
+    </div>`;
+  }
+  if (type==='item') {
+    title=entry.name; subtitle=entry.type;
+    body = `<div class="grid2">
+      ${fieldHtml('Nome','<input value="'+esc(entry.name)+'" oninput="setEntryField(\'items\',\''+id+'\',\'name\',this.value)" placeholder="Ex: Espelho de Madalena"/>')}
+      ${fieldHtml('Tipo','<input value="'+esc(entry.type)+'" oninput="setEntryField(\'items\',\''+id+'\',\'type\',this.value)" placeholder="Ex: Artefato, Pista, Ritual"/>')}
+      <div class="span2">${fieldHtml('Descrição','<textarea rows="2" oninput="setEntryField(\'items\',\''+id+'\',\'description\',this.value)" placeholder="Aparência, origem...">'+esc(entry.description)+'</textarea>')}</div>
+      <div class="span2">${fieldHtml('Efeito / Significado','<textarea rows="2" oninput="setEntryField(\'items\',\''+id+'\',\'effect\',this.value)" placeholder="O que esse item faz ou revela?">'+esc(entry.effect)+'</textarea>')}</div>
+    </div>`;
+  }
+
+  const typeMap = {npc:'npcs', loc:'locations', item:'items'};
+  const open = idx === 0;
+  return `
+    <div class="entry-card" id="ec-${id}">
+      <div class="entry-head" onclick="toggleEntry('eb-${id}','ea-${id}')">
+        <span class="entry-arrow" id="ea-${id}" style="transform:${open?'rotate(90deg)':'rotate(0)'}">▶</span>
+        <div style="flex:1;min-width:0">
+          <div style="color:#ede8dc;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(title)||'<em style="color:#7a7060">Sem nome</em>'}</div>
+          ${subtitle?`<div style="color:#7a7060;font-size:11px;margin-top:2px">${esc(subtitle)}</div>`:''}
+        </div>
+        ${badge}
+        <button class="btn-del" onclick="event.stopPropagation();delEntry('${typeMap[type]}','${id}')">✕</button>
       </div>
-      ${i.description ? `<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:${i.effect?"8px":"0"}">${esc(i.description)}</div>` : ""}
-      ${i.effect ? `<div style="background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:8px 12px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px">⚡ Efeito</div><div style="color:#c4b5fd;font-size:12px;line-height:1.6">${esc(i.effect)}</div></div>` : ""}
-    `,"#7c3aed55")).join("")}` : "";
+      <div class="entry-body" id="eb-${id}" style="display:${open?'block':'none'}">${body}</div>
+    </div>`;
+}
 
-  // ── Sessions ─────────────────────────────────────────────────
-  const sessionsSection = c.sessions_data.length ? `
-    ${section("Sessões","#c0392b")}
-    ${c.sessions_data.map(s => `
-      <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;margin-bottom:16px;overflow:hidden;page-break-inside:avoid">
-        <div style="background:linear-gradient(135deg,#1a1814,#c0392b12);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #302c24">
-          <div style="width:40px;height:40px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;flex-shrink:0">${String(s.number).padStart(2,"0")}</div>
-          <div style="flex:1">
-            <div style="font-family:'Playfair Display',Georgia,serif;font-size:17px;font-weight:700;color:#ede8dc">${esc(s.title||"Sem título")}</div>
-          </div>
-          ${pill(s.status||"Pendente", sessStatusColor(s.status))}
+function bindForm() {
+  // live title update
+  const tf = document.getElementById('f-title');
+  if (tf) tf.addEventListener('input', e => {
+    formData.title = e.target.value;
+    document.querySelector('.form-header .serif').textContent = formData.title || 'Sem título';
+  });
+}
+
+/* ═══════════════════════════════════════
+   DETAIL VIEW
+═══════════════════════════════════════ */
+function renderDetail() {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return '';
+
+  const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
+  const tabs = [
+    {k:'overview',  l:'Visão Geral'},
+    {k:'antagonist',l:'☠ Antagonista'},
+    {k:'npcs',      l:`NPCs (${c.npcs.length})`},
+    {k:'locations', l:`Locais (${c.locations.length})`},
+    {k:'items',     l:`Itens (${c.items.length})`},
+    {k:'sessions',  l:`Sessões (${c.sessions})`},
+    {k:'notes',     l:'Notas'},
+  ];
+
+  let body = '';
+
+  if (activeDetailTab === 'overview') body = `
+    <div class="grid2">
+      <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px">
+        <div class="section-divider">Sessões</div>
+        ${c.sessions_data.length===0?'<span class="muted" style="font-size:12px">Nenhuma sessão</span>':
+          c.sessions_data.map(s=>`
+          <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #302c24">
+            <span style="width:6px;height:6px;border-radius:50%;background:${SESS_COLORS[s.status]||'#302c24'};flex-shrink:0;display:inline-block"></span>
+            <span style="color:#c0392b;font-size:12px;font-weight:700;flex-shrink:0">${String(s.number).padStart(2,'0')}</span>
+            <span style="color:${s.title?'#ede8dc':'#7a7060'};font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:${s.title?'normal':'italic'}">${esc(s.title)||'Sem título'}</span>
+            ${sessPill(s.status)}
+            <button class="btn-green" onclick="openMesa('${s.id}')">▶ Mesa</button>
+          </div>`).join('')}
+      </div>
+      <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px">
+        <div class="section-divider">NPCs</div>
+        ${c.npcs.length===0?'<span class="muted" style="font-size:12px">Nenhum NPC</span>':
+          c.npcs.map(n=>`<div style="padding:7px 0;border-bottom:1px solid #302c24"><div style="color:#ede8dc;font-size:13px">${esc(n.name)||'<em style="color:#7a7060">Sem nome</em>'}</div>${n.role?`<div class="muted" style="font-size:11px">${esc(n.role)}</div>`:''}</div>`).join('')}
+      </div>
+    </div>`;
+
+  if (activeDetailTab === 'antagonist') {
+    const a = c.antagonist;
+    body = !a?.name ? '<div class="empty-state">Nenhum antagonista cadastrado</div>' : `
+      <div style="background:#141210;border:1px solid #7f1d1d44;border-left:3px solid #c0392b;border-radius:3px;padding:24px">
+        <div class="serif ink" style="font-size:24px;font-weight:900;margin-bottom:4px">${esc(a.name)}</div>
+        ${a.nature?`<div style="color:#c0392b;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">${esc(a.nature)}</div>`:''}
+        <div class="grid2">
+          ${a.motivation?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Motivação</div><p class="body-text">${nl(a.motivation)}</p></div>`:''}
+          ${a.power?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Poder Paranormal</div><p class="body-text">${nl(a.power)}</p></div>`:''}
         </div>
-        <div style="padding:16px 18px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            ${labeledBlock("Sinopse",s.synopsis)}
-            ${labeledBlock("Objetivos dos Agentes",s.objectives)}
-            ${labeledBlock("Encontros / Cenas-Chave",s.encounters)}
-            ${labeledBlock("Recompensas / Consequências",s.rewards)}
+      </div>`;
+  }
+
+  if (activeDetailTab === 'npcs') body = c.npcs.length===0?'<div class="empty-state">Nenhum NPC cadastrado</div>':
+    c.npcs.map(n=>`
+    <div class="npc-card">
+      <div class="serif ink" style="font-size:17px;font-weight:700">${esc(n.name)}</div>
+      ${n.role?`<span style="font-size:11px;color:#b8860b;letter-spacing:.08em;text-transform:uppercase">${esc(n.role)}</span>`:''}
+      ${n.description?`<p class="body-text" style="margin-top:8px">${nl(n.description)}</p>`:''}
+      ${n.secret?`<div class="secret-box"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🔒 Segredo</div><p style="color:#c0a0a0;font-size:12px;line-height:1.6;margin:0">${nl(n.secret)}</p></div>`:''}
+    </div>`).join('');
+
+  if (activeDetailTab === 'locations') body = c.locations.length===0?'<div class="empty-state">Nenhum local cadastrado</div>':
+    c.locations.map(l=>renderLocDetailCard(l)).join('');
+
+  if (activeDetailTab === 'items') body = c.items.length===0?'<div class="empty-state">Nenhum item cadastrado</div>':
+    c.items.map(item=>`
+    <div class="item-card">
+      <div class="serif ink" style="font-size:17px;font-weight:700">${esc(item.name)}</div>
+      ${item.type?`<span style="font-size:11px;color:#a78bfa;letter-spacing:.08em;text-transform:uppercase">${esc(item.type)}</span>`:''}
+      ${item.description?`<p class="body-text" style="margin-top:8px">${nl(item.description)}</p>`:''}
+      ${item.effect?`<div class="effect-box"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">⚡ Efeito</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(item.effect)}</p></div>`:''}
+    </div>`).join('');
+
+  if (activeDetailTab === 'sessions') body = c.sessions_data.length===0?'<div class="empty-state">Nenhuma sessão cadastrada</div>':
+    c.sessions_data.map(s=>`
+    <div class="sess-card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+        <div class="session-num">${String(s.number).padStart(2,'0')}</div>
+        <div style="flex:1"><div class="serif ink" style="font-size:18px;font-weight:700">${esc(s.title)||'<em style="color:#7a7060">Sem título</em>'}</div></div>
+        ${sessPill(s.status)}
+        <button class="btn-green" onclick="openMesa('${s.id}')">▶ Modo Mesa</button>
+      </div>
+      <div class="grid2">
+        ${s.synopsis?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Sinopse</div><p class="body-text" style="margin:0">${nl(s.synopsis)}</p></div>`:''}
+        ${s.objectives?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
+        ${s.encounters?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Encontros / Cenas</div><p class="body-text" style="margin:0">${nl(s.encounters)}</p></div>`:''}
+        ${s.rewards?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Recompensas</div><p class="body-text" style="margin:0">${nl(s.rewards)}</p></div>`:''}
+      </div>
+      ${s.clues?.length?`
+        <div style="margin-top:14px">
+          <div style="font-size:10px;color:#7a7060;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:700">🔍 Pistas</div>
+          ${s.clues.map(cl=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #1c1a16"><span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:12px;flex-shrink:0;margin-top:1px">${cl.found?'✓':'○'}</span><span style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)}</span></div>`).join('')}
+        </div>`:''}
+      ${s.notes?`<div class="note-box"><div style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:12px;line-height:1.6;margin:0">${nl(s.notes)}</p></div>`:''}
+    </div>`).join('');
+
+  if (activeDetailTab === 'notes') body = `
+    <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:20px">
+      ${c.notes?`<p class="body-text" style="white-space:pre-wrap">${esc(c.notes)}</p>`:'<div class="empty-state">Sem notas</div>'}
+    </div>`;
+
+  return `
+    <div class="fade-up">
+      <div class="hero">
+        <div class="hero-deco"></div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+              ${statusPill(c.status)}
+              <span class="muted" style="font-size:11px">NEX ${c.nex||'5%'}</span>
+              <span class="muted" style="font-size:11px">${c.sessions} sessão${c.sessions!==1?'s':''}</span>
+            </div>
+            <h1 class="serif ink" style="font-size:clamp(20px,4vw,32px);font-weight:900;line-height:1.15;margin-bottom:12px">${esc(c.title)||'Sem título'}</h1>
+            ${c.synopsis?`<p style="color:#d6d0c4;font-size:14px;line-height:1.7;max-width:620px;font-family:Georgia,serif;font-style:italic">${esc(c.synopsis)}</p>`:''}
           </div>
-          ${s.clues?.length ? `
-            <div style="margin-top:10px">
-              <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:8px">🔍 Pistas</div>
-              ${s.clues.map(cl=>`
-                <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #1c1a16">
-                  <span style="color:${cl.found?"#4ade80":"#7a7060"};font-size:12px;flex-shrink:0;margin-top:1px">${cl.found?"✓":"○"}</span>
-                  <span style="color:${cl.found?"#7a7060":"#c8c0b8"};font-size:12px;line-height:1.5;text-decoration:${cl.found?"line-through":"none"}">${esc(cl.text)}</span>
-                </div>`).join("")}
-            </div>` : ""}
-          ${s.notes ? `
-            <div style="margin-top:12px;padding:10px 14px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px">
-              <div style="font-size:9px;color:#b8860b;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px">📝 Notas do Mestre</div>
-              <div style="color:#d4b26a;font-size:12px;line-height:1.6">${esc(s.notes)}</div>
-            </div>` : ""}
+          <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap">
+            <button class="btn-ghost" onclick="goList()">← Voltar</button>
+            <button class="btn-ghost" onclick="exportPDF()">📄 Exportar PDF</button>
+            <button class="btn-primary" onclick="goEdit()">✏️ Editar</button>
+          </div>
         </div>
-      </div>`).join("")}` : "";
+        <div class="stats-bar">
+          ${[['NPCs',c.npcs.length],['Locais',c.locations.length],['Itens',c.items.length],['Sessões',c.sessions],['Jogadas',jogadas]].map(([l,v])=>`
+          <div style="text-align:center"><div class="stat-num">${v}</div><div class="stat-label">${l}</div></div>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+        ${tabs.map(t=>`<button class="btn-tab ${activeDetailTab===t.k?'active':''}" onclick="switchDetailTab('${t.k}')">${t.l}</button>`).join('')}
+      </div>
+      <div class="fade-in">${body}</div>
+    </div>`;
+}
 
-  // ── Notes ────────────────────────────────────────────────────
-  const notesSection = c.notes ? `
-    ${section("Notas Gerais","#7a7060")}
-    <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:18px">
-      <div style="color:#c0b8b0;font-size:13px;line-height:1.8;font-family:Georgia,serif;white-space:pre-wrap">${esc(c.notes)}</div>
-    </div>` : "";
+function bindDetail() {}
 
-  // ── Assemble & Print ─────────────────────────────────────────
+/* ═══════════════════════════════════════
+   MESA MODE
+═══════════════════════════════════════ */
+function openMesa(sessId) {
+  mesaSessionId = sessId;
+  renderMesa();
+  document.getElementById('mesa-overlay').style.display='flex';
+}
+function closeMesa() {
+  document.getElementById('mesa-overlay').style.display='none';
+  mesaSessionId = null;
+  render();
+}
+function renderMesa() {
+  const c = camps.find(x=>x.id===viewingId);
+  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
+  if (!c||!s) return;
+
+  document.getElementById('mesa-top').innerHTML = `
+    <div class="session-num">${String(s.number).padStart(2,'0')}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:10px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase">Modo Mesa · ${esc(c.title)}</div>
+      <div class="serif ink" style="font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.title)||'Sessão '+s.number}</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      ${['Pendente','Jogada','Pulada'].map(st=>`
+        <button class="sess-status-btn" style="color:${s.status===st?'#ede8dc':'#7a7060'};border-color:${s.status===st?'#c0392b':'#302c24'};background:${s.status===st?'#c0392b22':'none'}"
+          onclick="mesaSetStatus('${st}')">${st}</button>`).join('')}
+      <button class="btn-ghost" onclick="closeMesa()">✕ Fechar</button>
+    </div>`;
+
+  const cluesHtml = (s.clues||[]).map(cl=>`
+    <div class="mesa-pista" onclick="mesaToggleClue('${cl.id}')">
+      <div class="pista-check ${cl.found?'done':''}">${cl.found?'✓':''}</div>
+      <span style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;line-height:1.6;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)||'<em style="color:#7a7060">Sem texto</em>'}</span>
+    </div>`).join('');
+
+  const npcsHtml = c.npcs.map(n=>`
+    <div style="padding:8px 0;border-bottom:1px solid #302c24">
+      <div style="color:#ede8dc;font-size:13px;font-weight:700">${esc(n.name)||'Sem nome'}</div>
+      ${n.role?`<div style="color:#b8860b;font-size:11px;text-transform:uppercase;letter-spacing:.06em">${esc(n.role)}</div>`:''}
+      ${n.description?`<div style="color:#7a7060;font-size:12px;margin-top:3px;line-height:1.5">${esc(n.description)}</div>`:''}
+    </div>`).join('');
+
+  const locsHtml = c.locations.map(l=>`
+    <div style="padding:7px 0;border-bottom:1px solid #302c24;display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div>
+        <div style="color:#ede8dc;font-size:13px">${esc(l.name)}</div>
+        ${l.type?`<div style="color:#7a7060;font-size:11px">${esc(l.type)}</div>`:''}
+      </div>
+      ${dangerPill(l.danger)}
+    </div>`).join('');
+
+  const a = c.antagonist;
+  const antaHtml = a?.name ? `
+    <div class="mesa-card" style="border-color:#7f1d1d44">
+      <div class="mesa-card-title">☠ Antagonista</div>
+      <div class="serif ink" style="font-size:16px;font-weight:700;margin-bottom:8px">${esc(a.name)}</div>
+      ${a.nature?`<div style="color:#7a7060;font-size:12px;margin-bottom:4px"><span style="color:#c0392b">Natureza:</span> ${esc(a.nature)}</div>`:''}
+      ${a.motivation?`<div style="color:#7a7060;font-size:12px;margin-bottom:4px"><span style="color:#c0392b">Motivação:</span> ${esc(a.motivation)}</div>`:''}
+      ${a.power?`<div style="color:#7a7060;font-size:12px"><span style="color:#c0392b">Poder:</span> ${esc(a.power)}</div>`:''}
+    </div>` : '';
+
+  document.getElementById('mesa-body').innerHTML = `
+    ${s.synopsis?`<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:16px;margin-bottom:16px"><div class="mesa-card-title">Sinopse</div><p class="body-text" style="margin:0;font-style:italic">${nl(s.synopsis)}</p></div>`:''}
+    <div class="mesa-grid">
+      ${s.objectives?`<div class="mesa-card"><div class="mesa-card-title">🎯 Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
+      ${s.encounters?`<div class="mesa-card"><div class="mesa-card-title">⚔️ Encontros / Cenas</div><p class="body-text" style="margin:0">${nl(s.encounters)}</p></div>`:''}
+      <div class="mesa-card">
+        <div class="mesa-card-title">🔍 Pistas</div>
+        ${cluesHtml||'<div style="color:#7a7060;font-size:12px">Nenhuma pista cadastrada</div>'}
+      </div>
+      ${c.npcs.length?`<div class="mesa-card"><div class="mesa-card-title">👤 NPCs</div>${npcsHtml}</div>`:''}
+      ${c.locations.length?`<div class="mesa-card"><div class="mesa-card-title">📍 Locais</div>${locsHtml}</div>`:''}
+      ${s.rewards?`<div class="mesa-card"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0">${nl(s.rewards)}</p></div>`:''}
+      ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}
+      ${antaHtml}
+    </div>`;
+}
+
+function mesaSetStatus(st) {
+  const c = camps.find(x=>x.id===viewingId);
+  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
+  if (!s) return;
+  s.status = st; persist(); renderMesa();
+}
+function mesaToggleClue(clueId) {
+  const c = camps.find(x=>x.id===viewingId);
+  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
+  const cl = s?.clues?.find(x=>x.id===clueId);
+  if (!cl) return;
+  cl.found = !cl.found; persist(); renderMesa();
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function goList()   { view='list';   viewingId=null; editingId=null; activeDetailTab='overview'; render(); }
+function goCreate() { editingId=null; formData=blankCamp(); syncSessionsData(1); activeFormTab='info'; view='form'; render(); }
+function goDetail(id) { viewingId=id; activeDetailTab='overview'; view='detail'; render(); }
+function goEdit()   { editingId=viewingId; formData=JSON.parse(JSON.stringify(camps.find(c=>c.id===viewingId))); activeFormTab='info'; view='form'; render(); }
+function cancelForm(){ view = viewingId?'detail':'list'; render(); }
+
+function switchFormTab(tab) { saveFormState(); activeFormTab=tab; render(); }
+function switchDetailTab(tab) { activeDetailTab=tab; render(); }
+
+document.getElementById('logo-btn').addEventListener('click', goList);
+
+/* ═══════════════════════════════════════
+   FORM STATE SAVE (on tab switch)
+═══════════════════════════════════════ */
+function saveFormState() {
+  if (!formData) return;
+  // info tab
+  const t = v => document.getElementById(v);
+  if (t('f-title'))    formData.title    = t('f-title').value;
+  if (t('f-sessions')) { const n=parseInt(t('f-sessions').value)||1; syncSessionsData(n); formData.sessions=n; }
+  if (t('f-status'))   formData.status   = t('f-status').value;
+  if (t('f-nex'))      formData.nex      = t('f-nex').value;
+  if (t('f-synopsis')) formData.synopsis = t('f-synopsis').value;
+  if (t('f-notes'))    formData.notes    = t('f-notes').value;
+  // antagonist
+  if (t('a-name'))       formData.antagonist.name       = t('a-name').value;
+  if (t('a-nature'))     formData.antagonist.nature     = t('a-nature').value;
+  if (t('a-motivation')) formData.antagonist.motivation = t('a-motivation').value;
+  if (t('a-power'))      formData.antagonist.power      = t('a-power').value;
+}
+
+function saveForm() {
+  saveFormState();
+  if (!formData.title.trim()) { showToast('Insira um título para a campanha.','err'); return; }
+  if (editingId) {
+    const idx = camps.findIndex(c=>c.id===editingId);
+    if (idx>=0) camps[idx] = formData;
+  } else {
+    camps.unshift(formData);
+  }
+  persist();
+  viewingId = formData.id;
+  view = 'detail'; editingId=null; activeDetailTab='overview';
+  render(); showToast('Campanha salva!');
+}
+
+/* ═══════════════════════════════════════
+   ENTRY HELPERS
+═══════════════════════════════════════ */
+function toggleEntry(bodyId, arrowId) {
+  const b = document.getElementById(bodyId);
+  const a = document.getElementById(arrowId);
+  if (!b) return;
+  const open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : 'block';
+  if (a) a.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+
+function addEntry(type) {
+  saveFormState();
+  if (type==='npcs')      formData.npcs.push(blankNPC());
+  if (type==='locations') formData.locations.push(blankLoc());
+  if (type==='items')     formData.items.push(blankItem());
+  render();
+}
+function delEntry(type, id) {
+  saveFormState();
+  formData[type] = formData[type].filter(x=>x.id!==id);
+  render();
+}
+function setEntryField(type, id, field, val) {
+  const entry = (formData[type]||[]).find(x=>x.id===id);
+  if (entry) entry[field] = val;
+}
+
+function setSessField(sessId, field, val) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  if (s) s[field] = val;
+}
+function addClue(sessId) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  if (!s) return;
+  const cl = blankClue();
+  s.clues.push(cl);
+  const container = document.getElementById('clues-'+sessId);
+  if (container) {
+    const div = document.createElement('div');
+    div.id = 'clue-row-'+cl.id;
+    div.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-bottom:8px';
+    div.innerHTML=`<textarea rows="1" style="resize:none" placeholder="Descreva a pista..." onchange="setClue('${sessId}','${cl.id}',this.value)"></textarea><button class="btn-del" onclick="delClue('${sessId}','${cl.id}')">✕</button>`;
+    container.appendChild(div);
+  }
+}
+function setClue(sessId, clueId, val) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  const cl = s?.clues?.find(x=>x.id===clueId);
+  if (cl) cl.text = val;
+}
+function delClue(sessId, clueId) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  if (!s) return;
+  s.clues = s.clues.filter(x=>x.id!==clueId);
+  const row = document.getElementById('clue-row-'+clueId);
+  if (row) row.remove();
+}
+function syncSessionsData(n) {
+  const cur = formData.sessions_data || [];
+  if (n > cur.length) {
+    for (let i=cur.length; i<n; i++) cur.push(blankSess(i+1));
+  } else {
+    cur.splice(n);
+  }
+  formData.sessions_data = cur;
+  formData.sessions = n;
+}
+
+/* ═══════════════════════════════════════
+   DELETE
+═══════════════════════════════════════ */
+function askDelete(id) {
+  delTargetId = id;
+  document.getElementById('modal-del').style.display='flex';
+}
+function closeDelModal() { document.getElementById('modal-del').style.display='none'; }
+document.getElementById('btn-del-confirm').onclick = () => {
+  camps = camps.filter(c=>c.id!==delTargetId);
+  if (viewingId===delTargetId) { viewingId=null; view='list'; }
+  persist(); closeDelModal(); render();
+};
+
+/* ═══════════════════════════════════════
+   EXPORT / IMPORT JSON
+═══════════════════════════════════════ */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(camps,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'op-campanhas-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); showToast('JSON exportado!');
+}
+function importJSON(input) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const imp = JSON.parse(e.target.result);
+      if (!Array.isArray(imp)) throw 0;
+      const merged = [...imp, ...camps.filter(c=>!imp.find(i=>i.id===c.id))];
+      camps = merged; persist(); render();
+      showToast(imp.length+' campanha'+(imp.length!==1?'s':'')+' importada'+(imp.length!==1?'s':'')+'!');
+    } catch { showToast('Arquivo inválido.','err'); }
+  };
+  r.readAsText(f); input.value='';
+}
+
+/* ═══════════════════════════════════════
+   PDF EXPORT
+═══════════════════════════════════════ */
+function exportPDF() {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return;
+
+  const sc = (s,col='#c0392b') => `<div style="margin:28px 0 12px;padding-bottom:6px;border-bottom:2px solid ${col}22;display:flex;align-items:center;gap:10px"><span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block"></span><span style="font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:900;color:#ede8dc;text-transform:uppercase;letter-spacing:.04em">${s}</span></div>`;
+  const pill = (l,col) => `<span style="display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;background:${col}22;border:1px solid ${col}55;color:${col}">${l}</span>`;
+  const block = (l,v,col='#7a7060') => v ? `<div style="margin-bottom:10px"><div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:${col};font-weight:700;margin-bottom:3px">${l}</div><div style="color:#c8c0b8;font-size:13px;line-height:1.7;font-family:Georgia,serif">${nl(v)}</div></div>` : '';
+  const sColor = s => ({'Em Andamento':'#276749','Concluída':'#b8860b','Pausada':'#7a7060','Planejada':'#c0392b'}[s]||'#7a7060');
+  const dColor = d => ({'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'}[d]||'#7a7060');
+  const stColor= s => ({'Jogada':'#276749','Pulada':'#b8860b','Pendente':'#7a7060'}[s]||'#7a7060');
+  const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
+
+  const cover = `
+<div style="page-break-after:always;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:60px;background:linear-gradient(135deg,#0c0b09 60%,#1a0a08)">
+  <div style="font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#c0392b;margin-bottom:18px;font-family:'Share Tech Mono',monospace">☠ ORDEM PARANORMAL — DOSSIÊ DE CAMPANHA</div>
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:52px;font-weight:900;color:#ede8dc;line-height:1.05;margin-bottom:18px;max-width:680px">${esc(c.title||'Sem Título')}</div>
+  ${c.synopsis?`<div style="font-size:15px;color:#a09890;line-height:1.8;max-width:580px;font-style:italic;margin-bottom:28px;border-left:3px solid #c0392b;padding-left:16px;font-family:Georgia,serif">${nl(c.synopsis)}</div>`:''}
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px">
+    ${pill(c.status,sColor(c.status))} ${pill('NEX '+c.nex,'#7a7060')} ${pill(c.sessions+' sessão'+(c.sessions!==1?'s':''),'#7a7060')}
+  </div>
+  <div style="display:flex;gap:32px;flex-wrap:wrap;padding-top:28px;border-top:1px solid #2c2820">
+    ${[['NPCs',c.npcs.length],['Locais',c.locations.length],['Itens',c.items.length],['Sessões',c.sessions],['Jogadas',jogadas]].map(([l,v])=>`<div style="text-align:center"><div style="font-size:26px;color:#c0392b;font-weight:700;font-family:'Share Tech Mono',monospace">${v}</div><div style="font-size:9px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase;margin-top:2px">${l}</div></div>`).join('')}
+  </div>
+  <div style="margin-top:40px;font-size:10px;color:#302c24;font-family:'Share Tech Mono',monospace">Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
+</div>`;
+
+  const anta = c.antagonist?.name ? `
+${sc('Antagonista Principal','#c0392b')}
+<div style="background:#7f1d1d12;border:1px solid #7f1d1d55;border-left:4px solid #c0392b;border-radius:3px;padding:20px;margin-bottom:10px">
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:900;color:#ede8dc;margin-bottom:4px">${esc(c.antagonist.name)}</div>
+  ${c.antagonist.nature?`<div style="font-size:11px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">${esc(c.antagonist.nature)}</div>`:''}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    ${block('Motivação',c.antagonist.motivation)} ${block('Poder Paranormal',c.antagonist.power)}
+  </div>
+</div>` : '';
+
+  const npcs = c.npcs.length ? `
+${sc('NPCs','#b8860b')}
+${c.npcs.map(n=>`<div style="background:#141210;border:1px solid #b8860b33;border-radius:3px;padding:14px;margin-bottom:8px;page-break-inside:avoid">
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(n.name)}</div>
+  ${n.role?`<div style="font-size:10px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 8px">${esc(n.role)}</div>`:''}
+  ${n.description?`<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:${n.secret?'8px':'0'}">${nl(n.description)}</div>`:''}
+  ${n.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:7px 10px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px;line-height:1.6">${nl(n.secret)}</div></div>`:''}
+</div>`).join('')}` : '';
+
+  const locs = c.locations.length ? `
+${sc('Locais','#276749')}
+${c.locations.map(l=>`<div style="background:#141210;border:1px solid #27674933;border-radius:3px;padding:14px;margin-bottom:12px;page-break-inside:avoid">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+    <div><div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(l.name)}</div>${l.type?`<div style="font-size:10px;color:#7a7060;letter-spacing:.08em;text-transform:uppercase;margin-top:2px">${esc(l.type)}</div>`:''}</div>
+    ${pill(l.danger||'Baixo',dColor(l.danger||'Baixo'))}
+  </div>
+  ${l.description?`<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:${l.secret||l.rooms?.length?'8px':'0'}">${nl(l.description)}</div>`:''}
+  ${l.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:7px 10px;margin-bottom:${l.rooms?.length?'10px':'0'}"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px;line-height:1.5">${nl(l.secret)}</div></div>`:''}
+  ${(l.rooms||[]).length?`
+    <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#276749;font-weight:700;margin-bottom:8px">Cômodos</div>
+    ${(l.rooms||[]).map(r=>{
+      const dc2={'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'}[r.danger]||'#7a7060';
+      return `<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid ${dc2};border-radius:2px;padding:10px 12px;margin-bottom:6px">
+        <div style="font-weight:700;color:#ede8dc;font-size:13px;margin-bottom:4px">${esc(r.name)||'Sem nome'} <span style="font-size:10px;color:${dc2};font-weight:400;text-transform:uppercase;letter-spacing:.06em;margin-left:4px">${r.type} · ${r.danger}</span></div>
+        ${r.description?`<div style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:${r.atmosphere||r.secret||r.items?.length?'6px':'0'}">${nl(r.description)}</div>`:''}
+        ${r.atmosphere?`<div style="color:#7a7060;font-size:12px;font-style:italic;margin-bottom:${r.secret||r.items?.length?'6px':'0'}">🌫 ${esc(r.atmosphere)}</div>`:''}
+        ${r.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:5px 8px;margin-bottom:${r.items?.length?'6px':'0'}"><span style="font-size:9px;color:#c0392b;text-transform:uppercase;letter-spacing:.08em">🔒 </span><span style="color:#c0a0a0;font-size:12px">${esc(r.secret)}</span></div>`:''}
+        ${(r.items||[]).map(it=>{const col3=({objeto:'#7a7060',pista:'#b8860b',perigo:'#c0392b',npc:'#276749',passagem:'#0e7490',paranormal:'#7c3aed',nota:'#4a4440'})[it.cat]||'#7a7060';return`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #1c1a16;align-items:flex-start"><span style="font-size:12px;flex-shrink:0">${({objeto:'📦',pista:'🔍',perigo:'⚠️',npc:'👤',passagem:'🚪',paranormal:'👁',nota:'📝'})[it.cat]||'📦'}</span><div style="flex:1"><div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(it.name)}</div>${it.desc?`<div style="color:#9a9088;font-size:11px;line-height:1.5">${esc(it.desc)}</div>`:''}${it.secret?`<div style="color:#c0392b;font-size:11px">🔒 ${esc(it.secret)}</div>`:''}</div><span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${col3}22;border:1px solid ${col3}44;color:${col3};text-transform:uppercase;flex-shrink:0">${it.cat}</span></div>`;}).join('')}
+      </div>`;
+    }).join('')}`:''}
+</div>`).join('')}` : '';
+
+  const items = c.items.length ? `
+${sc('Itens & Artefatos','#7c3aed')}
+${c.items.map(i=>`<div style="background:#141210;border:1px solid #7c3aed33;border-radius:3px;padding:14px;margin-bottom:8px;page-break-inside:avoid">
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(i.name)}</div>
+  ${i.type?`<div style="font-size:10px;color:#a78bfa;letter-spacing:.08em;text-transform:uppercase;margin:2px 0 8px">${esc(i.type)}</div>`:''}
+  ${i.description?`<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:${i.effect?'8px':'0'}">${nl(i.description)}</div>`:''}
+  ${i.effect?`<div style="background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:7px 10px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Efeito</div><div style="color:#c4b5fd;font-size:12px;line-height:1.6">${nl(i.effect)}</div></div>`:''}
+</div>`).join('')}` : '';
+
+  const sessions = c.sessions_data.length ? `
+${sc('Sessões','#c0392b')}
+${c.sessions_data.map(s=>`<div style="background:#141210;border:1px solid #2c2820;border-radius:3px;margin-bottom:14px;overflow:hidden;page-break-inside:avoid">
+  <div style="background:linear-gradient(135deg,#1a1814,#c0392b12);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #302c24">
+    <div style="width:38px;height:38px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace;flex-shrink:0">${String(s.number).padStart(2,'0')}</div>
+    <div style="flex:1"><div style="font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#ede8dc">${esc(s.title||'Sem título')}</div></div>
+    ${pill(s.status||'Pendente',stColor(s.status))}
+  </div>
+  <div style="padding:14px 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      ${block('Sinopse',s.synopsis)} ${block('Objetivos',s.objectives)} ${block('Encontros / Cenas',s.encounters)} ${block('Recompensas',s.rewards)}
+    </div>
+    ${s.clues?.length?`<div style="margin-top:10px"><div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:6px">🔍 Pistas</div>${s.clues.map(cl=>`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #1c1a16"><span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:12px;flex-shrink:0;margin-top:1px">${cl.found?'✓':'○'}</span><span style="color:${cl.found?'#7a7060':'#c8c0b8'};font-size:12px;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)}</span></div>`).join('')}</div>`:''}
+    ${s.notes?`<div style="margin-top:10px;padding:8px 12px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px"><div style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">📝 Notas do Mestre</div><div style="color:#d4b26a;font-size:12px;line-height:1.6">${nl(s.notes)}</div></div>`:''}
+  </div>
+</div>`).join('')}` : '';
+
+  const notes = c.notes ? `
+${sc('Notas Gerais','#7a7060')}
+<div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px"><div style="color:#c0b8b0;font-size:13px;line-height:1.8;font-family:Georgia,serif;white-space:pre-wrap">${esc(c.notes)}</div></div>` : '';
+
   const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8"/>
-<title>${c.title||"Campanha"} — Ordem Paranormal</title>
+<html lang="pt-BR"><head><meta charset="UTF-8"/>
+<title>${esc(c.title||'Campanha')} — Ordem Paranormal</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#0c0b09;color:#d6d0c4;font-family:'Share Tech Mono','Courier New',monospace;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .content{max-width:820px;margin:0 auto;padding:0 40px 60px}
-  @media print{
-    body{background:#0c0b09}
-    @page{size:A4;margin:0}
-    .no-break{page-break-inside:avoid}
-  }
-</style>
-</head>
-<body>
+  .wrap{max-width:800px;margin:0 auto;padding:0 40px 60px}
+  @media print{@page{size:A4;margin:10mm} body{background:#0c0b09}}
+</style></head><body>
 ${cover}
-<div class="content">
-  ${antagonistSection}
-  ${npcsSection}
-  ${locsSection}
-  ${itemsSection}
-  ${sessionsSection}
-  ${notesSection}
-</div>
-<script>
-  // wait for fonts then print
-  document.fonts.ready.then(()=>{
-    setTimeout(()=>{ window.print(); },400);
-  });
-<\/script>
-</body>
-</html>`;
+<div class="wrap">${anta}${npcs}${locs}${items}${sessions}${notes}</div>
+</body></html>`;
 
-  const win = window.open("","_blank","width=900,height=700");
-  if (!win) { alert("Permita pop-ups para exportar o PDF."); return; }
-  win.document.write(html);
-  win.document.close();
+  const w = window.open('','_blank','width=900,height=700');
+  if (!w) { showToast('Habilite pop-ups para exportar PDF.','err'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.onload = () => setTimeout(() => w.print(), 500);
 }
 
-/* ── ROOT ──────────────────────────────────────────────────── */
-function App(){
-  const [camps,setCamps]=useState(()=>load());
-  const [view,setView]=useState("list");
-  const [editing,setEditing]=useState(null);
-  const [viewing,setViewing]=useState(null);
-  const [mesaId,setMesaId]=useState(null);
-  const [delConfirm,setDelConfirm]=useState(null);
-  const [toast,setToast]=useState(null);
+/* ═══════════════════════════════════════
+   LOCATIONS WITH ROOMS & ELEMENTS
+═══════════════════════════════════════ */
+const ROOM_ICONS = {sala:'🛋',quarto:'🛏',cozinha:'🍳',banheiro:'🚿',jardim:'🌿',garagem:'🚗',corredor:'🚪',porao:'🕯',sotao:'🕷',escritorio:'💼',laboratorio:'⚗️',deposito:'📦',outro:'📍'};
+const ITEM_ICONS = {objeto:'📦',pista:'🔍',perigo:'⚠️',npc:'👤',passagem:'🚪',paranormal:'👁',nota:'📝'};
+const ITEM_COLORS= {objeto:'#7a7060',pista:'#b8860b',perigo:'#c0392b',npc:'#276749',passagem:'#0e7490',paranormal:'#7c3aed',nota:'#4a4440'};
 
-  const persist=(d)=>{setCamps(d);save(d);};
-  const showToast=(msg,type="ok")=>{setToast({msg,type});setTimeout(()=>setToast(null),2500);};
+function blankRoom(n){return{id:uid(),name:'',type:'sala',description:'',atmosphere:'',secret:'',danger:'Sem Perigo',items:[],_open:false};}
+function blankElement(){return{id:uid(),name:'',cat:'objeto',desc:'',secret:''};}
 
-  const handleSave=(data)=>{
-    const next=camps.find(c=>c.id===data.id)?camps.map(c=>c.id===data.id?data:c):[data,...camps];
-    persist(next);setViewing(data.id);setEditing(null);setView("detail");
-  };
-  const confirmDel=()=>{
-    const next=camps.filter(c=>c.id!==delConfirm);
-    persist(next);
-    if(viewing===delConfirm){setView("list");setViewing(null);}
-    setDelConfirm(null);
-  };
-  const updateSess=(updSess)=>{
-    const next=camps.map(c=>c.id!==viewing?c:{...c,sessions_data:c.sessions_data.map(s=>s.id===updSess.id?updSess:s)});
-    persist(next);
-  };
-  const handleExport=()=>{
-    const blob=new Blob([JSON.stringify(camps,null,2)],{type:"application/json"});
-    const a=document.createElement("a");a.href=URL.createObjectURL(blob);
-    a.download=`op-campanhas-${new Date().toISOString().slice(0,10)}.json`;a.click();
-    showToast("Campanhas exportadas!");
-  };
-  const handleImport=(text)=>{
-    try{
-      const imp=JSON.parse(text);
-      if(!Array.isArray(imp))throw 0;
-      const merged=[...imp,...camps.filter(c=>!imp.find(i=>i.id===c.id))];
-      persist(merged);showToast(`${imp.length} campanha${imp.length!==1?"s":""} importada${imp.length!==1?"s":""}!`);
-    }catch{showToast("Arquivo inválido.","err");}
-  };
-
-  const exportToPDF=(camp)=>{
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
-    const W=210, M=18, TW=W-M*2;
-    let y=M;
-    const RED=[192,57,43], GOLD=[184,134,11], DARK=[20,18,16], MID=[122,112,96], LIGHT=[237,232,220];
-
-    const checkPage=(need=10)=>{ if(y+need>285){doc.addPage();y=M;} };
-
-    const heading=(text,size=18,color=RED)=>{
-      checkPage(size*0.5+6);
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(size);
-      doc.setTextColor(...color);
-      doc.text(text,M,y);
-      y+=size*0.45;
-    };
-    const subhead=(text,size=12,color=GOLD)=>{
-      checkPage(size*0.5+5);
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(size);
-      doc.setTextColor(...color);
-      doc.text(text,M,y);
-      y+=size*0.45+2;
-    };
-    const body=(text,indent=0,color=LIGHT)=>{
-      if(!text||!text.trim())return;
-      checkPage(8);
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
-      doc.setTextColor(...color);
-      const lines=doc.splitTextToSize(text,TW-indent);
-      lines.forEach(line=>{ checkPage(5); doc.text(line,M+indent,y); y+=4.5; });
-      y+=1;
-    };
-    const label=(text,val,indent=0)=>{
-      if(!val||!val.trim())return;
-      checkPage(8);
-      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...MID);
-      doc.text((text+':').toUpperCase(),M+indent,y);
-      doc.setFont('helvetica','normal'); doc.setTextColor(...LIGHT);
-      const lines=doc.splitTextToSize(val,TW-indent-28);
-      doc.text(lines[0],M+indent+28,y); y+=4.5;
-      for(let i=1;i<lines.length;i++){checkPage(5);doc.text(lines[i],M+indent+28,y);y+=4.5;}
-      y+=0.5;
-    };
-    const divider=(color=DARK)=>{ checkPage(4); doc.setDrawColor(...color); doc.setLineWidth(0.3); doc.line(M,y,W-M,y); y+=4; };
-    const badge=(text,x,yy,color=RED)=>{ doc.setFillColor(...color); doc.roundedRect(x,yy-3.5,doc.getTextWidth(text)+4,5,1,1,'F'); doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text(text,x+2,yy); };
-    const secretBox=(text)=>{
-      if(!text||!text.trim())return;
-      checkPage(12);
-      doc.setFillColor(80,10,10); doc.setDrawColor(...RED);
-      const lines=doc.splitTextToSize(text,TW-8);
-      const h=lines.length*4.5+8;
-      doc.roundedRect(M,y-2,TW,h,1,1,'FD');
-      doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...RED);
-      doc.text('SEGREDO',M+3,y+2.5);
-      doc.setFont('helvetica','normal'); doc.setTextColor(220,160,160);
-      lines.forEach((line,i)=>{ doc.text(line,M+3,y+7+i*4.5); });
-      y+=h+3;
-    };
-
-    // ── COVER PAGE ──────────────────────────────────────────────────────────
-    doc.setFillColor(12,11,9);
-    doc.rect(0,0,W,297,'F');
-    doc.setFillColor(...RED);
-    doc.rect(0,0,W,2,'F');
-    doc.setFillColor(20,18,16);
-    doc.rect(0,2,W,60,'F');
-
-    doc.setFont('helvetica','bold'); doc.setFontSize(28); doc.setTextColor(...LIGHT);
-    const titleLines=doc.splitTextToSize(camp.title||'Sem Título',TW);
-    let ty=30;
-    titleLines.forEach(line=>{ doc.text(line,M,ty); ty+=12; });
-
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...MID);
-    doc.text('ORDEM PARANORMAL  ·  CAMPANHA',M,ty+4);
-
-    y=80;
-    if(camp.synopsis){ doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(...LIGHT); const sl=doc.splitTextToSize(camp.synopsis,TW); sl.forEach(l=>{doc.text(l,M,y);y+=5;}); y+=4; }
-
-    // meta strip
-    const meta=[['STATUS',camp.status||'—'],['NEX',camp.nex||'—'],['SESSÕES',String(camp.sessions||0)],['NPCS',String(camp.npcs?.length||0)],['LOCAIS',String(camp.locations?.length||0)],['ITENS',String(camp.items?.length||0)]];
-    y+=4; divider(RED);
-    meta.forEach(([k,v],i)=>{ label(k,v,i%2===0?0:TW/2); if(i%2===0&&i<meta.length-1)y-=5; });
-    y+=4; divider(RED);
-
-    // ── ANTAGONISTA ───────────────────────────────────────────────────────
-    const anta=camp.antagonist;
-    if(anta?.name){ doc.addPage(); y=M; heading('ANTAGONISTA PRINCIPAL',16,RED); divider(); label('Nome',anta.name); label('Natureza',anta.nature); body(anta.motivation&&'Motivação: '+anta.motivation); body(anta.power&&'Poder: '+anta.power); y+=4; }
-
-    // ── NPCS ──────────────────────────────────────────────────────────────
-    if(camp.npcs?.length){ doc.addPage(); y=M; heading('NPCs',16,GOLD); divider();
-      camp.npcs.forEach((n,i)=>{
-        checkPage(20); subhead((i+1)+'. '+(n.name||'Sem nome'),12,LIGHT);
-        if(n.role){ doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...GOLD);doc.text(n.role.toUpperCase(),M,y);y+=5; }
-        body(n.description,4); secretBox(n.secret); y+=2; divider([40,36,32]);
-      });
-    }
-
-    // ── LOCAIS ────────────────────────────────────────────────────────────
-    if(camp.locations?.length){ doc.addPage(); y=M; heading('LOCAIS',16,[14,134,116]); divider();
-      camp.locations.forEach((l,i)=>{
-        checkPage(20); subhead((i+1)+'. '+(l.name||'Sem nome'),12,LIGHT);
-        label('Tipo',l.type,4); label('Perigo',l.danger,4);
-        body(l.description,4); y+=2; divider([40,36,32]);
-      });
-    }
-
-    // ── ITENS ─────────────────────────────────────────────────────────────
-    if(camp.items?.length){ doc.addPage(); y=M; heading('ITENS',16,[124,58,237]); divider();
-      camp.items.forEach((item,i)=>{
-        checkPage(20); subhead((i+1)+'. '+(item.name||'Sem nome'),12,LIGHT);
-        if(item.type){ doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(167,139,250);doc.text(item.type.toUpperCase(),M,y);y+=5; }
-        body(item.description,4); if(item.effect){checkPage(8);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(167,139,250);doc.text('EFEITO:',M+4,y);doc.setFont('helvetica','normal');doc.setTextColor(...LIGHT);const el=doc.splitTextToSize(item.effect,TW-20);doc.text(el[0],M+22,y);y+=5;for(let i2=1;i2<el.length;i2++){checkPage(5);doc.text(el[i2],M+22,y);y+=4.5;}} y+=2; divider([40,36,32]);
-      });
-    }
-
-    // ── SESSÕES ───────────────────────────────────────────────────────────
-    if(camp.sessions_data?.length){
-      camp.sessions_data.forEach(sess=>{
-        doc.addPage(); y=M;
-        // session header
-        doc.setFillColor(20,18,16); doc.rect(0,0,W,24,'F');
-        doc.setFillColor(...RED); doc.rect(0,0,5,24,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MID);
-        doc.text('SESSÃO '+String(sess.number).padStart(2,'0'),8,10);
-        const statusColors={Jogada:[39,103,73],Pulada:[184,134,11],Pendente:[122,112,96]};
-        const sc=statusColors[sess.status]||statusColors.Pendente;
-        badge(sess.status||'Pendente',W-M-30,10,sc);
-        doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...LIGHT);
-        doc.text(sess.title||'Sessão '+sess.number,8,19);
-        y=32;
-        body(sess.synopsis);
-        if(sess.objectives){ subhead('OBJETIVOS',9,GOLD); body(sess.objectives,4); }
-        if(sess.encounters){ subhead('ENCONTROS / CENAS',9,GOLD); body(sess.encounters,4); }
-        if(sess.rewards){ subhead('RECOMPENSAS',9,GOLD); body(sess.rewards,4); }
-        if(sess.clues?.length){
-          subhead('PISTAS',9,GOLD);
-          sess.clues.forEach(c=>{
-            checkPage(6);
-            const mark=c.found?'[✓]':'[ ]';
-            doc.setFont('helvetica',c.found?'italic':'normal'); doc.setFontSize(9);
-            doc.setTextColor(c.found?...MID:...LIGHT);
-            const lines=doc.splitTextToSize(mark+' '+c.text,TW-6);
-            lines.forEach(line=>{checkPage(5);doc.text(line,M+4,y);y+=4.5;});
-          });
-          y+=2;
-        }
-        if(sess.notes){ checkPage(14); doc.setFillColor(20,16,8); doc.setDrawColor(...GOLD); const noteLines=doc.splitTextToSize(sess.notes,TW-8); const nh=noteLines.length*4.5+10; doc.roundedRect(M,y-2,TW,nh,1,1,'FD'); doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...GOLD);doc.text('NOTAS DO MESTRE',M+3,y+3); doc.setFont('helvetica','normal');doc.setTextColor(212,178,106); noteLines.forEach((line,i)=>{doc.text(line,M+3,y+8+i*4.5);}); y+=nh+3; }
-      });
-    }
-
-    // ── NOTAS GERAIS ──────────────────────────────────────────────────────
-    if(camp.notes?.trim()){ doc.addPage(); y=M; heading('NOTAS GERAIS',16,MID); divider(); body(camp.notes); }
-
-    // page numbers
-    const pages=doc.getNumberOfPages();
-    for(let i=1;i<=pages;i++){
-      doc.setPage(i);
-      doc.setFillColor(12,11,9); doc.rect(0,290,W,7,'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MID);
-      doc.text('ORDEM PARANORMAL  ·  '+( camp.title||'' ).toUpperCase(),M,295);
-      doc.text(i+'/'+pages,W-M,295,{align:'right'});
-    }
-
-    doc.save((camp.title||'campanha').replace(/\s+/g,'_')+'.pdf');
-    showToast('PDF exportado!');
-  };
-
-
-  const current=camps.find(c=>c.id===(editing||viewing));
-  const formInit=editing?current:blankCamp();
-
-  return(
-    <div>
-      <div className="topbar">
-        <button style={{background:"none",border:"none",display:"flex",alignItems:"center",gap:10}} onClick={()=>setView("list")}>
-          <div style={{width:28,height:28,borderRadius:2,background:"#c0392b20",border:"1px solid #c0392b44",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>☠</div>
-          <span className="serif" style={{fontSize:16,color:"#ede8dc",fontWeight:700,letterSpacing:".03em"}}>Ordem Paranormal</span>
-        </button>
-        {view!=="list"&&<><span style={{color:"#302c24"}}>›</span><span className="muted" style={{fontSize:12,letterSpacing:".08em",textTransform:"uppercase",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:200}}>{view==="form"?(editing?"Editando":"Nova Campanha"):view==="detail"?(current?.title||"Campanha"):""}</span></>}
-        <div style={{flex:1}}/>
-        <span style={{color:"#302c24",fontSize:11}}>{camps.length} campanha{camps.length!==1?"s":""}</span>
+// ── Form: location card with rooms ─────────────────────────────
+function renderLocCard(l, idx) {
+  const open = idx===0;
+  const roomsHtml = (l.rooms||[]).map((r,ri)=>renderRoomForm(l.id,r,ri)).join('');
+  return `
+  <div class="entry-card" id="lc-${l.id}">
+    <div class="entry-head" onclick="toggleEntry('lb-${l.id}','la-${l.id}')">
+      <span class="entry-arrow" id="la-${l.id}" style="transform:${open?'rotate(90deg)':'rotate(0)'}">▶</span>
+      <div style="flex:1;min-width:0">
+        <div style="color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.name)||'<em style="color:#7a7060">Sem nome</em>'}</div>
+        ${l.type?`<div style="color:#7a7060;font-size:11px;margin-top:2px">${esc(l.type)} · ${(l.rooms||[]).length} cômodo${(l.rooms||[]).length!==1?'s':''}</div>`:''}
       </div>
-      <div className="main">
-        {view==="list"&&<CampaignList campaigns={camps} onSelect={id=>{setViewing(id);setView("detail");}} onCreate={()=>{setEditing(null);setView("form");}} onDelete={id=>setDelConfirm(id)} onExport={handleExport} onImport={handleImport}/>}
-        {view==="form"&&formInit&&<CampaignForm key={formInit.id} initial={formInit} onSave={handleSave} onCancel={()=>setView(viewing?"detail":"list")}/>}
-        {view==="detail"&&current&&<CampaignViewer campaign={current} onEdit={()=>{setEditing(viewing);setView("form");}} onBack={()=>setView("list")} onOpenMesa={id=>setMesaId(id)} onExportPDF={()=>exportToPDF(current)}/>}
-      </div>
-      {mesaId&&current&&<ModoMesa campaign={current} sessionId={mesaId} onClose={()=>setMesaId(null)} onUpdateSession={updateSess}/>}
-      {delConfirm&&(
-        <div className="modal-overlay fade-in">
-          <div className="modal-box">
-            <div style={{fontSize:32,marginBottom:12}}>⚠️</div>
-            <div className="serif ink" style={{fontSize:18,marginBottom:8}}>Excluir campanha?</div>
-            <p className="muted" style={{fontSize:13,lineHeight:1.6,marginBottom:20}}>Essa ação não pode ser desfeita.</p>
-            <div style={{display:"flex",gap:10,justifyContent:"center"}}>
-              <button className="ghost-btn" onClick={()=>setDelConfirm(null)}>Cancelar</button>
-              <button className="primary-btn" onClick={confirmDel}>Excluir</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {toast&&(
-        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:toast.type==="err"?"#7f1d1d":"#1a2e1a",border:`1px solid ${toast.type==="err"?"#c0392b":"#276749"}`,color:toast.type==="err"?"#fca5a5":"#86efac",padding:"10px 20px",borderRadius:3,fontSize:13,zIndex:999,animation:"fadeIn .2s ease",whiteSpace:"nowrap"}}>
-          {toast.msg}
-        </div>
-      )}
+      ${dangerPill(l.danger)}
+      <button class="btn-del" onclick="event.stopPropagation();delEntry('locations','${l.id}')">✕</button>
     </div>
-  );
+    <div class="entry-body" id="lb-${l.id}" style="display:${open?'block':'none'}">
+      <div class="grid2" style="margin-bottom:16px">
+        ${fieldHtml('Nome','<input value="'+esc(l.name)+'" oninput="setEntryField(\'locations\',\''+l.id+'\',\'name\',this.value)" placeholder="Ex: Casa do Augusto"/>')}
+        ${fieldHtml('Tipo','<input value="'+esc(l.type)+'" oninput="setEntryField(\'locations\',\''+l.id+'\',\'type\',this.value)" placeholder="Ex: Residência, Fábrica"/>')}
+        <div class="span2">${fieldHtml('Descrição Geral','<textarea rows="3" oninput="setEntryField(\'locations\',\''+l.id+'\',\'description\',this.value)" placeholder="Aparência externa, atmosfera, histórico...">'+esc(l.description)+'</textarea>')}</div>
+        <div class="span2">${fieldHtml('Segredo','<textarea rows="2" oninput="setEntryField(\'locations\',\''+l.id+'\',\'secret\',this.value)" placeholder="O que só o mestre sabe...">'+esc(l.secret)+'</textarea>','(só o mestre vê)')}</div>
+        ${fieldHtml('Nível de Perigo','<select onchange="setEntryField(\'locations\',\''+l.id+'\',\'danger\',this.value)">'+['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===l.danger?' selected':''}>${d}</option>`).join('')+'</select>')}
+      </div>
+      <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">Cômodos <span style="flex:1;height:1px;background:#302c24;display:block"></span></div>
+      <div id="rooms-${l.id}">${roomsHtml}</div>
+      <button class="btn-add" onclick="addRoom('${l.id}')">+ Adicionar Cômodo</button>
+    </div>
+  </div>`;
 }
-ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+
+function renderRoomForm(locId, r, idx) {
+  const icon = ROOM_ICONS[r.type]||'📍';
+  const open = r._open || idx===0;
+  const itemsHtml = (r.items||[]).map(it=>renderElementForm(locId,r.id,it)).join('');
+  return `
+  <div style="border:1px solid #2c2820;border-radius:2px;background:#0f0e0c;margin-bottom:8px;overflow:hidden" id="rf-${r.id}">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:#141210" onclick="toggleEntry('rb-${r.id}','ra-${r.id}')">
+      <span id="ra-${r.id}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block;transform:${open?'rotate(90deg)':'rotate(0)'}">▶</span>
+      <span style="font-size:16px">${icon}</span>
+      <span style="color:#ede8dc;font-size:13px;flex:1">${esc(r.name)||'<em style="color:#7a7060">Novo cômodo</em>'}</span>
+      <span style="color:#7a7060;font-size:11px">${(r.items||[]).length} elem.</span>
+      <button class="btn-del" style="width:22px;height:22px;font-size:12px" onclick="event.stopPropagation();delRoom('${locId}','${r.id}')">✕</button>
+    </div>
+    <div id="rb-${r.id}" style="display:${open?'block':'none'};padding:12px">
+      <div class="grid2">
+        ${fieldHtml('Nome','<input value="'+esc(r.name)+'" oninput="setRoomField(\''+locId+'\',\''+r.id+'\',\'name\',this.value)" placeholder="Ex: Sala de Estar"/>')}
+        ${fieldHtml('Tipo','<select onchange="setRoomField(\''+locId+'\',\''+r.id+'\',\'type\',this.value)">'+Object.entries(ROOM_ICONS).map(([k,v])=>`<option value="${k}"${k===r.type?' selected':''}>${v} ${k.charAt(0).toUpperCase()+k.slice(1)}</option>`).join('')+'</select>')}
+        <div class="span2">${fieldHtml('Descrição','<textarea rows="3" oninput="setRoomField(\''+locId+'\',\''+r.id+'\',\'description\',this.value)" placeholder="O que os agentes veem ao entrar...">'+esc(r.description)+'</textarea>')}</div>
+        ${fieldHtml('Atmosfera / Sensação','<input value="'+esc(r.atmosphere)+'" oninput="setRoomField(\''+locId+'\',\''+r.id+'\',\'atmosphere\',this.value)" placeholder="Ex: Cheiro de mofo, silêncio opressivo..."/>')}
+        ${fieldHtml('Nível de Perigo','<select onchange="setRoomField(\''+locId+'\',\''+r.id+'\',\'danger\',this.value)">'+['Sem Perigo','Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===r.danger?' selected':''}>${d}</option>`).join('')+'</select>')}
+        <div class="span2">${fieldHtml('Segredo','<textarea rows="2" oninput="setRoomField(\''+locId+'\',\''+r.id+'\',\'secret\',this.value)" placeholder="O que está escondido aqui?">'+esc(r.secret)+'</textarea>','(só o mestre vê)')}</div>
+      </div>
+      <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#7a7060;font-weight:700;margin:10px 0 8px">Elementos do Cômodo</div>
+      <div id="elems-${r.id}">${itemsHtml}</div>
+      <button class="btn-add" style="margin-top:4px" onclick="addElement('${locId}','${r.id}')">+ Adicionar Elemento</button>
+    </div>
+  </div>`;
+}
+
+function renderElementForm(locId, roomId, it) {
+  const ic = ITEM_ICONS[it.cat]||'📦';
+  const col = ITEM_COLORS[it.cat]||'#7a7060';
+  return `
+  <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;padding:8px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="ef-${it.id}">
+    <span style="font-size:14px;flex-shrink:0;margin-top:2px">${ic}</span>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input value="${esc(it.name)}" oninput="setElemField('${locId}','${roomId}','${it.id}','name',this.value)" placeholder="Nome do elemento" style="flex:1"/>
+        <select onchange="setElemField('${locId}','${roomId}','${it.id}','cat',this.value)" style="width:130px">
+          ${Object.entries(ITEM_ICONS).map(([k,v])=>`<option value="${k}"${k===it.cat?' selected':''}>${v} ${k.charAt(0).toUpperCase()+k.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <input value="${esc(it.desc)}" oninput="setElemField('${locId}','${roomId}','${it.id}','desc',this.value)" placeholder="Descrição..." style="margin-bottom:4px"/>
+      <input value="${esc(it.secret)}" oninput="setElemField('${locId}','${roomId}','${it.id}','secret',this.value)" placeholder="🔒 Info oculta (só mestre)..." style="font-size:11px;color:#c0a0a0;border-color:#7f1d1d33"/>
+    </div>
+    <button class="btn-del" style="margin-top:2px" onclick="delElement('${locId}','${roomId}','${it.id}')">✕</button>
+  </div>`;
+}
+
+// ── Detail view: location with rooms ──────────────────────────
+function renderLocDetailCard(l) {
+  const rooms = l.rooms||[];
+  const dangerColors={'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
+  const totalElems = rooms.reduce((a,r)=>a+(r.items||[]).length,0);
+  return `
+  <div class="loc-card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div class="serif ink" style="font-size:17px;font-weight:700">${esc(l.name)}</div>
+        ${l.type?`<span class="muted" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">${esc(l.type)}</span>`:''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        ${dangerPill(l.danger)}
+        <span class="muted" style="font-size:11px">${rooms.length} cômodo${rooms.length!==1?'s':''} · ${totalElems} elem.</span>
+      </div>
+    </div>
+    ${l.description?`<p class="body-text" style="margin-bottom:${l.secret?'10px':'12px'}">${nl(l.description)}</p>`:''}
+    ${l.secret?`<div class="secret-box" style="margin-bottom:12px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🔒 Segredo</div><p style="color:#c0a0a0;font-size:12px;line-height:1.6;margin:0">${nl(l.secret)}</p></div>`:''}
+    ${rooms.length===0?`<div style="color:#4a4440;font-size:12px;text-align:center;padding:12px;border:1px dashed #302c24;border-radius:2px">Nenhum cômodo cadastrado</div>`:
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+        ${rooms.map(r=>{
+          const ic=ROOM_ICONS[r.type]||'📍';
+          const dc=dangerColors[r.danger]||'#7a7060';
+          return `
+          <div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;overflow:hidden">
+            <div style="padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="toggleEntry('rd-${r.id}','ra2-${r.id}')">
+              <span id="ra2-${r.id}" style="color:#7a7060;font-size:10px;display:inline-block;transition:transform .2s;transform:${r._open?'rotate(90deg)':'rotate(0)'}">▶</span>
+              <span style="font-size:16px">${ic}</span>
+              <div style="flex:1;min-width:0">
+                <div style="color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)||'Sem nome'}</div>
+                <div style="color:${dc};font-size:10px;text-transform:uppercase;letter-spacing:.06em">${r.type} · ${r.danger}</div>
+              </div>
+              <span style="color:#7a7060;font-size:11px;flex-shrink:0">${(r.items||[]).length} elem.</span>
+            </div>
+            <div id="rd-${r.id}" style="display:${r._open?'block':'none'};padding:0 12px 12px">
+              ${r.description?`<p class="body-text" style="margin-bottom:8px">${nl(r.description)}</p>`:''}
+              ${r.atmosphere?`<div style="color:#7a7060;font-size:12px;font-style:italic;padding:6px 8px;border-left:2px solid #302c24;margin-bottom:8px">🌫 ${esc(r.atmosphere)}</div>`:''}
+              ${r.secret?`<div class="secret-box" style="margin-bottom:8px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">🔒 Segredo</div><p style="color:#c0a0a0;font-size:12px;line-height:1.5;margin:0">${nl(r.secret)}</p></div>`:''}
+              ${(r.items||[]).length===0?`<div style="color:#4a4440;font-size:12px">Nenhum elemento.</div>`:
+                (r.items||[]).map(it=>{
+                  const ic2=ITEM_ICONS[it.cat]||'📦'; const col2=ITEM_COLORS[it.cat]||'#7a7060';
+                  return `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #1c1a16">
+                    <span style="font-size:13px;flex-shrink:0">${ic2}</span>
+                    <div style="flex:1">
+                      <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(it.name)}</div>
+                      ${it.desc?`<div style="color:#9a9088;font-size:12px;line-height:1.5">${nl(it.desc)}</div>`:''}
+                      ${it.secret?`<div style="color:#c0392b;font-size:11px;margin-top:2px">🔒 ${esc(it.secret)}</div>`:''}
+                    </div>
+                    <span style="font-size:9px;padding:1px 6px;border-radius:2px;background:${col2}22;border:1px solid ${col2}44;color:${col2};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${it.cat}</span>
+                  </div>`;
+                }).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`}
+  </div>`;
+}
+
+// ── Location/Room/Element mutations ───────────────────────────
+function addLoc() {
+  saveFormState();
+  formData.locations.push({id:uid(),name:'',type:'',description:'',secret:'',danger:'Baixo',rooms:[]});
+  render();
+}
+function addRoom(locId) {
+  const l = formData.locations.find(x=>x.id===locId);
+  if (!l) return;
+  if (!l.rooms) l.rooms=[];
+  const r = blankRoom();
+  r._open = true;
+  l.rooms.push(r);
+  const container = document.getElementById('rooms-'+locId);
+  if (container) {
+    const div = document.createElement('div');
+    div.innerHTML = renderRoomForm(locId, r, l.rooms.length-1);
+    container.appendChild(div.firstElementChild);
+  }
+}
+function delRoom(locId, roomId) {
+  const l = formData.locations.find(x=>x.id===locId);
+  if (!l) return;
+  l.rooms = (l.rooms||[]).filter(r=>r.id!==roomId);
+  const el = document.getElementById('rf-'+roomId);
+  if (el) el.remove();
+}
+function setRoomField(locId, roomId, field, val) {
+  const l = formData.locations.find(x=>x.id===locId);
+  const r = (l?.rooms||[]).find(x=>x.id===roomId);
+  if (r) r[field] = val;
+}
+function addElement(locId, roomId) {
+  const l = formData.locations.find(x=>x.id===locId);
+  const r = (l?.rooms||[]).find(x=>x.id===roomId);
+  if (!r) return;
+  if (!r.items) r.items=[];
+  const it = blankElement();
+  r.items.push(it);
+  const container = document.getElementById('elems-'+roomId);
+  if (container) {
+    const div = document.createElement('div');
+    div.innerHTML = renderElementForm(locId, roomId, it);
+    container.appendChild(div.firstElementChild);
+  }
+}
+function setElemField(locId, roomId, itemId, field, val) {
+  const l = formData.locations.find(x=>x.id===locId);
+  const r = (l?.rooms||[]).find(x=>x.id===roomId);
+  const it = (r?.items||[]).find(x=>x.id===itemId);
+  if (it) it[field] = val;
+}
+function delElement(locId, roomId, itemId) {
+  const l = formData.locations.find(x=>x.id===locId);
+  const r = (l?.rooms||[]).find(x=>x.id===roomId);
+  if (!r) return;
+  r.items = (r.items||[]).filter(x=>x.id!==itemId);
+  const el = document.getElementById('ef-'+itemId);
+  if (el) el.remove();
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let _toastT;
+function showToast(msg, type='ok') {
+  clearTimeout(_toastT);
+  let el = document.getElementById('_toast');
+  if (!el) { el=document.createElement('div'); el.id='_toast'; el.className='toast'; document.body.appendChild(el); }
+  el.textContent = msg;
+  el.style.background = type==='err' ? '#7f1d1d' : '#1a2e1a';
+  el.style.border = '1px solid '+(type==='err'?'#c0392b':'#276749');
+  el.style.color = type==='err' ? '#fca5a5' : '#86efac';
+  el.style.display = 'block';
+  _toastT = setTimeout(() => { el.style.display='none'; }, 2400);
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+render();
 </script>
 </body>
 </html>
