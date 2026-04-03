@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ordem Paranormal — Organizador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#0c0b09;color:#d6d0c4;font-family:'Share Tech Mono','Courier New',monospace}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#0c0b09}
+::-webkit-scrollbar-thumb{background:#302c24;border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-up{animation:fadeUp .35s ease both}
+.fade-in{animation:fadeIn .25s ease both}
+input,textarea,select{background:#0c0b09;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;padding:9px 12px;border-radius:2px;width:100%;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:#c0392b}
+input::placeholder,textarea::placeholder{color:#7a7060}
+textarea{resize:vertical;line-height:1.6}
+select option{background:#141210}
+button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outline:none}
+.del-btn{background:none;border:1px solid transparent;color:#7a7060;font-size:14px;width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.del-btn:hover{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
+.pill{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.tab-btn{padding:8px 16px;background:none;border:1px solid #2c2820;color:#7a7060;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;transition:all .2s}
+.tab-btn:hover{border-color:#b8860b;color:#b8860b}
+.tab-btn.active{border-color:#c0392b;color:#c0392b;background:#7f1d1d22}
+.card-hover{transition:border-color .2s}
+.card-hover:hover{border-color:#b8860b!important}
+.primary-btn{background:#c0392b;color:#fff;border:none;padding:10px 20px;border-radius:2px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;transition:background .2s;display:inline-flex;align-items:center;gap:8px}
+.primary-btn:hover{background:#a93226}
+.ghost-btn{background:none;border:1px solid #2c2820;color:#7a7060;padding:8px 16px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.ghost-btn:hover{border-color:#d6d0c4;color:#d6d0c4}
+.green-btn{background:none;border:1px solid #276749;color:#4ade80;padding:7px 14px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.green-btn:hover{background:#27674922}
+.add-btn{background:none;border:1px dashed #302c24;color:#7a7060;width:100%;padding:10px;border-radius:2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.add-btn:hover{border-color:#276749;color:#276749}
+.section-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-title::after{content:'';flex:1;height:1px;background:#302c24}
+.entry-card{border:1px solid #2c2820;border-radius:3px;background:#1a1814;margin-bottom:8px;overflow:hidden}
+.entry-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
+.entry-arrow{color:#7a7060;font-size:11px;transition:transform .2s;flex-shrink:0}
+.entry-body{padding:14px;border-top:1px solid #302c24}
+.topbar{border-bottom:1px solid #2c2820;padding:0 24px;background:#141210ee;backdrop-filter:blur(8px);position:sticky;top:0;z-index:50;display:flex;align-items:center;height:54px;gap:16px}
+.main{max-width:960px;margin:0 auto;padding:32px 20px 80px}
+.modal-overlay{position:fixed;inset:0;background:#000000dd;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:#141210;border:1px solid #c0392b;border-radius:4px;padding:28px;max-width:380px;width:100%;text-align:center}
+.field-label{display:block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#7a7060;margin-bottom:5px;font-weight:700}
+.form-wrap{background:#141210;border:1px solid #2c2820;border-radius:3px;overflow:hidden}
+.form-header{padding:20px 24px;border-bottom:1px solid #302c24;background:linear-gradient(135deg,#1a1814,#7f1d1d18);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.form-tabs{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid #302c24;flex-wrap:wrap}
+.form-body{padding:24px;max-height:62vh;overflow-y:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid2 .span2{grid-column:1/-1}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}.grid2 .span2{grid-column:1}}
+.hero{background:linear-gradient(135deg,#141210,#7f1d1d15);border:1px solid #2c2820;border-radius:3px;padding:28px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero-deco{position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle at top right,#7f1d1d20,transparent);pointer-events:none}
+.stats-bar{display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1px solid #302c24;flex-wrap:wrap}
+.stat-num{font-size:20px;color:#c0392b;font-weight:700}
+.stat-label{font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase}
+.session-num{width:42px;height:42px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-size:15px;font-weight:700;flex-shrink:0}
+.campaign-row{background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px 20px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.campaign-row:hover{border-color:#b8860b}
+.accent-bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
+.empty-state{text-align:center;padding:40px 0;color:#7a7060;font-size:13px;border:1px dashed #302c24;border-radius:3px}
+.empty-big{text-align:center;padding:64px 24px;border:1px dashed #302c24;border-radius:3px}
+.serif{font-family:'Playfair Display',Georgia,serif}
+.ink{color:#ede8dc}
+.red{color:#c0392b}
+.gold{color:#b8860b}
+.muted{color:#7a7060}
+.body-text{color:#d6d0c4;font-size:13px;line-height:1.7;font-family:Georgia,serif}
+.secret-box{background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:8px 12px;margin-top:8px}
+.effect-box{background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:8px 12px;margin-top:8px}
+.note-box{margin-top:12px;padding:10px 14px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px}
+.npc-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:16px;margin-bottom:10px}
+.loc-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #b8860b;border-radius:3px;padding:16px;margin-bottom:10px}
+.item-card{background:#141210;border:1px solid #2c2820;border-left:3px solid #7c3aed;border-radius:3px;padding:16px;margin-bottom:10px}
+.sess-card{background:#141210;border:1px solid #2c2820;border-radius:3px;padding:20px;margin-bottom:12px}
+/* MODO MESA */
+.mesa-overlay{position:fixed;inset:0;background:#080706;z-index:300;overflow-y:auto;display:flex;flex-direction:column}
+.mesa-top{background:#0c0b09;border-bottom:1px solid #2c2820;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;flex-wrap:wrap}
+.mesa-body{flex:1;padding:24px;max-width:1100px;margin:0 auto;width:100%}
+.mesa-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.mesa-grid{grid-template-columns:1fr}}
+.mesa-card{background:#0f0e0c;border:1px solid #2c2820;border-radius:3px;padding:16px}
+.mesa-card-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.mesa-card-title::after{content:'';flex:1;height:1px;background:#302c24}
+.mesa-pista-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #302c24}
+.mesa-pista-check{width:18px;height:18px;border:1px solid #302c24;border-radius:2px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.mesa-pista-check.done{background:#276749;border-color:#276749;color:#fff}
+.sess-status-btn{padding:5px 12px;border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border:1px solid;cursor:pointer;transition:all .15s;background:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useRef}=React;
+const KEY="op_v3";
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch{return[];}}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch{}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+const blankCamp=()=>({id:uid(),title:"",synopsis:"",sessions:1,status:"Em Andamento",nex:"5%",createdAt:new Date().toISOString(),antagonist:{name:"",nature:"",motivation:"",power:""},npcs:[],locations:[],items:[],sessions_data:[],notes:""});
+const blankNPC=()=>({id:uid(),name:"",role:"",description:"",secret:""});
+const blankLoc=()=>({id:uid(),name:"",type:"",description:"",danger:"Baixo"});
+const blankItem=()=>({id:uid(),name:"",type:"",description:"",effect:""});
+const blankSess=(n)=>({id:uid(),number:n,title:"",synopsis:"",objectives:"",encounters:"",rewards:"",notes:"",status:"Pendente",clues:[]});
+const blankClue=()=>({id:uid(),text:"",found:false});
+
+function StatusPill({status}){
+  const m={"Em Andamento":{bg:"#27674922",bo:"#27674955",c:"#4ade80"},"Concluída":{bg:"#b8860b22",bo:"#b8860b55",c:"#b8860b"},"Pausada":{bg:"#7a706022",bo:"#7a706055",c:"#7a7060"},"Planejada":{bg:"#c0392b22",bo:"#c0392b55",c:"#c0392b"}};
+  const s=m[status]||m["Em Andamento"];
+  return <span className="pill" style={{background:s.bg,border:`1px solid ${s.bo}`,color:s.c}}>{status}</span>;
+}
+function DangerPill({level}){
+  const m={"Baixo":{c:"#4ade80",bg:"#27674922",bo:"#27674944"},"Médio":{c:"#b8860b",bg:"#b8860b22",bo:"#b8860b44"},"Alto":{c:"#fb923c",bg:"#7c2d1222",bo:"#7c2d1244"},"Extremo":{c:"#c0392b",bg:"#7f1d1d22",bo:"#7f1d1d44"}};
+  const s=m[level]||m["Baixo"];
+  return <span className="pill" style={{background:s.bg,border:`1px solid ${s.bo}`,color:s.c}}>{level}</span>;
+}
+function SessBadge({status}){
+  const m={"Pendente":{c:"#7a7060",bo:"#7a706044",bg:"transparent"},"Jogada":{c:"#4ade80",bo:"#27674955",bg:"#27674922"},"Pulada":{c:"#b8860b",bo:"#b8860b55",bg:"#b8860b22"}};
+  const s=m[status]||m["Pendente"];
+  return <span className="pill" style={{color:s.c,border:`1px solid ${s.bo}`,background:s.bg}}>{status}</span>;
+}
+function Field({label,hint,children}){
+  return(
+    <div style={{marginBottom:14}}>
+      <label className="field-label">{label}{hint&&<span style={{fontWeight:400,textTransform:"none",letterSpacing:0,marginLeft:6,color:"#302c24"}}>{hint}</span>}</label>
+      {children}
+    </div>
+  );
+}
+function EntryCard({title,subtitle,badge,onDelete,defaultOpen,children}){
+  const [open,setOpen]=useState(!!defaultOpen);
+  return(
+    <div className="entry-card card-hover">
+      <div className="entry-header" onClick={()=>setOpen(o=>!o)}>
+        <span className="entry-arrow" style={{transform:open?"rotate(90deg)":"rotate(0deg)"}}>▶</span>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{color:"#ede8dc",fontSize:13,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title||<em style={{color:"#7a7060"}}>Sem nome</em>}</div>
+          {subtitle&&<div style={{color:"#7a7060",fontSize:11,marginTop:2}}>{subtitle}</div>}
+        </div>
+        {badge}
+        {onDelete&&<button className="del-btn" onClick={e=>{e.stopPropagation();onDelete();}}>✕</button>}
+      </div>
+      {open&&<div className="entry-body fade-in">{children}</div>}
+    </div>
+  );
+}
+
+/* ── MODO MESA ─────────────────────────────────────────────── */
+function ModoMesa({campaign,sessionId,onClose,onUpdateSession}){
+  const sess=campaign.sessions_data.find(s=>s.id===sessionId);
+  if(!sess)return null;
+  const toggleClue=(id)=>onUpdateSession({...sess,clues:sess.clues.map(c=>c.id===id?{...c,found:!c.found}:c)});
+  const setStatus=(st)=>onUpdateSession({...sess,status:st});
+  const anta=campaign.antagonist;
+  return(
+    <div className="mesa-overlay fade-in">
+      <div className="mesa-top">
+        <div className="session-num">{String(sess.number).padStart(2,"0")}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase"}}>Modo Mesa · {campaign.title}</div>
+          <div className="serif ink" style={{fontSize:18,fontWeight:700,lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sess.title||"Sessão "+sess.number}</div>
+        </div>
+        <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+          {["Pendente","Jogada","Pulada"].map(st=>(
+            <button key={st} className="sess-status-btn"
+              style={{color:sess.status===st?"#ede8dc":"#7a7060",borderColor:sess.status===st?"#c0392b":"#302c24",background:sess.status===st?"#c0392b22":"none"}}
+              onClick={()=>setStatus(st)}>{st}</button>
+          ))}
+          <button className="ghost-btn" onClick={onClose}>✕ Fechar</button>
+        </div>
+      </div>
+      <div className="mesa-body">
+        {sess.synopsis&&(
+          <div style={{background:"#0f0e0c",border:"1px solid #2c2820",borderLeft:"3px solid #c0392b",borderRadius:3,padding:16,marginBottom:16}}>
+            <div className="mesa-card-title">Sinopse</div>
+            <p className="body-text" style={{margin:0,fontStyle:"italic"}}>{sess.synopsis}</p>
+          </div>
+        )}
+        <div className="mesa-grid">
+          {sess.objectives&&(
+            <div className="mesa-card">
+              <div className="mesa-card-title">🎯 Objetivos</div>
+              <p className="body-text" style={{margin:0}}>{sess.objectives}</p>
+            </div>
+          )}
+          {sess.encounters&&(
+            <div className="mesa-card">
+              <div className="mesa-card-title">⚔️ Encontros / Cenas</div>
+              <p className="body-text" style={{margin:0}}>{sess.encounters}</p>
+            </div>
+          )}
+          <div className="mesa-card">
+            <div className="mesa-card-title">🔍 Pistas</div>
+            {sess.clues.length===0&&<div style={{color:"#7a7060",fontSize:12}}>Nenhuma pista cadastrada</div>}
+            {sess.clues.map(c=>(
+              <div key={c.id} className="mesa-pista-item">
+                <div className={`mesa-pista-check${c.found?" done":""}`} onClick={()=>toggleClue(c.id)}>{c.found&&"✓"}</div>
+                <span style={{color:c.found?"#7a7060":"#d6d0c4",fontSize:13,lineHeight:1.6,textDecoration:c.found?"line-through":"none",transition:"all .2s"}}>{c.text||<em style={{color:"#7a7060"}}>Sem texto</em>}</span>
+              </div>
+            ))}
+          </div>
+          {campaign.npcs.length>0&&(
+            <div className="mesa-card">
+              <div className="mesa-card-title">👤 NPCs</div>
+              {campaign.npcs.map(n=>(
+                <div key={n.id} style={{padding:"8px 0",borderBottom:"1px solid #302c24"}}>
+                  <div style={{color:"#ede8dc",fontSize:13,fontWeight:700}}>{n.name||"Sem nome"}</div>
+                  {n.role&&<div style={{color:"#b8860b",fontSize:11,textTransform:"uppercase",letterSpacing:".06em"}}>{n.role}</div>}
+                  {n.description&&<div style={{color:"#7a7060",fontSize:12,marginTop:3,lineHeight:1.5}}>{n.description}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {campaign.locations.length>0&&(
+            <div className="mesa-card">
+              <div className="mesa-card-title">📍 Locais</div>
+              {campaign.locations.map(l=>(
+                <div key={l.id} style={{padding:"7px 0",borderBottom:"1px solid #302c24",display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+                  <div>
+                    <div style={{color:"#ede8dc",fontSize:13}}>{l.name}</div>
+                    {l.type&&<div style={{color:"#7a7060",fontSize:11}}>{l.type}</div>}
+                  </div>
+                  <DangerPill level={l.danger}/>
+                </div>
+              ))}
+            </div>
+          )}
+          {sess.rewards&&(
+            <div className="mesa-card">
+              <div className="mesa-card-title">🏆 Recompensas</div>
+              <p className="body-text" style={{margin:0}}>{sess.rewards}</p>
+            </div>
+          )}
+          {sess.notes&&(
+            <div className="mesa-card" style={{borderColor:"#b8860b44"}}>
+              <div className="mesa-card-title">📝 Notas do Mestre</div>
+              <p style={{color:"#d4b26a",fontSize:13,lineHeight:1.7,margin:0,fontFamily:"Georgia,serif"}}>{sess.notes}</p>
+            </div>
+          )}
+          {anta?.name&&(
+            <div className="mesa-card" style={{borderColor:"#7f1d1d44"}}>
+              <div className="mesa-card-title">☠ Antagonista</div>
+              <div className="serif ink" style={{fontSize:16,fontWeight:700,marginBottom:8}}>{anta.name}</div>
+              {anta.nature&&<div style={{color:"#7a7060",fontSize:12,marginBottom:4}}><span className="red">Natureza:</span> {anta.nature}</div>}
+              {anta.motivation&&<div style={{color:"#7a7060",fontSize:12,marginBottom:4}}><span className="red">Motivação:</span> {anta.motivation}</div>}
+              {anta.power&&<div style={{color:"#7a7060",fontSize:12}}><span className="red">Poder:</span> {anta.power}</div>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── CAMPAIGN FORM ─────────────────────────────────────────── */
+function CampaignForm({initial,onSave,onCancel}){
+  const [data,setData]=useState(initial);
+  const [tab,setTab]=useState("info");
+  const set=(k,v)=>setData(d=>({...d,[k]:v}));
+  const setA=(k,v)=>setData(d=>({...d,antagonist:{...d.antagonist,[k]:v}}));
+  const addNPC=()=>set("npcs",[...data.npcs,blankNPC()]);
+  const setNPC=(id,k,v)=>set("npcs",data.npcs.map(n=>n.id===id?{...n,[k]:v}:n));
+  const delNPC=(id)=>set("npcs",data.npcs.filter(n=>n.id!==id));
+  const addLoc=()=>set("locations",[...data.locations,blankLoc()]);
+  const setLoc=(id,k,v)=>set("locations",data.locations.map(l=>l.id===id?{...l,[k]:v}:l));
+  const delLoc=(id)=>set("locations",data.locations.filter(l=>l.id!==id));
+  const addItem=()=>set("items",[...data.items,blankItem()]);
+  const setItem=(id,k,v)=>set("items",data.items.map(i=>i.id===id?{...i,[k]:v}:i));
+  const delItem=(id)=>set("items",data.items.filter(i=>i.id!==id));
+  const setSess=(id,k,v)=>set("sessions_data",data.sessions_data.map(s=>s.id===id?{...s,[k]:v}:s));
+  const addClue=(sid)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:[...s.clues,blankClue()]}:s));
+  const setClue=(sid,cid,v)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:s.clues.map(c=>c.id===cid?{...c,text:v}:c)}:s));
+  const delClue=(sid,cid)=>set("sessions_data",data.sessions_data.map(s=>s.id===sid?{...s,clues:s.clues.filter(c=>c.id!==cid)}:s));
+  const syncSess=(n)=>{
+    const num=Math.max(1,Math.min(20,parseInt(n)||1));
+    set("sessions",num);
+    const cur=data.sessions_data;
+    if(num>cur.length){set("sessions_data",[...cur,...Array.from({length:num-cur.length},(_,i)=>blankSess(cur.length+i+1))]);}
+    else{set("sessions_data",cur.slice(0,num));}
+  };
+  const tabs=[{k:"info",l:"📋 Info"},{k:"antagonist",l:"☠ Antagonista"},{k:"npcs",l:`👤 NPCs (${data.npcs.length})`},{k:"locations",l:`📍 Locais (${data.locations.length})`},{k:"items",l:`🗡 Itens (${data.items.length})`},{k:"sessions",l:`📅 Sessões (${data.sessions})`},{k:"notes",l:"📝 Notas"}];
+  return(
+    <div className="form-wrap fade-up">
+      <div className="form-header">
+        <div>
+          <div style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"#c0392b",marginBottom:4}}>{initial.title?"Editando Campanha":"Nova Campanha"}</div>
+          <div className="serif ink" style={{fontSize:22,fontWeight:700}}>{data.title||"Sem título"}</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="ghost-btn" onClick={onCancel}>Cancelar</button>
+          <button className="primary-btn" onClick={()=>onSave(data)}>💾 Salvar</button>
+        </div>
+      </div>
+      <div className="form-tabs">{tabs.map(t=><button key={t.k} className={`tab-btn ${tab===t.k?"active":""}`} onClick={()=>setTab(t.k)}>{t.l}</button>)}</div>
+      <div className="form-body">
+        {tab==="info"&&(
+          <div className="grid2 fade-in">
+            <div className="span2"><Field label="Título da Campanha"><input value={data.title} onChange={e=>set("title",e.target.value)} placeholder="Ex: O Silêncio da Carne" style={{fontSize:16}}/></Field></div>
+            <Field label="Número de Sessões"><input type="number" min={1} max={20} value={data.sessions} onChange={e=>syncSess(e.target.value)}/></Field>
+            <Field label="Status"><select value={data.status} onChange={e=>set("status",e.target.value)}>{["Em Andamento","Planejada","Pausada","Concluída"].map(s=><option key={s}>{s}</option>)}</select></Field>
+            <Field label="NEX dos Agentes" hint="(Nível de Exposição ao Paranormal)"><select value={data.nex} onChange={e=>set("nex",e.target.value)}>{["5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","99%"].map(n=><option key={n}>{n}</option>)}</select></Field>
+            <div className="span2"><Field label="Sinopse / Premissa"><textarea rows={5} value={data.synopsis} onChange={e=>set("synopsis",e.target.value)} placeholder="Descreva o arco central, o mistério principal..."/></Field></div>
+          </div>
+        )}
+        {tab==="antagonist"&&(
+          <div className="grid2 fade-in">
+            <Field label="Nome / Designação"><input value={data.antagonist.name} onChange={e=>setA("name",e.target.value)} placeholder="Ex: O Devorador de Nomes"/></Field>
+            <Field label="Natureza"><input value={data.antagonist.nature} onChange={e=>setA("nature",e.target.value)} placeholder="Ex: Entidade do Outro Lado, Cultista"/></Field>
+            <div className="span2"><Field label="Motivação / Objetivo"><textarea rows={3} value={data.antagonist.motivation} onChange={e=>setA("motivation",e.target.value)} placeholder="O que esse antagonista quer? Qual seu plano?"/></Field></div>
+            <div className="span2"><Field label="Poder / Habilidade Paranormal"><textarea rows={3} value={data.antagonist.power} onChange={e=>setA("power",e.target.value)} placeholder="Quais habilidades sobrenaturais ele possui?"/></Field></div>
+          </div>
+        )}
+        {tab==="npcs"&&(
+          <div className="fade-in">
+            {data.npcs.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum NPC ainda.</div>}
+            {data.npcs.map(n=>(
+              <EntryCard key={n.id} title={n.name} subtitle={n.role} onDelete={()=>delNPC(n.id)}>
+                <div className="grid2">
+                  <Field label="Nome"><input value={n.name} onChange={e=>setNPC(n.id,"name",e.target.value)} placeholder="Nome do NPC"/></Field>
+                  <Field label="Papel"><input value={n.role} onChange={e=>setNPC(n.id,"role",e.target.value)} placeholder="Ex: Informante, Aliado, Antagonista"/></Field>
+                  <div className="span2"><Field label="Descrição"><textarea rows={3} value={n.description} onChange={e=>setNPC(n.id,"description",e.target.value)} placeholder="Aparência, personalidade, motivações..."/></Field></div>
+                  <div className="span2"><Field label="Segredo" hint="(só o mestre vê)"><textarea rows={2} value={n.secret} onChange={e=>setNPC(n.id,"secret",e.target.value)} placeholder="O que esse NPC esconde?"/></Field></div>
+                </div>
+              </EntryCard>
+            ))}
+            <button className="add-btn" onClick={addNPC}>+ Adicionar NPC</button>
+          </div>
+        )}
+        {tab==="locations"&&(
+          <div className="fade-in">
+            {data.locations.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum local ainda.</div>}
+            {data.locations.map(l=>(
+              <EntryCard key={l.id} title={l.name} subtitle={l.type} badge={<DangerPill level={l.danger}/>} onDelete={()=>delLoc(l.id)}>
+                <div className="grid2">
+                  <Field label="Nome"><input value={l.name} onChange={e=>setLoc(l.id,"name",e.target.value)} placeholder="Ex: Fábrica Abandonada"/></Field>
+                  <Field label="Tipo"><input value={l.type} onChange={e=>setLoc(l.id,"type",e.target.value)} placeholder="Ex: Urbano, Rural, Outro Lado"/></Field>
+                  <div className="span2"><Field label="Descrição"><textarea rows={3} value={l.description} onChange={e=>setLoc(l.id,"description",e.target.value)} placeholder="Ambiente, atmosfera..."/></Field></div>
+                  <Field label="Nível de Perigo"><select value={l.danger} onChange={e=>setLoc(l.id,"danger",e.target.value)}>{["Baixo","Médio","Alto","Extremo"].map(d=><option key={d}>{d}</option>)}</select></Field>
+                </div>
+              </EntryCard>
+            ))}
+            <button className="add-btn" onClick={addLoc}>+ Adicionar Local</button>
+          </div>
+        )}
+        {tab==="items"&&(
+          <div className="fade-in">
+            {data.items.length===0&&<div className="empty-state" style={{marginBottom:12}}>Nenhum item ainda.</div>}
+            {data.items.map(item=>(
+              <EntryCard key={item.id} title={item.name} subtitle={item.type} onDelete={()=>delItem(item.id)}>
+                <div className="grid2">
+                  <Field label="Nome"><input value={item.name} onChange={e=>setItem(item.id,"name",e.target.value)} placeholder="Ex: Espelho de Madalena"/></Field>
+                  <Field label="Tipo"><input value={item.type} onChange={e=>setItem(item.id,"type",e.target.value)} placeholder="Ex: Artefato, Pista, Ritual"/></Field>
+                  <div className="span2"><Field label="Descrição"><textarea rows={2} value={item.description} onChange={e=>setItem(item.id,"description",e.target.value)} placeholder="Aparência, origem..."/></Field></div>
+                  <div className="span2"><Field label="Efeito / Significado"><textarea rows={2} value={item.effect} onChange={e=>setItem(item.id,"effect",e.target.value)} placeholder="O que esse item faz ou revela?"/></Field></div>
+                </div>
+              </EntryCard>
+            ))}
+            <button className="add-btn" onClick={addItem}>+ Adicionar Item</button>
+          </div>
+        )}
+        {tab==="sessions"&&(
+          <div className="fade-in">
+            {data.sessions_data.map((s,i)=>(
+              <EntryCard key={s.id} defaultOpen={i===0} title={`Sessão ${s.number}${s.title?" — "+s.title:""}`} subtitle={s.synopsis?.slice(0,55)+(s.synopsis?.length>55?"...":"")} badge={<SessBadge status={s.status}/>}>
+                <div className="grid2">
+                  <Field label="Título"><input value={s.title} onChange={e=>setSess(s.id,"title",e.target.value)} placeholder="Ex: A Noite do Coletor"/></Field>
+                  <Field label="Status"><select value={s.status} onChange={e=>setSess(s.id,"status",e.target.value)}>{["Pendente","Jogada","Pulada"].map(st=><option key={st}>{st}</option>)}</select></Field>
+                  <div className="span2"><Field label="Sinopse"><textarea rows={3} value={s.synopsis} onChange={e=>setSess(s.id,"synopsis",e.target.value)} placeholder="O que acontece nessa sessão?"/></Field></div>
+                  <Field label="Objetivos dos Agentes"><textarea rows={3} value={s.objectives} onChange={e=>setSess(s.id,"objectives",e.target.value)} placeholder="O que devem descobrir ou realizar?"/></Field>
+                  <Field label="Encontros / Cenas-Chave"><textarea rows={3} value={s.encounters} onChange={e=>setSess(s.id,"encounters",e.target.value)} placeholder="Combates, investigações, roleplay..."/></Field>
+                  <Field label="Recompensas / Consequências"><textarea rows={2} value={s.rewards} onChange={e=>setSess(s.id,"rewards",e.target.value)} placeholder="XP, itens, gancho para próxima sessão..."/></Field>
+                  <Field label="Notas do Mestre"><textarea rows={2} value={s.notes} onChange={e=>setSess(s.id,"notes",e.target.value)} placeholder="Observações internas, segredos..."/></Field>
+                  <div className="span2">
+                    <div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",fontWeight:700,marginBottom:10}}>🔍 Pistas / Evidências</div>
+                    {s.clues.length===0&&<div style={{color:"#7a7060",fontSize:12,marginBottom:8}}>Nenhuma pista.</div>}
+                    {s.clues.map(c=>(
+                      <div key={c.id} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:8}}>
+                        <textarea rows={1} value={c.text} onChange={e=>setClue(s.id,c.id,e.target.value)} placeholder="Descreva a pista..." style={{resize:"none"}}/>
+                        <button className="del-btn" onClick={()=>delClue(s.id,c.id)}>✕</button>
+                      </div>
+                    ))}
+                    <button className="add-btn" style={{marginTop:4}} onClick={()=>addClue(s.id)}>+ Adicionar Pista</button>
+                  </div>
+                </div>
+              </EntryCard>
+            ))}
+          </div>
+        )}
+        {tab==="notes"&&(
+          <div className="fade-in"><Field label="Notas Gerais"><textarea rows={18} value={data.notes} onChange={e=>set("notes",e.target.value)} placeholder="Anotações livres: arcos secundários, inspirações, improvisos..."/></Field></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── CAMPAIGN VIEWER ───────────────────────────────────────── */
+function CampaignViewer({campaign,onEdit,onBack,onOpenMesa}){
+  const [tab,setTab]=useState("overview");
+  const tabs=[{k:"overview",l:"Visão Geral"},{k:"antagonist",l:"☠ Antagonista"},{k:"npcs",l:`NPCs (${campaign.npcs.length})`},{k:"locations",l:`Locais (${campaign.locations.length})`},{k:"items",l:`Itens (${campaign.items.length})`},{k:"sessions",l:`Sessões (${campaign.sessions})`},{k:"notes",l:"Notas"}];
+  const ac=(st)=>({Jogada:"#276749",Pulada:"#b8860b",Pendente:"#302c24"}[st]||"#302c24");
+  return(
+    <div className="fade-up">
+      <div className="hero">
+        <div className="hero-deco"/>
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,flexWrap:"wrap"}}>
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,flexWrap:"wrap"}}>
+              <StatusPill status={campaign.status}/>
+              <span className="muted" style={{fontSize:11}}>NEX {campaign.nex}</span>
+              <span className="muted" style={{fontSize:11}}>{campaign.sessions} sessão{campaign.sessions!==1?"s":""}</span>
+            </div>
+            <h1 className="serif ink" style={{fontSize:"clamp(20px,4vw,32px)",fontWeight:900,lineHeight:1.15,marginBottom:12}}>{campaign.title||"Sem título"}</h1>
+            {campaign.synopsis&&<p style={{color:"#d6d0c4",fontSize:14,lineHeight:1.7,maxWidth:620,fontFamily:"Georgia,serif",fontStyle:"italic"}}>{campaign.synopsis}</p>}
+          </div>
+          <div style={{display:"flex",gap:8,flexShrink:0,flexWrap:"wrap"}}>
+            <button className="ghost-btn" onClick={onBack}>← Voltar</button>
+            <button className="primary-btn" onClick={onEdit}>✏️ Editar</button>
+          </div>
+        </div>
+        <div className="stats-bar">
+          {[["NPCs",campaign.npcs.length],["Locais",campaign.locations.length],["Itens",campaign.items.length],["Sessões",campaign.sessions],["Jogadas",campaign.sessions_data.filter(s=>s.status==="Jogada").length]].map(([l,v])=>(
+            <div key={l} style={{textAlign:"center"}}><div className="stat-num">{v}</div><div className="stat-label">{l}</div></div>
+          ))}
+        </div>
+      </div>
+      <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
+        {tabs.map(t=><button key={t.k} className={`tab-btn ${tab===t.k?"active":""}`} onClick={()=>setTab(t.k)}>{t.l}</button>)}
+      </div>
+      <div className="fade-in">
+        {tab==="overview"&&(
+          <div className="grid2">
+            <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:16}}>
+              <div className="section-title">Sessões</div>
+              {campaign.sessions_data.length===0&&<span className="muted" style={{fontSize:12}}>Nenhuma sessão</span>}
+              {campaign.sessions_data.map(s=>(
+                <div key={s.id} style={{display:"flex",gap:8,alignItems:"center",padding:"7px 0",borderBottom:"1px solid #302c24"}}>
+                  <span style={{width:6,height:6,borderRadius:"50%",background:ac(s.status),flexShrink:0,display:"inline-block"}}/>
+                  <span className="red" style={{fontFamily:"monospace",fontSize:12,fontWeight:700,flexShrink:0}}>{String(s.number).padStart(2,"0")}</span>
+                  <span style={{color:s.title?"#ede8dc":"#7a7060",fontSize:13,flex:1,fontStyle:s.title?"normal":"italic",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.title||"Sem título"}</span>
+                  <SessBadge status={s.status}/>
+                  <button className="green-btn" style={{padding:"3px 10px",fontSize:10}} onClick={()=>onOpenMesa(s.id)}>▶ Mesa</button>
+                </div>
+              ))}
+            </div>
+            <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:16}}>
+              <div className="section-title">NPCs</div>
+              {campaign.npcs.length===0&&<span className="muted" style={{fontSize:12}}>Nenhum NPC</span>}
+              {campaign.npcs.map(n=>(
+                <div key={n.id} style={{padding:"7px 0",borderBottom:"1px solid #302c24"}}>
+                  <div style={{color:"#ede8dc",fontSize:13}}>{n.name||<em style={{color:"#7a7060"}}>Sem nome</em>}</div>
+                  {n.role&&<div className="muted" style={{fontSize:11}}>{n.role}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {tab==="antagonist"&&(
+          <div>
+            {!campaign.antagonist?.name&&<div className="empty-state">Nenhum antagonista cadastrado</div>}
+            {campaign.antagonist?.name&&(
+              <div style={{background:"#141210",border:"1px solid #7f1d1d44",borderLeft:"3px solid #c0392b",borderRadius:3,padding:24}}>
+                <div className="serif ink" style={{fontSize:24,fontWeight:900,marginBottom:6}}>{campaign.antagonist.name}</div>
+                {campaign.antagonist.nature&&<div style={{color:"#c0392b",fontSize:11,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16}}>{campaign.antagonist.nature}</div>}
+                <div className="grid2" style={{gap:20}}>
+                  {campaign.antagonist.motivation&&<div><div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>Motivação</div><p className="body-text">{campaign.antagonist.motivation}</p></div>}
+                  {campaign.antagonist.power&&<div><div style={{fontSize:10,color:"#7a7060",letterSpacing:".15em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>Poder Paranormal</div><p className="body-text">{campaign.antagonist.power}</p></div>}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {tab==="npcs"&&(
+          <div>
+            {campaign.npcs.length===0?<div className="empty-state">Nenhum NPC cadastrado</div>:campaign.npcs.map(n=>(
+              <div key={n.id} className="npc-card">
+                <div style={{marginBottom:8}}>
+                  <div className="serif ink" style={{fontSize:17,fontWeight:700}}>{n.name}</div>
+                  {n.role&&<span style={{fontSize:11,color:"#b8860b",letterSpacing:".08em",textTransform:"uppercase"}}>{n.role}</span>}
+                </div>
+                {n.description&&<p className="body-text" style={{marginBottom:n.secret?10:0}}>{n.description}</p>}
+                {n.secret&&<div className="secret-box"><div style={{fontSize:10,color:"#c0392b",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>🔒 Segredo</div><p style={{color:"#c0a0a0",fontSize:12,lineHeight:1.6,margin:0}}>{n.secret}</p></div>}
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="locations"&&(
+          <div>
+            {campaign.locations.length===0?<div className="empty-state">Nenhum local cadastrado</div>:campaign.locations.map(l=>(
+              <div key={l.id} className="loc-card">
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                  <div><div className="serif ink" style={{fontSize:17,fontWeight:700}}>{l.name}</div>{l.type&&<span className="muted" style={{fontSize:11,letterSpacing:".08em",textTransform:"uppercase"}}>{l.type}</span>}</div>
+                  <DangerPill level={l.danger}/>
+                </div>
+                {l.description&&<p className="body-text" style={{margin:0}}>{l.description}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="items"&&(
+          <div>
+            {campaign.items.length===0?<div className="empty-state">Nenhum item cadastrado</div>:campaign.items.map(item=>(
+              <div key={item.id} className="item-card">
+                <div style={{marginBottom:8}}>
+                  <div className="serif ink" style={{fontSize:17,fontWeight:700}}>{item.name}</div>
+                  {item.type&&<span style={{fontSize:11,color:"#a78bfa",letterSpacing:".08em",textTransform:"uppercase"}}>{item.type}</span>}
+                </div>
+                {item.description&&<p className="body-text" style={{marginBottom:item.effect?10:0}}>{item.description}</p>}
+                {item.effect&&<div className="effect-box"><div style={{fontSize:10,color:"#a78bfa",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>⚡ Efeito</div><p style={{color:"#c4b5fd",fontSize:12,lineHeight:1.6,margin:0}}>{item.effect}</p></div>}
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="sessions"&&(
+          <div>
+            {campaign.sessions_data.length===0?<div className="empty-state">Nenhuma sessão cadastrada</div>:campaign.sessions_data.map(s=>(
+              <div key={s.id} className="sess-card">
+                <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14,flexWrap:"wrap"}}>
+                  <div className="session-num">{String(s.number).padStart(2,"0")}</div>
+                  <div style={{flex:1}}><div className="serif ink" style={{fontSize:18,fontWeight:700}}>{s.title||<em style={{color:"#7a7060"}}>Sem título</em>}</div></div>
+                  <SessBadge status={s.status}/>
+                  <button className="green-btn" onClick={()=>onOpenMesa(s.id)}>▶ Modo Mesa</button>
+                </div>
+                <div className="grid2">
+                  {[["Sinopse",s.synopsis],["Objetivos",s.objectives],["Encontros / Cenas",s.encounters],["Recompensas",s.rewards]].map(([label,val])=>val?(
+                    <div key={label}><div style={{fontSize:10,color:"#7a7060",letterSpacing:".12em",textTransform:"uppercase",marginBottom:6,fontWeight:700}}>{label}</div><p className="body-text" style={{margin:0}}>{val}</p></div>
+                  ):null)}
+                </div>
+                {s.clues?.length>0&&(
+                  <div style={{marginTop:14}}>
+                    <div style={{fontSize:10,color:"#7a7060",letterSpacing:".12em",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>🔍 Pistas</div>
+                    {s.clues.map(c=>(
+                      <div key={c.id} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"5px 0",borderBottom:"1px solid #302c24"}}>
+                        <span style={{color:c.found?"#4ade80":"#7a7060",fontSize:12,flexShrink:0,marginTop:1}}>{c.found?"✓":"○"}</span>
+                        <span style={{color:c.found?"#7a7060":"#d6d0c4",fontSize:13,textDecoration:c.found?"line-through":"none"}}>{c.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {s.notes&&<div className="note-box"><div style={{fontSize:10,color:"#b8860b",letterSpacing:".1em",textTransform:"uppercase",marginBottom:4}}>📝 Notas do Mestre</div><p style={{color:"#d4b26a",fontSize:12,lineHeight:1.6,margin:0}}>{s.notes}</p></div>}
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="notes"&&(
+          <div style={{background:"#141210",border:"1px solid #2c2820",borderRadius:3,padding:20}}>
+            {campaign.notes?<p className="body-text" style={{whiteSpace:"pre-wrap"}}>{campaign.notes}</p>:<div className="empty-state">Sem notas</div>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── CAMPAIGN LIST ─────────────────────────────────────────── */
+function CampaignList({campaigns,onSelect,onCreate,onDelete,onExport,onImport}){
+  const [search,setSearch]=useState("");
+  const fileRef=useRef();
+  const filtered=campaigns.filter(c=>c.title.toLowerCase().includes(search.toLowerCase())||c.synopsis.toLowerCase().includes(search.toLowerCase()));
+  const ac=(st)=>({["Em Andamento"]:"#276749","Concluída":"#b8860b","Pausada":"#7a7060","Planejada":"#c0392b"}[st]||"#276749");
+  return(
+    <div className="fade-up">
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24,gap:12,flexWrap:"wrap"}}>
+        <div>
+          <div className="serif ink" style={{fontSize:"clamp(20px,4vw,28px)",fontWeight:900,letterSpacing:".02em"}}>Arquivo de Campanhas</div>
+          <div className="muted" style={{fontSize:12,marginTop:4}}>{campaigns.length} campanha{campaigns.length!==1?"s":""} registrada{campaigns.length!==1?"s":""}</div>
+        </div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=ev=>onImport(ev.target.result);r.readAsText(f);}e.target.value="";}}/>
+          {campaigns.length>0&&<button className="ghost-btn" onClick={onExport}>⬇ Exportar JSON</button>}
+          <button className="ghost-btn" onClick={()=>fileRef.current.click()}>⬆ Importar JSON</button>
+          <button className="primary-btn" onClick={onCreate}>＋ Nova Campanha</button>
+        </div>
+      </div>
+      {campaigns.length>2&&<div style={{marginBottom:16}}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍  Buscar campanha..." style={{maxWidth:360}}/></div>}
+      {campaigns.length===0&&(
+        <div className="empty-big">
+          <div style={{fontSize:40,marginBottom:16}}>📁</div>
+          <div className="serif ink" style={{fontSize:16,marginBottom:8}}>Nenhuma campanha ainda</div>
+          <div className="muted" style={{fontSize:13,marginBottom:24}}>Crie sua primeira campanha de Ordem Paranormal</div>
+          <button className="primary-btn" style={{margin:"0 auto"}} onClick={onCreate}>＋ Criar Campanha</button>
+        </div>
+      )}
+      {filtered.length===0&&campaigns.length>0&&<div className="empty-state">Nenhuma campanha encontrada</div>}
+      {filtered.map(c=>(
+        <div key={c.id} className="campaign-row" onClick={()=>onSelect(c.id)}>
+          <div className="accent-bar" style={{background:ac(c.status)}}/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
+              <span className="serif ink" style={{fontSize:17,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.title||<em style={{color:"#7a7060"}}>Sem título</em>}</span>
+              <StatusPill status={c.status}/>
+              {c.nex&&<span className="muted" style={{fontSize:11}}>NEX {c.nex}</span>}
+            </div>
+            {c.synopsis&&<p className="muted" style={{fontSize:12,lineHeight:1.5,margin:0,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{c.synopsis}</p>}
+            <div style={{display:"flex",gap:14,marginTop:8,flexWrap:"wrap"}}>
+              {[`${c.sessions} sessão${c.sessions!==1?"s":""}`,`${c.npcs.length} NPC${c.npcs.length!==1?"s":""}`,`${c.locations.length} local${c.locations.length!==1?"is":""}`,`${c.items.length} item${c.items.length!==1?"s":""}`,`${c.sessions_data.filter(s=>s.status==="Jogada").length} jogada${c.sessions_data.filter(s=>s.status==="Jogada").length!==1?"s":""}`].map(label=>(
+                <span key={label} style={{fontSize:11,color:"#302c24",fontFamily:"monospace"}}>{label}</span>
+              ))}
+            </div>
+          </div>
+          <button className="del-btn" onClick={e=>{e.stopPropagation();onDelete(c.id);}}>✕</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── ROOT ──────────────────────────────────────────────────── */
+function App(){
+  const [camps,setCamps]=useState(()=>load());
+  const [view,setView]=useState("list");
+  const [editing,setEditing]=useState(null);
+  const [viewing,setViewing]=useState(null);
+  const [mesaId,setMesaId]=useState(null);
+  const [delConfirm,setDelConfirm]=useState(null);
+  const [toast,setToast]=useState(null);
+
+  const persist=(d)=>{setCamps(d);save(d);};
+  const showToast=(msg,type="ok")=>{setToast({msg,type});setTimeout(()=>setToast(null),2500);};
+
+  const handleSave=(data)=>{
+    const next=camps.find(c=>c.id===data.id)?camps.map(c=>c.id===data.id?data:c):[data,...camps];
+    persist(next);setViewing(data.id);setEditing(null);setView("detail");
+  };
+  const confirmDel=()=>{
+    const next=camps.filter(c=>c.id!==delConfirm);
+    persist(next);
+    if(viewing===delConfirm){setView("list");setViewing(null);}
+    setDelConfirm(null);
+  };
+  const updateSess=(updSess)=>{
+    const next=camps.map(c=>c.id!==viewing?c:{...c,sessions_data:c.sessions_data.map(s=>s.id===updSess.id?updSess:s)});
+    persist(next);
+  };
+  const handleExport=()=>{
+    const blob=new Blob([JSON.stringify(camps,null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+    a.download=`op-campanhas-${new Date().toISOString().slice(0,10)}.json`;a.click();
+    showToast("Campanhas exportadas!");
+  };
+  const handleImport=(text)=>{
+    try{
+      const imp=JSON.parse(text);
+      if(!Array.isArray(imp))throw 0;
+      const merged=[...imp,...camps.filter(c=>!imp.find(i=>i.id===c.id))];
+      persist(merged);showToast(`${imp.length} campanha${imp.length!==1?"s":""} importada${imp.length!==1?"s":""}!`);
+    }catch{showToast("Arquivo inválido.","err");}
+  };
+
+  const current=camps.find(c=>c.id===(editing||viewing));
+  const formInit=editing?current:blankCamp();
+
+  return(
+    <div>
+      <div className="topbar">
+        <button style={{background:"none",border:"none",display:"flex",alignItems:"center",gap:10}} onClick={()=>setView("list")}>
+          <div style={{width:28,height:28,borderRadius:2,background:"#c0392b20",border:"1px solid #c0392b44",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>☠</div>
+          <span className="serif" style={{fontSize:16,color:"#ede8dc",fontWeight:700,letterSpacing:".03em"}}>Ordem Paranormal</span>
+        </button>
+        {view!=="list"&&<><span style={{color:"#302c24"}}>›</span><span className="muted" style={{fontSize:12,letterSpacing:".08em",textTransform:"uppercase",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:200}}>{view==="form"?(editing?"Editando":"Nova Campanha"):view==="detail"?(current?.title||"Campanha"):""}</span></>}
+        <div style={{flex:1}}/>
+        <span style={{color:"#302c24",fontSize:11}}>{camps.length} campanha{camps.length!==1?"s":""}</span>
+      </div>
+      <div className="main">
+        {view==="list"&&<CampaignList campaigns={camps} onSelect={id=>{setViewing(id);setView("detail");}} onCreate={()=>{setEditing(null);setView("form");}} onDelete={id=>setDelConfirm(id)} onExport={handleExport} onImport={handleImport}/>}
+        {view==="form"&&formInit&&<CampaignForm key={formInit.id} initial={formInit} onSave={handleSave} onCancel={()=>setView(viewing?"detail":"list")}/>}
+        {view==="detail"&&current&&<CampaignViewer campaign={current} onEdit={()=>{setEditing(viewing);setView("form");}} onBack={()=>setView("list")} onOpenMesa={id=>setMesaId(id)}/>}
+      </div>
+      {mesaId&&current&&<ModoMesa campaign={current} sessionId={mesaId} onClose={()=>setMesaId(null)} onUpdateSession={updateSess}/>}
+      {delConfirm&&(
+        <div className="modal-overlay fade-in">
+          <div className="modal-box">
+            <div style={{fontSize:32,marginBottom:12}}>⚠️</div>
+            <div className="serif ink" style={{fontSize:18,marginBottom:8}}>Excluir campanha?</div>
+            <p className="muted" style={{fontSize:13,lineHeight:1.6,marginBottom:20}}>Essa ação não pode ser desfeita.</p>
+            <div style={{display:"flex",gap:10,justifyContent:"center"}}>
+              <button className="ghost-btn" onClick={()=>setDelConfirm(null)}>Cancelar</button>
+              <button className="primary-btn" onClick={confirmDel}>Excluir</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {toast&&(
+        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:toast.type==="err"?"#7f1d1d":"#1a2e1a",border:`1px solid ${toast.type==="err"?"#c0392b":"#276749"}`,color:toast.type==="err"?"#fca5a5":"#86efac",padding:"10px 20px",borderRadius:3,fontSize:13,zIndex:999,animation:"fadeIn .2s ease",whiteSpace:"nowrap"}}>
+          {toast.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+</script>
+</body>
+</html>
