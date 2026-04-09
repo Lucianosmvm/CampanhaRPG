@@ -308,7 +308,51 @@ function blankCamp() {
     antagonist:{name:'',nature:'',motivation:'',power:''},
     npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
 }
-function blankAgente() { return { id:uid(), name:'', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10 }; }
+function blankAgente() { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10 }; }
+
+const AGENTE_ICONS = [
+  /* ── Origens ── */
+  {g:'Origens',    v:'🔬', l:'Acadêmico'},
+  {g:'Origens',    v:'🎨', l:'Artista'},
+  {g:'Origens',    v:'⚽', l:'Atleta'},
+  {g:'Origens',    v:'🔭', l:'Cientista'},
+  {g:'Origens',    v:'👮', l:'Combatente'},
+  {g:'Origens',    v:'💰', l:'Criminoso'},
+  {g:'Origens',    v:'🩺', l:'Médico'},
+  {g:'Origens',    v:'📖', l:'Ocultista'},
+  {g:'Origens',    v:'⛪', l:'Religioso'},
+  {g:'Origens',    v:'🌐', l:'Tecnólogo'},
+  {g:'Origens',    v:'🗺️', l:'Viajante'},
+  /* ── Classes ── */
+  {g:'Classes',    v:'🐍', l:'Combatente'},
+  {g:'Classes',    v:'💉', l:'Especialista'},
+  {g:'Classes',    v:'🔫', l:'Operativo'},
+  {g:'Classes',    v:'🩻', l:'Médico de Campo'},
+  {g:'Classes',    v:'📡', l:'Técnico'},
+  {g:'Classes',    v:'🧿', l:'Ocultista'},
+  {g:'Classes',    v:'🕵️', l:'Investigador'},
+  {g:'Classes',    v:'🏛️', l:'Magnata'},
+  {g:'Classes',    v:'🎭', l:'Influenciador'},
+  /* ── Rituais / Paranormal ── */
+  {g:'Paranormal', v:'👁️', l:'Vidente'},
+  {g:'Paranormal', v:'🔮', l:'Sensitivo'},
+  {g:'Paranormal', v:'☠️', l:'Necromante'},
+  {g:'Paranormal', v:'🌑', l:'Sombras'},
+  {g:'Paranormal', v:'⚡', l:'Eletromante'},
+  {g:'Paranormal', v:'🩸', l:'Hemomante'},
+  {g:'Paranormal', v:'🕯️', l:'Ritualista'},
+  {g:'Paranormal', v:'🐺', l:'Licantropo'},
+  {g:'Paranormal', v:'🦇', l:'Vampiro'},
+  /* ── Genérico ── */
+  {g:'Geral',      v:'❤️', l:'Padrão'},
+  {g:'Geral',      v:'⭐', l:'Estrela'},
+  {g:'Geral',      v:'🛡️', l:'Protetor'},
+  {g:'Geral',      v:'🗡️', l:'Guerreiro'},
+  {g:'Geral',      v:'🎯', l:'Atirador'},
+  {g:'Geral',      v:'🔑', l:'Infiltrador'},
+  {g:'Geral',      v:'📻', l:'Comunicador'},
+  {g:'Geral',      v:'🧠', l:'Estrategista'},
+];
 function blankNPC()  { return { id:uid(), name:'', role:'', description:'', secret:'', rituals:'', sanity:'' }; }
 function blankLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo' }; }
 function blankItem() { return { id:uid(), name:'', type:'', description:'', effect:'' }; }
@@ -1144,7 +1188,7 @@ function mesaSetAgente(id, field, val) {
     a[field] = val;
   }
   persist();
-  if (numFields.includes(field)) renderAgentesTracker();
+  if (numFields.includes(field) || field === 'icon') renderAgentesTracker();
 }
 function mesaDelta(id, stat, delta) {
   const c = camps.find(x=>x.id===viewingId);
@@ -1206,13 +1250,28 @@ function renderAgentesTracker() {
     const sanPct = a.sanMax > 0 ? Math.round((a.san / a.sanMax) * 100) : 0;
     const pvPct  = a.pvMax  > 0 ? Math.round((a.pv  / a.pvMax)  * 100) : 0;
     const pePct  = a.peMax  > 0 ? Math.round((a.pe  / a.peMax)  * 100) : 0;
-    const sanState = sanPct <= 0 ? '💀' : sanPct <= 25 ? '😱' : sanPct <= 50 ? '😰' : '🧠';
-    const pvState  = pvPct  <= 0 ? '☠'  : pvPct  <= 25 ? '🩸' : pvPct  <= 50 ? '🤕' : '❤️';
+    if (a.icon === undefined) a.icon = '❤️';
+    const displayIcon = a.icon || '❤️';
+    // build grouped options for select
+    const groups = [...new Set(AGENTE_ICONS.map(x=>x.g))];
+    const optionsHtml = groups.map(g=>{
+      const opts = AGENTE_ICONS.filter(x=>x.g===g).map(x=>
+        `<option value="${x.v}"${a.icon===x.v?' selected':''}>${x.v} ${x.l}</option>`
+      ).join('');
+      return `<optgroup label="── ${g} ──">${opts}</optgroup>`;
+    }).join('');
     return `
     <div style="background:#0c0b09;border:1px solid #2c2820;border-radius:4px;overflow:hidden;margin-bottom:10px">
       <!-- cabeçalho do agente -->
-      <div style="background:linear-gradient(135deg,#141210,#1a1814);padding:10px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2c2820">
-        <span style="font-size:20px;flex-shrink:0">${pvState}</span>
+      <div style="background:linear-gradient(135deg,#141210,#1a1814);padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #2c2820">
+        <div style="position:relative;flex-shrink:0">
+          <span style="font-size:22px;display:block;line-height:1;cursor:pointer" title="Clique para mudar ícone" onclick="this.nextElementSibling.focus();this.nextElementSibling.click()">${displayIcon}</span>
+          <select onchange="mesaSetAgente('${a.id}','icon',this.value)"
+            style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:14px"
+            title="Escolher ícone do agente">
+            ${optionsHtml}
+          </select>
+        </div>
         <input value="${esc(a.name)}" placeholder="Nome do agente"
           oninput="mesaSetAgente('${a.id}','name',this.value)"
           style="flex:1;background:transparent;border:none;border-bottom:1px solid #302c24;border-radius:0;padding:3px 0;font-size:14px;font-weight:700;color:#ede8dc;font-family:'Playfair Display',Georgia,serif;min-width:0"/>
