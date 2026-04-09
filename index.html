@@ -309,6 +309,11 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     <span class="di-icon">📄</span> Exportar PDF
   </div>
   <div style="flex:1"></div>
+  <div class="drawer-item" onclick="closeDrawer();doBackup()" style="border-top:1px solid #2c2820">
+    <span class="di-icon">💾</span>
+    <span style="flex:1">Backup Rápido</span>
+    <span id="backup-badge" class="di-badge">—</span>
+  </div>
   <div class="drawer-item" onclick="closeDrawer();exportJSON()">
     <span class="di-icon">⬇</span> Exportar Campanhas
   </div>
@@ -394,9 +399,111 @@ let formData = null;
 let activeFormTab = 'info';
 let activeDetailTab = 'overview';
 let mesaSessionId = null;
+let mesaCenaAtivaId = null; // marcador de cena atual
+let mesaBusca = '';         // pesquisa no modo mesa
 
+/* ── TEMPORIZADOR DE SESSÃO ── */
+let _timerInterval = null;
+let _timerStart = null;
+let _timerRunning = false;
+let _timerAlerts = { 30: false, 15: false, 5: false }; // minutos
+
+function timerStart() {
+  if (_timerRunning) return;
+  _timerStart = Date.now() - (_timerStart ? Date.now() - _timerStart : 0);
+  if (!_timerStart) _timerStart = Date.now();
+  _timerRunning = true;
+  _timerInterval = setInterval(timerTick, 1000);
+  timerTick();
+}
+function timerPause() {
+  if (!_timerRunning) return;
+  _timerRunning = false;
+  clearInterval(_timerInterval);
+  // save elapsed so resume works
+  _timerStart = Date.now() - timerElapsed();
+}
+function timerReset() {
+  clearInterval(_timerInterval);
+  _timerRunning = false;
+  _timerStart = null;
+  _timerAlerts = { 30: false, 15: false, 5: false };
+  const el = document.getElementById('mesa-timer');
+  if (el) { el.textContent = '00:00'; el.style.color = '#7a7060'; }
+  const btn = document.getElementById('mesa-timer-btn');
+  if (btn) btn.textContent = '▶';
+}
+function timerElapsed() {
+  if (!_timerStart) return 0;
+  return Date.now() - _timerStart;
+}
+function timerToggle() {
+  if (_timerRunning) { timerPause(); document.getElementById('mesa-timer-btn').textContent='▶'; }
+  else { timerStart(); document.getElementById('mesa-timer-btn').textContent='⏸'; }
+}
+function timerTick() {
+  const ms = timerElapsed();
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const display = h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el = document.getElementById('mesa-timer');
+  if (!el) { clearInterval(_timerInterval); return; }
+  el.textContent = display;
+  // alert coloring — remaining from 4h session default
+  const SESSION_MIN = 240;
+  const elapsed_min = Math.floor(totalSec / 60);
+  const remaining = SESSION_MIN - elapsed_min;
+  if (remaining <= 5 && !_timerAlerts[5]) {
+    _timerAlerts[5] = true; el.style.color='#c0392b';
+    showToast('⏰ Menos de 5 minutos de sessão!','err');
+  } else if (remaining <= 15 && !_timerAlerts[15]) {
+    _timerAlerts[15] = true; el.style.color='#e65c00';
+    showToast('⏰ 15 minutos restantes de sessão');
+  } else if (remaining <= 30 && !_timerAlerts[30]) {
+    _timerAlerts[30] = true; el.style.color='#b8860b';
+    showToast('⏰ 30 minutos restantes de sessão');
+  } else if (remaining > 30) {
+    el.style.color = '#4ade80';
+  }
+}
+
+/* ── BACKUP AUTOMÁTICO ── */
+const BACKUP_KEY = 'op_backup_ts';
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(camps)); } catch(e) {}
+}
+function getBackupAge() {
+  const ts = parseInt(localStorage.getItem(BACKUP_KEY)||'0');
+  if (!ts) return null;
+  return Math.floor((Date.now() - ts) / 86400000); // dias
+}
+function doBackup() {
+  const blob = new Blob([JSON.stringify(camps,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'op-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  localStorage.setItem(BACKUP_KEY, Date.now().toString());
+  updateBackupBadge();
+  showToast('Backup salvo!');
+}
+function updateBackupBadge() {
+  const el = document.getElementById('backup-badge');
+  if (!el) return;
+  const days = getBackupAge();
+  if (days === null) {
+    el.textContent = 'Nunca'; el.style.background='#c0392b22'; el.style.color='#c0392b';
+  } else if (days >= 7) {
+    el.textContent = days+'d atrás'; el.style.background='#c0392b22'; el.style.color='#c0392b';
+  } else if (days >= 3) {
+    el.textContent = days+'d atrás'; el.style.background='#b8860b22'; el.style.color='#b8860b';
+  } else {
+    el.textContent = days===0?'Hoje':days+'d atrás'; el.style.background='#27674922'; el.style.color='#4ade80';
+  }
 }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -985,8 +1092,11 @@ function openMesa(sessId) {
   initMesaSwipe();
 }
 function closeMesa() {
+  timerReset();
   document.getElementById('mesa-overlay').style.display='none';
   mesaSessionId = null;
+  mesaCenaAtivaId = null;
+  mesaBusca = '';
   render();
 }
 function mesaNavSession(dir) {
@@ -1012,6 +1122,12 @@ function renderMesa() {
       <div style="font-size:10px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase">Modo Mesa · ${esc(c.title)}</div>
       <div class="serif ink" style="font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.title)||'Sessão '+s.number}</div>
     </div>
+    <!-- TIMER -->
+    <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#090807;border:1px solid #1c1a16;border-radius:3px;flex-shrink:0">
+      <span id="mesa-timer" style="font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;color:#7a7060;letter-spacing:.05em;min-width:52px;text-align:center">00:00</span>
+      <button id="mesa-timer-btn" onclick="timerToggle()" title="Iniciar/Pausar sessão" style="background:none;border:1px solid #276749;color:#4ade80;width:28px;height:28px;border-radius:2px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#27674922'" onmouseleave="this.style.background='none'">▶</button>
+      <button onclick="timerReset()" title="Zerar cronômetro" style="background:none;border:1px solid #2c2820;color:#4a4440;width:28px;height:28px;border-radius:2px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .15s" onmouseenter="this.style.borderColor='#c0392b';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='#2c2820';this.style.color='#4a4440'">↺</button>
+    </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       ${['Pendente','Jogada','Pulada'].map(st=>`
         <button class="sess-status-btn" style="color:${s.status===st?'#ede8dc':'#7a7060'};border-color:${s.status===st?'#c0392b':'#302c24'};background:${s.status===st?'#c0392b22':'none'}"
@@ -1035,7 +1151,7 @@ function renderMesa() {
   const cluesHtml = (s.clues||[]).map(cl=>{
     const cc = CLUE_COLORS[cl.type||'Física']||'#b8860b';
     return `
-    <div class="mesa-pista" onclick="mesaToggleClue('${cl.id}')">
+    <div class="mesa-pista" onclick="mesaToggleClue('${cl.id}')" data-busca="${(cl.text||'').toLowerCase().replace(/"/g,'')} ${(cl.type||'').toLowerCase()}">
       <div class="pista-check ${cl.found?'done':''}">${cl.found?'✓':''}</div>
       <div style="flex:1;min-width:0">
         <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">${esc(cl.type||'Física')}</span>
@@ -1052,7 +1168,7 @@ function renderMesa() {
   const npcsHtml = linkedNpcs.map(n=>{
     const nid='mn-'+n.id;
     return `
-    <div style="border-bottom:1px solid #302c24;padding:8px 0">
+    <div style="border-bottom:1px solid #302c24;padding:8px 0" data-busca="${[(n.name||''),(n.role||''),(n.description||'')].join(' ').toLowerCase().replace(/"/g,'')}">
       <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="mesaToggle('${nid}')">
         <span id="arr-${nid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
         <div style="flex:1;min-width:0">
@@ -1080,7 +1196,7 @@ function renderMesa() {
     </div>` : '';
 
   const itemsHtml = c.items.length ? c.items.map(item=>`
-    <div style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #302c24">
+    <div style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #302c24" data-busca="${[(item.name||''),(item.type||''),(item.description||'')].join(' ').toLowerCase().replace(/"/g,'')}">
       <div style="flex:1;min-width:0">
         <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(item.name)}</div>
         ${item.type?`<div style="color:#a78bfa;font-size:10px;text-transform:uppercase;letter-spacing:.06em">${esc(item.type)}</div>`:''}
@@ -1094,10 +1210,17 @@ function renderMesa() {
   // ── helper: cenas HTML (shared between columns)
   function buildCenasHtml() {
     if (!(s.scenes||[]).length) return '';
-    return (s.scenes||[]).map((sc,i)=>{
+    // sort: active scene first, rest in original order
+    let scenes = [...(s.scenes||[])];
+    if (mesaCenaAtivaId) {
+      const ativaIdx = scenes.findIndex(x=>x.id===mesaCenaAtivaId);
+      if (ativaIdx > 0) { const [a] = scenes.splice(ativaIdx,1); scenes.unshift(a); }
+    }
+    return scenes.map((sc,i)=>{
       const col=SCENE_COLORS[sc.type]||'#b8860b';
       const ic=SCENE_ICONS[sc.type]||'🎬';
       const scid='msc-'+sc.id;
+      const isAtiva = sc.id === mesaCenaAtivaId;
       const locs=sc.locations||[];
       const mesaLocsHtml=locs.map(loc=>{
         const rooms=loc.rooms||[];
@@ -1143,15 +1266,23 @@ function renderMesa() {
           </div>
         </div>`;
       }).join('');
-      return `<div style="border-bottom:1px solid #302c24;padding:8px 0">
-        <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="mesaToggle('${scid}')">
-          <span id="arr-${scid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
-          <span style="font-size:10px;font-weight:700;color:${col};font-family:'Share Tech Mono',monospace;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
-          <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700">${esc(sc.name)||'Sem nome'}</span>
-          ${locs.length?`<span style="color:#b8860b;font-size:10px;flex-shrink:0">${locs.length} local${locs.length!==1?'is':''}</span>`:''}
-          <span style="display:inline-block;padding:1px 7px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${ic} ${esc(sc.type)}</span>
+      const buscaTxt = [sc.name,sc.type,sc.description,...locs.map(l=>l.name+' '+l.description)].join(' ').toLowerCase();
+      return `<div class="mesa-cena-row" data-scid="${sc.id}" data-col="${col}" data-busca="${buscaTxt.replace(/"/g,'')}"
+        style="border-bottom:1px solid #302c24;padding:8px 0;background:${isAtiva?'#7f1d1d12':'transparent'};border-left:${isAtiva?`3px solid ${col}`:'3px solid transparent'};padding-left:${isAtiva?'8px':'0'};transition:all .2s;border-radius:${isAtiva?'2px':'0'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="cursor:pointer;flex:1;display:flex;align-items:center;gap:8px;min-width:0" onclick="mesaToggle('${scid}')">
+            <span id="arr-${scid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
+            <span style="font-size:10px;font-weight:700;color:${col};font-family:'Share Tech Mono',monospace;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
+            <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'Sem nome'}</span>
+            ${isAtiva?`<span class="cena-ativa-badge" style="font-size:9px;padding:1px 6px;border-radius:2px;background:#c0392b33;border:1px solid #c0392b66;color:#c0392b;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">● Atual</span>`:''}
+            <span style="display:inline-block;padding:1px 7px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${ic} ${esc(sc.type)}</span>
+          </div>
+          <button onclick="mesaMarcarCena('${sc.id}')" title="${isAtiva?'Desmarcar cena':'Marcar como cena atual'}"
+            style="background:${isAtiva?'#c0392b22':'none'};border:1px solid ${isAtiva?'#c0392b55':'#302c24'};color:${isAtiva?'#c0392b':'#4a4440'};width:26px;height:26px;border-radius:2px;font-size:12px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:all .15s"
+            onmouseenter="this.style.borderColor='#c0392b55';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='${isAtiva?'#c0392b55':'#302c24'}';this.style.color='${isAtiva?'#c0392b':'#4a4440'}'">📍</button>
         </div>
-        <div id="${scid}" style="display:none;padding-top:6px;padding-left:4px">
+        <div id="${scid}" style="display:${isAtiva?'block':'none'};padding-top:6px;padding-left:4px">
+          ${isAtiva?`<span id="arr-${scid}-marker" style="display:none"></span>`:''}
           ${sc.description?`<p class="body-text" style="margin:0 0 4px;font-size:12px">${nl(sc.description)}</p>`:''}
           ${mesaLocsHtml}
         </div>
@@ -1224,6 +1355,13 @@ function renderMesa() {
   document.getElementById('mesa-col-right').innerHTML = `
     <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#302c24;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #111009">📖 Conteúdo da Sessão</div>
 
+    <div style="margin-bottom:14px;position:relative">
+      <input type="search" id="mesa-busca-pc" placeholder="🔍 Pesquisar cenas, NPCs, itens, pistas..." value="${esc(mesaBusca)}"
+        oninput="mesaBuscarFiltro(this.value)"
+        style="width:100%;background:#090807;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:3px;outline:none;box-sizing:border-box;transition:border-color .2s"
+        onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
+    </div>
+
     ${s.opening?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
       <p style="color:#d6c0b8;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
@@ -1234,7 +1372,7 @@ function renderMesa() {
       <p class="body-text" style="margin:0;font-style:italic">${nl(s.synopsis)}</p>
     </div>`:''}
 
-    <div class="mesa-grid">
+    <div class="mesa-grid mesa-busca-container">
 
       ${s.objectives?`<div class="mesa-card"><div class="mesa-card-title">🎯 Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
 
@@ -1250,8 +1388,8 @@ function renderMesa() {
       </div>
 
       ${antaHtml}
-      ${linkedNpcs.length?`<div class="mesa-card"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${npcsHtml}</div>`:''}
-      ${c.items.length?`<div class="mesa-card"><div class="mesa-card-title">🗡 Itens & Artefatos</div>${itemsHtml}</div>`:''}
+      ${linkedNpcs.length?`<div class="mesa-card"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div><div class="mesa-busca-container">${npcsHtml}</div></div>`:''}
+      ${c.items.length?`<div class="mesa-card"><div class="mesa-card-title">🗡 Itens & Artefatos</div><div class="mesa-busca-container">${itemsHtml}</div></div>`:''}
       ${s.rewards?`<div class="mesa-card"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0">${nl(s.rewards)}</p></div>`:''}
       ${s.hook?`<div class="mesa-card" style="border-color:#0e749033"><div class="mesa-card-title" style="color:#67e8f9">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
       ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}
@@ -1269,6 +1407,12 @@ function renderMesa() {
   // 📖 CENA — abertura, sinopse, objetivos, cenas, npcs, itens, recompensas, gancho, notas
   const pCena = document.getElementById('mob-pane-cena');
   if (pCena) pCena.innerHTML = `
+    <div style="margin-bottom:12px;position:relative">
+      <input type="search" id="mesa-busca-mob" placeholder="🔍 Pesquisar..." value="${esc(mesaBusca)}"
+        oninput="mesaBuscarFiltro(this.value)"
+        style="width:100%;background:#090807;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;border-radius:3px;outline:none;box-sizing:border-box;-webkit-appearance:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
+    </div>
     ${s.opening?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
       <p style="color:#d6c0b8;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
@@ -1281,6 +1425,7 @@ function renderMesa() {
       <div class="mesa-card-title">🎯 Objetivos</div>
       <p class="body-text" style="margin:0;font-size:13px">${nl(s.objectives)}</p>
     </div>`:''}
+    <div class="mesa-busca-container">
     ${(s.scenes||[]).length?`<div class="mesa-card" style="margin-bottom:12px">
       <div class="mesa-card-title">🎬 Cenas da Sessão</div>
       ${buildCenasHtml()}
@@ -1290,7 +1435,8 @@ function renderMesa() {
     ${c.items.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🗡 Itens & Artefatos</div>${itemsHtml}</div>`:''}
     ${s.rewards?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0;font-size:13px">${nl(s.rewards)}</p></div>`:''}
     ${s.hook?`<div class="mesa-card" style="border-color:#0e749033;margin-bottom:12px"><div class="mesa-card-title" style="color:#67e8f9">🪝 Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
-    ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44;margin-bottom:12px"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}`;
+    ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44;margin-bottom:12px"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}
+    </div>`;
 
   // ⚔️ COMBATE — iniciativa + controles
   const pCombate = document.getElementById('mob-pane-combate');
@@ -1394,6 +1540,38 @@ function mesaEl(id) {
 }
 
 // ── Toggle expandable sections in Mesa ────────────────────────
+function mesaMarcarCena(scId) {
+  mesaCenaAtivaId = mesaCenaAtivaId === scId ? null : scId;
+  // re-render just the cenas section without full renderMesa
+  const containers = document.querySelectorAll('.mesa-cenas-list');
+  containers.forEach(c => {
+    c.querySelectorAll('.mesa-cena-row').forEach(row => {
+      const id = row.dataset.scid;
+      const isAtiva = id === mesaCenaAtivaId;
+      row.style.borderLeftColor = isAtiva ? '#c0392b' : row.dataset.col;
+      row.style.background = isAtiva ? '#7f1d1d18' : 'transparent';
+      const badge = row.querySelector('.cena-ativa-badge');
+      if (badge) badge.style.display = isAtiva ? 'inline-block' : 'none';
+    });
+    // move active to top
+    if (mesaCenaAtivaId) {
+      const ativa = c.querySelector(`[data-scid="${mesaCenaAtivaId}"]`);
+      if (ativa) c.prepend(ativa);
+    }
+  });
+}
+function mesaBuscarFiltro(val) {
+  mesaBusca = val.toLowerCase().trim();
+  const containers = document.querySelectorAll('.mesa-busca-container');
+  containers.forEach(cont => {
+    const items = cont.querySelectorAll('[data-busca]');
+    items.forEach(item => {
+      const texto = item.dataset.busca || '';
+      item.style.display = (!mesaBusca || texto.includes(mesaBusca)) ? '' : 'none';
+    });
+  });
+}
+
 function mesaToggle(id) {
   const el  = document.getElementById(id);
   const arr = document.getElementById('arr-'+id);
@@ -2538,9 +2716,9 @@ function showToast(msg, type='ok') {
 function openDrawer() {
   document.getElementById('drawer').classList.add('open');
   document.getElementById('drawer-overlay').classList.add('open');
-  // update drawer count
   const dc = document.getElementById('drawer-count');
   if (dc) dc.textContent = camps.length || '';
+  updateBackupBadge();
 }
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
