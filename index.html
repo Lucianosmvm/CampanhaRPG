@@ -120,14 +120,62 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .mesa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(min-width:1400px){.mesa-grid{grid-template-columns:1fr 1fr 1fr}}
 
-/* mobile ≤900px: single stacked column */
+/* hide mobile-only elements on PC */
+.mob-tab-pane{display:none}
+.mesa-mob-tabbar{display:none}
+
+/* ── MOBILE MESA: tab-based layout ≤900px ── */
 @media(max-width:900px){
-  .mesa-body{flex-direction:column;overflow-y:auto;overflow-x:hidden}
-  .mesa-col-left{width:100%;flex-shrink:0;border-right:none;border-bottom:1px solid #1c1a16;overflow-y:visible;overflow-x:visible}
-  .mesa-col-right{padding:14px;overflow-y:visible;overflow-x:visible}
-  .mesa-col-left-inner{padding:12px}
+  /* body becomes a single scrollable pane, padded for tab bar */
+  .mesa-body{flex-direction:column;overflow:hidden;position:relative}
+  .mesa-col-left,.mesa-col-right{
+    position:absolute;inset:0;bottom:0;
+    overflow-y:auto;overflow-x:hidden;
+    border:none;background:#080706;
+    display:none; /* hidden until tab selected */
+    padding-bottom:72px; /* space for tab bar */
+  }
+  .mesa-col-left.mob-active,.mesa-col-right.mob-active{display:block}
+  .mesa-col-left-inner{padding:14px;gap:14px}
   .mesa-grid{grid-template-columns:1fr}
   .mesa-col-left-label{display:none}
+
+  /* tab panels: each section is its own pane */
+  .mob-tab-pane{
+    position:absolute;inset:0;bottom:0;
+    overflow-y:auto;overflow-x:hidden;
+    padding:14px 14px 80px;
+    display:none;
+    background:#080706;
+  }
+  .mob-tab-pane.mob-active{display:block}
+
+  /* bottom tab bar */
+  .mesa-mob-tabbar{
+    position:absolute;bottom:0;left:0;right:0;
+    height:60px;
+    background:#0c0b09;
+    border-top:1px solid #1c1a16;
+    display:flex;
+    z-index:10;
+  }
+  .mesa-mob-tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;border:none;background:none;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    color:#4a4440;transition:color .15s;padding:0;
+    position:relative;
+  }
+  .mesa-mob-tab.active{color:#c0392b}
+  .mesa-mob-tab.active::after{
+    content:'';position:absolute;top:0;left:20%;right:20%;
+    height:2px;background:#c0392b;border-radius:0 0 2px 2px;
+  }
+  .mesa-mob-tab-icon{font-size:20px;line-height:1}
+  .mesa-mob-tab-label{font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-family:'Share Tech Mono',monospace;font-weight:700}
+
+  /* hide PC-only elements on mobile */
+  .mesa-col-left,.mesa-col-right{display:none!important}
 }
 .mesa-card{background:#0f0e0c;border:1px solid #2c2820;border-radius:3px;padding:16px}
 .mesa-card-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
@@ -189,8 +237,8 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
   .topbar{padding:0 12px;gap:10px}
   .form-body{padding:14px;max-height:none;overflow-y:visible}
   .form-header{padding:14px 16px}
-  .mesa-top{padding:10px 12px;gap:8px}
-  .mesa-body{padding:12px}
+  .mesa-top{padding:8px 12px;gap:6px}
+  .mesa-body{padding:0}
   .form-wrap{border-radius:3px}
   /* stack hero action buttons vertically on small screens */
   .hero-actions{flex-direction:column;align-items:stretch}
@@ -292,9 +340,41 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
 <!-- Mesa Mode -->
 <div class="mesa-overlay" id="mesa-overlay" style="display:none">
   <div class="mesa-top" id="mesa-top"></div>
+  <!-- PC: two columns -->
   <div class="mesa-body" id="mesa-body">
     <div class="mesa-col-left" id="mesa-col-left"></div>
     <div class="mesa-col-right" id="mesa-col-right"></div>
+
+    <!-- MOBILE: tab panes (hidden on PC via CSS) -->
+    <div class="mob-tab-pane mob-active" id="mob-pane-cena"></div>
+    <div class="mob-tab-pane" id="mob-pane-combate"></div>
+    <div class="mob-tab-pane" id="mob-pane-agentes"></div>
+    <div class="mob-tab-pane" id="mob-pane-dados"></div>
+    <div class="mob-tab-pane" id="mob-pane-pistas"></div>
+
+    <!-- MOBILE: tab bar -->
+    <nav class="mesa-mob-tabbar" id="mesa-mob-tabbar">
+      <button class="mesa-mob-tab active" onclick="mesaMobTab('cena',this)">
+        <span class="mesa-mob-tab-icon">📖</span>
+        <span class="mesa-mob-tab-label">Cena</span>
+      </button>
+      <button class="mesa-mob-tab" onclick="mesaMobTab('combate',this)">
+        <span class="mesa-mob-tab-icon">⚔️</span>
+        <span class="mesa-mob-tab-label">Combate</span>
+      </button>
+      <button class="mesa-mob-tab" onclick="mesaMobTab('agentes',this)">
+        <span class="mesa-mob-tab-icon">🎭</span>
+        <span class="mesa-mob-tab-label">Agentes</span>
+      </button>
+      <button class="mesa-mob-tab" onclick="mesaMobTab('dados',this)">
+        <span class="mesa-mob-tab-icon">🎲</span>
+        <span class="mesa-mob-tab-label">Dados</span>
+      </button>
+      <button class="mesa-mob-tab" onclick="mesaMobTab('pistas',this)">
+        <span class="mesa-mob-tab-icon">🔍</span>
+        <span class="mesa-mob-tab-label">Pistas</span>
+      </button>
+    </nav>
   </div>
 </div>
 
@@ -1178,9 +1258,139 @@ function renderMesa() {
 
     </div>`;
 
-  // render trackers after innerHTML is set
+  // render trackers after innerHTML is set (PC columns)
   renderSanTracker();
   renderIniciativa();
+
+  // ── MOBILE PANES ─────────────────────────────────────────────
+  const isMob = window.innerWidth <= 900;
+  if (!isMob) return; // skip on PC
+
+  // 📖 CENA — abertura, sinopse, objetivos, cenas, npcs, itens, recompensas, gancho, notas
+  const pCena = document.getElementById('mob-pane-cena');
+  if (pCena) pCena.innerHTML = `
+    ${s.opening?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
+      <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
+      <p style="color:#d6c0b8;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
+    </div>`:''}
+    ${s.synopsis?`<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:12px 14px;margin-bottom:14px">
+      <div class="mesa-card-title">Sinopse</div>
+      <p class="body-text" style="margin:0;font-style:italic;font-size:13px">${nl(s.synopsis)}</p>
+    </div>`:''}
+    ${s.objectives?`<div class="mesa-card" style="margin-bottom:12px">
+      <div class="mesa-card-title">🎯 Objetivos</div>
+      <p class="body-text" style="margin:0;font-size:13px">${nl(s.objectives)}</p>
+    </div>`:''}
+    ${(s.scenes||[]).length?`<div class="mesa-card" style="margin-bottom:12px">
+      <div class="mesa-card-title">🎬 Cenas da Sessão</div>
+      ${buildCenasHtml()}
+    </div>`:''}
+    ${antaHtml?`<div style="margin-bottom:12px">${antaHtml}</div>`:''}
+    ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${npcsHtml}</div>`:''}
+    ${c.items.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🗡 Itens & Artefatos</div>${itemsHtml}</div>`:''}
+    ${s.rewards?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0;font-size:13px">${nl(s.rewards)}</p></div>`:''}
+    ${s.hook?`<div class="mesa-card" style="border-color:#0e749033;margin-bottom:12px"><div class="mesa-card-title" style="color:#67e8f9">🪝 Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
+    ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44;margin-bottom:12px"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}`;
+
+  // ⚔️ COMBATE — iniciativa + controles
+  const pCombate = document.getElementById('mob-pane-combate');
+  if (pCombate) pCombate.innerHTML = `
+    <div class="mesa-card" style="border-color:#b8860b44;margin-bottom:12px">
+      <div class="mesa-card-title">⚔️ Iniciativa & Combate</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <button onclick="mesaRolarTodos()" style="flex:1;background:none;border:1px solid #b8860b55;color:#b8860b;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">🎲 Rolar Todos</button>
+        <button onclick="mesaProximoTurno()" style="flex:1;background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">▶ Próximo</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="mesaAddCriatura()" style="flex:1;background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">💀 + Inimigo</button>
+        <div style="display:flex;align-items:center;gap:8px;padding:0 12px;background:#090807;border:1px solid #1c1a16;border-radius:2px">
+          <span style="font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">Rodada</span>
+          <span id="ini-rodada" style="font-size:24px;font-weight:700;color:#b8860b;font-family:'Share Tech Mono',monospace">1</span>
+          <button onclick="mesaLimparIniciativa()" style="background:none;border:1px solid #2c2820;color:#4a4440;padding:4px 8px;border-radius:2px;font-size:11px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:all .15s;min-height:36px" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕ Limpar</button>
+        </div>
+      </div>
+      <div id="iniciativa-body"></div>
+    </div>`;
+
+  // 🎭 AGENTES
+  const pAgentes = document.getElementById('mob-pane-agentes');
+  if (pAgentes) pAgentes.innerHTML = `
+    <div class="mesa-card" style="border-color:#c0392b44">
+      <div class="mesa-card-title">🎭 Agentes · PV · PE · SAN · NEX</div>
+      <div id="san-tracker-body" style="display:flex;flex-direction:column;gap:12px"></div>
+      <button class="btn-add" onclick="mesaAddAgente()" style="margin-top:10px;border-color:#c0392b55;color:#c0392b;min-height:52px;font-size:14px">+ Adicionar Agente</button>
+    </div>`;
+
+  // 🎲 DADOS
+  const pDados = document.getElementById('mob-pane-dados');
+  if (pDados) pDados.innerHTML = `
+    <div class="mesa-card" style="border-color:#b8860b44;margin-bottom:12px">
+      <div class="mesa-card-title">🎲 Rolador de Dados</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+        ${['4','6','8','10','12','20','100'].map((f,i)=>`
+        <button class="dice-btn" onclick="rollDice(${f})" style="min-height:52px;font-size:15px;${f==='100'?'color:#c0392b;border-color:#c0392b44;grid-column:span 2':''}">d${f==='100'?'%':''}${f!=='100'?f:''}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input id="dice-custom" type="number" min="2" max="9999" placeholder="Outro dado..." style="flex:1;padding:12px 10px;font-size:15px"/>
+        <button class="btn-ghost" onclick="rollCustomDice()" style="flex-shrink:0;padding:12px 16px;font-size:13px;min-height:52px">Rolar</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;background:#080706;border:1px solid #2c2820;border-radius:3px;padding:16px;margin-bottom:10px">
+        <div id="dice-label" style="color:#7a7060;font-size:13px;letter-spacing:.1em;text-transform:uppercase;min-width:30px">—</div>
+        <div id="dice-result" style="font-size:56px;font-weight:900;font-family:'Share Tech Mono',monospace;color:#ede8dc;min-width:70px;text-align:center;line-height:1">—</div>
+      </div>
+      <div id="dice-log" style="display:flex;flex-wrap:wrap;gap:7px;min-height:18px;font-family:'Share Tech Mono',monospace;font-size:13px"></div>
+    </div>`;
+
+  // 🔍 PISTAS + Notas Rápidas
+  const pPistas = document.getElementById('mob-pane-pistas');
+  if (pPistas) pPistas.innerHTML = `
+    <div class="mesa-card" style="margin-bottom:12px">
+      <div class="mesa-card-title">🔍 Pistas</div>
+      ${cluesHtml||'<div style="color:#7a7060;font-size:13px;text-align:center;padding:20px 0">Nenhuma pista cadastrada</div>'}
+    </div>
+    <div class="mesa-card" style="border-color:#c0392b33">
+      <div class="mesa-card-title" style="margin-bottom:8px">✏️ Notas Rápidas</div>
+      <textarea id="mesa-quicknotes" placeholder="Improviso, nome criado na hora, decisão dos jogadores..."
+        style="width:100%;background:#080706;border:1px solid #2c2820;color:#d6d0c4;font-family:'Share Tech Mono',monospace;font-size:14px;padding:12px;border-radius:2px;outline:none;resize:none;min-height:140px;line-height:1.7"
+        oninput="mesaSaveQuicknotes(this.value)">${esc(quicknotes)}</textarea>
+    </div>`;
+
+  // restore active tab state and re-render trackers in the correct pane
+  mesaMobTab(_mobActiveTab, document.querySelector(`.mesa-mob-tab.active`));
+  renderSanTracker();
+  renderIniciativa();
+}
+
+// ── Mobile tab switching ──────────────────────────────────────
+let _mobActiveTab = 'cena';
+function mesaMobTab(tab, btn) {
+  _mobActiveTab = tab;
+  document.querySelectorAll('.mob-tab-pane').forEach(p => p.classList.remove('mob-active'));
+  const pane = document.getElementById('mob-pane-'+tab);
+  if (pane) pane.classList.add('mob-active');
+  document.querySelectorAll('.mesa-mob-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (tab === 'agentes') renderAgentesTracker();
+  if (tab === 'combate') renderIniciativa();
+  if (tab === 'dados') renderDiceLog();
+}
+
+// helper: returns the active element with a given ID.
+// On mobile, prefers elements inside the active mob-tab-pane.
+// On PC, falls back to document.getElementById (PC columns are always visible).
+function mesaEl(id) {
+  const isMob = window.innerWidth <= 900;
+  if (isMob) {
+    const panes = document.querySelectorAll('.mob-tab-pane.mob-active');
+    for (const p of panes) {
+      const el = p.querySelector('#'+id);
+      if (el) return el;
+    }
+    // fallback: any pane (element might not be in the active one yet)
+    const anyPane = document.querySelector('.mob-tab-pane #'+id);
+    if (anyPane) return anyPane;
+  }
+  return document.getElementById(id);
 }
 
 // ── Toggle expandable sections in Mesa ────────────────────────
@@ -1224,8 +1434,8 @@ function mesaSaveQuicknotes(val) {
 const diceLog = [];
 function rollDice(faces) {
   const result = Math.floor(Math.random() * faces) + 1;
-  const el = document.getElementById('dice-result');
-  const labelEl = document.getElementById('dice-label');
+  const el = mesaEl('dice-result');
+  const labelEl = mesaEl('dice-label');
   if (!el || !labelEl) return;
   el.style.animation = 'none';
   el.offsetHeight;
@@ -1235,26 +1445,27 @@ function rollDice(faces) {
   const isCrit = result === faces;
   const isFail = result === 1;
   el.style.color = isCrit ? '#4ade80' : isFail ? '#c0392b' : '#ede8dc';
-  // log
-  diceLog.unshift({ faces, result, isCrit, isFail, ts: Date.now() });
+  diceLog.unshift({ faces, result, isCrit, isFail });
   if (diceLog.length > 10) diceLog.pop();
   renderDiceLog();
 }
 function rollCustomDice() {
-  const input = document.getElementById('dice-custom');
+  const input = mesaEl('dice-custom');
   if (!input) return;
   const faces = parseInt(input.value);
   if (!faces || faces < 2 || faces > 9999) { showToast('Valor inválido (2–9999).','err'); return; }
   rollDice(faces);
 }
 function renderDiceLog() {
-  const el = document.getElementById('dice-log');
-  if (!el || diceLog.length === 0) return;
-  el.innerHTML = diceLog.map((e,i) => {
-    const c = e.isCrit ? '#4ade80' : e.isFail ? '#c0392b' : '#7a7060';
-    const tag = e.isCrit ? ' ★' : e.isFail ? ' ✕' : '';
-    return `<span style="color:${c};font-size:11px;opacity:${1 - i*0.08}" title="d${e.faces}">d${e.faces}·<b>${e.result}</b>${tag}</span>`;
-  }).join('<span style="color:#1c1a16;margin:0 2px">│</span>');
+  // update all visible dice-log elements (PC + mobile)
+  document.querySelectorAll('#dice-log').forEach(el => {
+    if (diceLog.length === 0) return;
+    el.innerHTML = diceLog.map((e,i) => {
+      const c = e.isCrit ? '#4ade80' : e.isFail ? '#c0392b' : '#7a7060';
+      const tag = e.isCrit ? ' ★' : e.isFail ? ' ✕' : '';
+      return `<span style="color:${c};font-size:11px;opacity:${1 - i*0.08}" title="d${e.faces}">d${e.faces}·<b>${e.result}</b>${tag}</span>`;
+    }).join('<span style="color:#1c1a16;margin:0 2px">│</span>');
+  });
 }
 
 /* ── TRACKER DE SANIDADE ── */
@@ -1381,7 +1592,7 @@ function mesaToggleCondicaoCriatura(id, cond) {
 
 function renderIniciativa() {
   const c = camps.find(x=>x.id===viewingId);
-  const el = document.getElementById('iniciativa-body');
+  const el = mesaEl('iniciativa-body');
   if (!el || !c) return;
   const agentes = c.agentes || [];
   const criaturas = getCriaturas();
@@ -1460,8 +1671,8 @@ function renderIniciativa() {
   } else {
     el.innerHTML = sorted.map((x,i) => iniRow(x,i)).join('');
   }
-  const rd = document.getElementById('ini-rodada');
-  if (rd) rd.textContent = iniciativaRodada;
+  // update all ini-rodada elements (PC + mobile may both exist)
+  document.querySelectorAll('#ini-rodada').forEach(rd => { rd.textContent = iniciativaRodada; });
 }
 
 function mesaRolarIniciativa(id) {
@@ -1517,7 +1728,7 @@ function mesaProximoTurno() {
 
 function renderAgentesTracker() {
   const c = camps.find(x=>x.id===viewingId);
-  const container = document.getElementById('san-tracker-body');
+  const container = mesaEl('san-tracker-body');
   if (!container || !c) return;
   const agentes = c.agentes || [];
   if (agentes.length === 0) {
