@@ -308,7 +308,18 @@ function blankCamp() {
     antagonist:{name:'',nature:'',motivation:'',power:''},
     npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
 }
-function blankAgente() { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10 }; }
+function blankAgente() { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[] }; }
+
+const CONDICOES = [
+  {v:'abalado',    l:'Abalado',      c:'#b8860b', ic:'😨'},
+  {v:'assustado',  l:'Assustado',    c:'#e65c00', ic:'😱'},
+  {v:'paranoico',  l:'Paranóico',    c:'#7c3aed', ic:'🌀'},
+  {v:'inconsciente',l:'Inconsciente',c:'#6b7280', ic:'💤'},
+  {v:'morrendo',   l:'Morrendo',     c:'#c0392b', ic:'🩸'},
+  {v:'morto',      l:'Morto',        c:'#302c24', ic:'☠️'},
+  {v:'possuido',   l:'Possuído',     c:'#4c1d95', ic:'👁️'},
+  {v:'exausto',    l:'Exausto',      c:'#0e7490', ic:'😮‍💨'},
+];
 
 const AGENTE_ICONS = [
   /* ── Origens ── */
@@ -864,6 +875,7 @@ function bindDetail() {}
 ═══════════════════════════════════════ */
 function openMesa(sessId) {
   mesaSessionId = sessId;
+  iniciativaRodada = 1;
   renderMesa();
   document.getElementById('mesa-overlay').style.display='flex';
   initMesaSwipe();
@@ -1080,9 +1092,25 @@ function renderMesa() {
       </div>
 
       <!-- TRACKER DE AGENTES -->
+      <!-- INICIATIVA -->
+      <div class="mesa-card" style="border-color:#b8860b44;grid-column:1/-1">
+        <div class="mesa-card-title">⚔️ Iniciativa & Combate</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button onclick="mesaRolarTodos()" style="background:none;border:1px solid #b8860b55;color:#b8860b;padding:6px 12px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.06em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'">🎲 Rolar Todos (d20)</button>
+          <button onclick="mesaProximoTurno()" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:6px 14px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.06em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#c0392b33'" onmouseleave="this.style.background='#c0392b22'">▶ Próximo Turno</button>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+            <span style="font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">Rodada</span>
+            <span id="ini-rodada" style="font-size:20px;font-weight:700;color:#b8860b;font-family:'Share Tech Mono',monospace">1</span>
+            <button onclick="mesaLimparIniciativa()" title="Limpar iniciativa e zerar rodada" style="background:none;border:1px solid #2c2820;color:#4a4440;padding:4px 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:all .15s" onmouseenter="this.style.borderColor='#c0392b';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='#2c2820';this.style.color='#4a4440'">✕ Limpar</button>
+          </div>
+        </div>
+        <div id="iniciativa-body"></div>
+      </div>
+
+      <!-- AGENTES -->
       <div class="mesa-card" style="border-color:#c0392b44;grid-column:1/-1">
-        <div class="mesa-card-title" style="margin-bottom:12px">🎭 Agentes — PV · PE · Sanidade</div>
-        <div id="san-tracker-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px"></div>
+        <div class="mesa-card-title" style="margin-bottom:12px">🎭 Agentes — PV · PE · Sanidade · NEX</div>
+        <div id="san-tracker-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
         <button class="btn-add" onclick="mesaAddAgente()" style="margin-top:8px;border-color:#c0392b55;color:#c0392b">+ Adicionar Agente</button>
       </div>
 
@@ -1094,8 +1122,9 @@ function renderMesa() {
       ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}
     </div>`;
 
-  // render san tracker after innerHTML is set
+  // render trackers after innerHTML is set
   renderSanTracker();
+  renderIniciativa();
 }
 
 // ── Toggle expandable sections in Mesa ────────────────────────
@@ -1180,7 +1209,7 @@ function mesaSetAgente(id, field, val) {
   const c = camps.find(x=>x.id===viewingId);
   const a = (c?.agentes||[]).find(x=>x.id===id);
   if (!a) return;
-  const numFields = ['san','sanMax','pv','pvMax','pe','peMax'];
+  const numFields = ['san','sanMax','pv','pvMax','pe','peMax','nex'];
   if (numFields.includes(field)) {
     const n = parseInt(val);
     a[field] = isNaN(n) ? 0 : Math.max(0, n);
@@ -1201,6 +1230,120 @@ function mesaDelta(id, stat, delta) {
 }
 // keep old name as alias so any stale inline calls don't break
 function mesaSanDelta(id, delta) { mesaDelta(id, 'san', delta); }
+
+function mesaToggleCondicao(id, cond) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===id);
+  if (!a) return;
+  if (!a.conditions) a.conditions = [];
+  const idx = a.conditions.indexOf(cond);
+  if (idx === -1) a.conditions.push(cond);
+  else a.conditions.splice(idx, 1);
+  persist();
+  renderAgentesTracker();
+}
+
+/* ── INICIATIVA ── */
+let iniciativaRodada = 1;
+function renderIniciativa() {
+  const c = camps.find(x=>x.id===viewingId);
+  const el = document.getElementById('iniciativa-body');
+  if (!el || !c) return;
+  const agentes = c.agentes || [];
+  if (agentes.length === 0) {
+    el.innerHTML = `<div style="color:#7a7060;font-size:12px;text-align:center;padding:8px">Adicione agentes no tracker para usar a iniciativa.</div>`;
+    return;
+  }
+  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
+  const combateAtivo = agentes.some(a => a._ini != null);
+  // sort: rolled desc, unrolled at end
+  const sorted = [...agentes].sort((a,b) => {
+    if ((a._ini==null) && (b._ini==null)) return 0;
+    if (a._ini==null) return 1;
+    if (b._ini==null) return -1;
+    return b._ini - a._ini;
+  });
+  const turnIdx = (combateAtivo && sess?._iniTurn != null) ? sess._iniTurn : 0;
+  el.innerHTML = sorted.map((a,i) => {
+    const isActive = combateAtivo && i === turnIdx && a._ini != null;
+    const isDead = (a.conditions||[]).includes('morto');
+    const condTags = (a.conditions||[]).filter(v=>v!=='morto').map(v=>{
+      const cd = CONDICOES.find(x=>x.v===v);
+      return cd ? `<span style="font-size:9px;padding:1px 4px;border-radius:2px;background:${cd.c}22;border:1px solid ${cd.c}44;color:${cd.c}">${cd.ic}</span>` : '';
+    }).join('');
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:3px;margin-bottom:4px;background:${isActive?'#7f1d1d22':'#060504'};border:1px solid ${isActive?'#c0392b66':'#1c1a16'};transition:all .2s;opacity:${isDead?'.35':'1'}">
+      <span style="font-size:17px;flex-shrink:0">${a.icon||'❤️'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700;color:${isActive?'#ede8dc':'#9a9088'};font-family:'Playfair Display',Georgia,serif">${esc(a.name||'Agente')}</span>
+          ${condTags}
+          ${isDead?`<span style="font-size:9px;color:#4a4440;border:1px solid #302c24;padding:1px 4px;border-radius:2px">☠ morto</span>`:''}
+        </div>
+      </div>
+      ${isActive?`<span style="font-size:9px;padding:2px 7px;background:#c0392b22;border:1px solid #c0392b55;border-radius:2px;color:#c0392b;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">▶ Vez</span>`:''}
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        ${a._ini==null?`<button onclick="mesaRolarIniciativa('${a.id}')" style="background:none;border:1px solid #b8860b44;color:#b8860b;height:26px;padding:0 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'">🎲 d20</button>`:''}
+        <input type="number" min="1" max="30" value="${a._ini ?? ''}" placeholder="—"
+          onchange="mesaSetIniciativa('${a.id}',this.value)"
+          style="width:38px;text-align:center;background:#0c0b09;border:1px solid ${isActive?'#c0392b55':'#2c2820'};border-radius:2px;padding:2px 0;font-size:14px;font-weight:700;color:${isActive?'#c0392b':'#ede8dc'};font-family:'Share Tech Mono',monospace"/>
+      </div>
+    </div>`;
+  }).join('');
+  // update rodada display
+  const rd = document.getElementById('ini-rodada');
+  if (rd) rd.textContent = iniciativaRodada;
+}
+function mesaRolarIniciativa(id) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===id);
+  if (!a) return;
+  a._ini = Math.ceil(Math.random() * 20);
+  persist();
+  renderIniciativa();
+}
+function mesaSetIniciativa(id, val) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===id);
+  if (!a) return;
+  const n = parseInt(val);
+  a._ini = isNaN(n) ? null : Math.max(1, n);
+  persist();
+  renderIniciativa();
+}
+function mesaRolarTodos() {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return;
+  (c.agentes||[]).forEach(a => { a._ini = Math.ceil(Math.random() * 20); });
+  // reset turn to beginning
+  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
+  if (sess) sess._iniTurn = 0;
+  persist();
+  renderIniciativa();
+}
+function mesaLimparIniciativa() {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return;
+  (c.agentes||[]).forEach(a => { delete a._ini; });
+  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
+  if (sess) sess._iniTurn = 0;
+  persist();
+  iniciativaRodada = 1;
+  renderIniciativa();
+}
+function mesaProximoTurno() {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return;
+  const ativos = (c.agentes||[]).filter(a => a._ini != null);
+  if (!ativos.length) return;
+  ativos.sort((a,b) => b._ini - a._ini);
+  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
+  if (!sess) return;
+  if (sess._iniTurn == null) sess._iniTurn = 0;
+  sess._iniTurn = (sess._iniTurn + 1) % ativos.length;
+  if (sess._iniTurn === 0) iniciativaRodada++;
+  persist();
+  renderIniciativa();
+}
 
 function renderAgentesTracker() {
   const c = camps.find(x=>x.id===viewingId);
@@ -1247,11 +1390,11 @@ function renderAgentesTracker() {
     // ensure legacy agents have new fields
     if (a.pv  === undefined) { a.pv  = a.pvMax  = 20; }
     if (a.pe  === undefined) { a.pe  = a.peMax  = 10; }
-    const sanPct = a.sanMax > 0 ? Math.round((a.san / a.sanMax) * 100) : 0;
-    const pvPct  = a.pvMax  > 0 ? Math.round((a.pv  / a.pvMax)  * 100) : 0;
-    const pePct  = a.peMax  > 0 ? Math.round((a.pe  / a.peMax)  * 100) : 0;
+    if (a.nex === undefined) a.nex = 5;
+    if (!a.conditions) a.conditions = [];
     if (a.icon === undefined) a.icon = '❤️';
     const displayIcon = a.icon || '❤️';
+    const isDead = a.conditions.includes('morto');
     // build grouped options for select
     const groups = [...new Set(AGENTE_ICONS.map(x=>x.g))];
     const optionsHtml = groups.map(g=>{
@@ -1260,9 +1403,22 @@ function renderAgentesTracker() {
       ).join('');
       return `<optgroup label="── ${g} ──">${opts}</optgroup>`;
     }).join('');
+    // NEX color
+    const nexColor = a.nex >= 75 ? '#c0392b' : a.nex >= 50 ? '#e65c00' : a.nex >= 25 ? '#b8860b' : '#276749';
+    // condições badges
+    const condBadges = CONDICOES.map(cd => {
+      const active = a.conditions.includes(cd.v);
+      return `<button onclick="mesaToggleCondicao('${a.id}','${cd.v}')"
+        style="padding:3px 7px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;transition:all .15s;-webkit-tap-highlight-color:transparent;
+        background:${active?cd.c+'33':'transparent'};
+        border:1px solid ${active?cd.c:cd.c+'44'};
+        color:${active?cd.c:'#4a4440'};
+        font-weight:${active?'700':'400'}"
+        title="${cd.l}">${cd.ic} ${cd.l}</button>`;
+    }).join('');
     return `
-    <div style="background:#0c0b09;border:1px solid #2c2820;border-radius:4px;overflow:hidden;margin-bottom:10px">
-      <!-- cabeçalho do agente -->
+    <div style="background:#0c0b09;border:1px solid ${isDead?'#302c24':'#2c2820'};border-radius:4px;overflow:hidden;margin-bottom:10px;opacity:${isDead?'.6':'1'};transition:opacity .2s">
+      <!-- cabeçalho -->
       <div style="background:linear-gradient(135deg,#141210,#1a1814);padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #2c2820">
         <div style="position:relative;flex-shrink:0">
           <span style="font-size:22px;display:block;line-height:1;cursor:pointer" title="Clique para mudar ícone" onclick="this.nextElementSibling.focus();this.nextElementSibling.click()">${displayIcon}</span>
@@ -1272,16 +1428,32 @@ function renderAgentesTracker() {
             ${optionsHtml}
           </select>
         </div>
-        <input value="${esc(a.name)}" placeholder="Nome do agente"
-          oninput="mesaSetAgente('${a.id}','name',this.value)"
-          style="flex:1;background:transparent;border:none;border-bottom:1px solid #302c24;border-radius:0;padding:3px 0;font-size:14px;font-weight:700;color:#ede8dc;font-family:'Playfair Display',Georgia,serif;min-width:0"/>
+        <div style="flex:1;min-width:0">
+          <input value="${esc(a.name)}" placeholder="Nome do agente"
+            oninput="mesaSetAgente('${a.id}','name',this.value)"
+            style="width:100%;background:transparent;border:none;border-bottom:1px solid #302c24;border-radius:0;padding:3px 0;font-size:14px;font-weight:700;color:#ede8dc;font-family:'Playfair Display',Georgia,serif"/>
+        </div>
+        <!-- NEX -->
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="Nível de Exposição Paranormal">
+          <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">NEX</span>
+          <select onchange="mesaSetAgente('${a.id}','nex',this.value)"
+            style="background:#0c0b09;border:1px solid ${nexColor}44;color:${nexColor};font-size:11px;font-weight:700;padding:2px 4px;border-radius:2px;width:auto;font-family:'Share Tech Mono',monospace">
+            ${[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99].map(v=>
+              `<option value="${v}"${a.nex===v?' selected':''}>${v}%</option>`
+            ).join('')}
+          </select>
+        </div>
         <button onclick="mesaDelAgente('${a.id}')" style="background:none;border:none;color:#4a4440;font-size:16px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;transition:color .15s;-webkit-tap-highlight-color:transparent" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
       </div>
       <!-- barras de status -->
-      <div style="padding:12px 12px 4px">
+      <div style="padding:12px 12px 8px">
         ${statBar(a, 'pv',  'PV — Pontos de Vida',    '#c0392b', '❤️')}
         ${statBar(a, 'pe',  'PE — Pontos de Esforço', '#0e7490', '⚡')}
         ${statBar(a, 'san', 'SAN — Sanidade',          '#7c3aed', '🧠')}
+      </div>
+      <!-- condições -->
+      <div style="padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:4px">
+        ${condBadges}
       </div>
     </div>`;
   }).join('');
