@@ -7,10 +7,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
-/* ══════════════════════════════════════════════
-   TEMAS — variáveis CSS por data-theme
-   paranormal (padrão escuro) | manuscrito (sépia) | vermelho (dark crimson)
-══════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════╗
+   ║  ESTILOS — Ordem Paranormal Organizador                      ║
+   ╠═══════════════════════════════════════════════════════════════╣
+   ║  SEÇÕES:                                                     ║
+   ║  1. TEMAS        — variáveis CSS por data-theme              ║
+   ║  2. BASE         — reset, body, inputs, botões               ║
+   ║  3. LAYOUT       — topbar, main, grid                        ║
+   ║  4. COMPONENTES  — cards, forms, entry cards, view cards     ║
+   ║  5. MODAL        — overlay de confirmação                    ║
+   ║  6. MESA MODE    — overlay de jogo, colunas PC               ║
+   ║  7. MESA MOBILE  — tab bar, panes (≤900px)                   ║
+   ║  8. TOAST / FAB  — notificações e botão flutuante            ║
+   ║  9. DRAWER       — menu hamburger                            ║
+   ║  10. TEMAS UI    — seletores de tema (topbar + drawer)       ║
+   ║  11. ANIMAÇÕES   — keyframes, dice roll                      ║
+   ║  12. RESPONSIVO  — ajustes mobile (≤600px)                   ║
+   ╚═══════════════════════════════════════════════════════════════╝ */
+
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 1. TEMAS — variáveis CSS por data-theme                    │
+   │    paranormal (escuro) | manuscrito (sépia) | vermelho      │
+   └─────────────────────────────────────────────────────────────┘ */
 
 /* ── Paranormal (padrão) ── */
 :root,[data-theme="paranormal"]{
@@ -165,7 +183,10 @@ textarea{resize:vertical;line-height:1.6;font-size:15px}
 select option{background:var(--bg-alt)}
 button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outline:none;transition:all .15s}
 
-/* ── BUTTONS ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 2. BASE — reset, body, inputs, botões                      │
+   └─────────────────────────────────────────────────────────────┘ */
+/* ── Botões ── */
 .btn-primary{background:var(--accent);color:#fff;padding:12px 20px;border-radius:3px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:8px;min-height:48px;-webkit-tap-highlight-color:transparent}
 .btn-primary:hover{background:var(--accent-h)}
 .btn-primary:active{background:var(--accent-d);transform:scale(.97)}
@@ -186,13 +207,18 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .btn-green:hover{background:var(--green-lo)}
 .btn-green:active{background:var(--green-lo);transform:scale(.97)}
 
-/* ── LAYOUT ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 3. LAYOUT — topbar, main container, hero, stats            │
+   └─────────────────────────────────────────────────────────────┘ */
 .topbar{border-bottom:1px solid var(--border);padding:0 24px;background:var(--bg-alt);position:sticky;top:0;z-index:50;display:flex;align-items:center;height:54px;gap:14px}
 .logo-icon{width:28px;height:28px;border-radius:2px;background:var(--accent-lo);border:1px solid var(--accent-md);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .logo-text{font-family:'Playfair Display',Georgia,serif;font-size:16px;color:var(--text-head);font-weight:700;letter-spacing:.03em}
 .main{max-width:920px;margin:0 auto;padding:32px 20px 80px}
 
-/* ── PILLS ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 4. COMPONENTES — pills, cards, forms, entry e view cards   │
+   └─────────────────────────────────────────────────────────────┘ */
+/* ── Pills ── */
 .pill{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
 
 /* ── CARDS ── */
@@ -242,11 +268,15 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .ink{color:var(--text-head)}
 .muted{color:var(--text-muted)}
 
-/* ── MODAL ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 5. MODAL — overlay de confirmação de exclusão              │
+   └─────────────────────────────────────────────────────────────┘ */
 .modal-bg{position:fixed;inset:0;background:var(--shadow-modal);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-box{background:var(--bg-alt);border:1px solid var(--accent);border-radius:4px;padding:28px;max-width:400px;width:100%;text-align:center}
 
-/* ── MESA MODE ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 6. MESA MODE — overlay de jogo, layout 2 colunas (PC)     │
+   └─────────────────────────────────────────────────────────────┘ */
 .mesa-overlay{position:fixed;inset:0;background:var(--bg-deep);z-index:300;display:flex;flex-direction:column;overflow:hidden}
 .mesa-top{background:var(--bg-mesa-top);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;flex-wrap:wrap}
 
@@ -267,7 +297,9 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .mob-tab-pane{display:none}
 .mesa-mob-tabbar{display:none}
 
-/* ── MOBILE MESA: tab-based layout ≤900px ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 7. MESA MOBILE — tab bar e panes (≤900px)                  │
+   └─────────────────────────────────────────────────────────────┘ */
 @media(max-width:900px){
   .mesa-body{flex-direction:column;overflow:hidden;position:relative}
   .mesa-col-left,.mesa-col-right{
@@ -324,7 +356,9 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .pista-check.done{background:var(--green);border-color:var(--green);color:#fff}
 .sess-status-btn{padding:8px 14px;border-radius:3px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border:1px solid;cursor:pointer;background:none;font-family:'Share Tech Mono',monospace;min-height:40px;-webkit-tap-highlight-color:transparent}
 
-/* ── TOAST ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 8. TOAST / FAB — notificações e botão flutuante            │
+   └─────────────────────────────────────────────────────────────┘ */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:2px;font-size:12px;z-index:999;animation:fadeIn .2s ease;white-space:nowrap;pointer-events:none;background:var(--toast-bg);border:1px solid var(--toast-border);color:var(--text)}
 
 /* ── FAB (Floating Action Button) ── */
@@ -332,7 +366,9 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .fab:hover,.fab:active{background:var(--accent-h);transform:scale(1.08)}
 @media(min-width:700px){.fab{display:none}}
 
-/* ── HAMBURGER DRAWER ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 9. DRAWER — menu hamburger lateral                         │
+   └─────────────────────────────────────────────────────────────┘ */
 .drawer-overlay{position:fixed;inset:0;background:var(--shadow-drawer);z-index:150;display:none}
 .drawer-overlay.open{display:block}
 .drawer{position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--bg-drawer);border-right:1px solid var(--border);z-index:160;transform:translateX(-100%);transition:transform .25s ease;display:flex;flex-direction:column;overflow-y:auto}
@@ -366,7 +402,9 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .mesa-nav-btn:hover:not(:disabled){border-color:var(--text-head);color:var(--text-head)}
 .mesa-nav-btn:disabled{opacity:.3;cursor:not-allowed}
 
-/* ── THEME SWITCHER ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 10. TEMAS UI — seletores de tema (drawer + topbar)        │
+   └─────────────────────────────────────────────────────────────┘ */
 .theme-btn{
   display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;
   border:none;border-radius:3px;background:none;cursor:pointer;
@@ -377,7 +415,15 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .theme-btn.active-theme{color:var(--accent);font-weight:700}
 .theme-swatch{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
 
-/* ── MOBILE HERO COMPACT ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 11. ANIMAÇÕES — keyframes e efeitos de dado               │
+   └─────────────────────────────────────────────────────────────┘ */
+/* ── Dice Roll ── */
+/* (keyframes diceRoll abaixo) */
+
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 12. RESPONSIVO — ajustes mobile hero (≤600px)              │
+   └─────────────────────────────────────────────────────────────┘ */
 @media(max-width:600px){
   .hero{padding:16px}
   .stats-bar{gap:12px}
@@ -402,7 +448,7 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
   .modal-box{padding:20px}
 }
 
-/* ── TOPBAR THEME SWITCHER (PC only) ── */
+/* ── Topbar (PC only) ── */
 .topbar-theme{display:flex;align-items:center;gap:5px;margin-left:8px}
 .topbar-theme-btn{background:none;border:none;padding:3px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:transform .15s}
 .topbar-theme-btn span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid;transition:transform .15s,box-shadow .15s}
@@ -422,6 +468,26 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
 </style>
 </head>
 <body>
+
+<!--
+  ╔════════════════════════════════════════════════════════════╗
+  ║  HTML ESTRUTURA                                           ║
+  ╠════════════════════════════════════════════════════════════╣
+  ║  #topbar          — barra superior fixa                   ║
+  ║  #drawer-overlay  — overlay do drawer                     ║
+  ║  #drawer          — menu lateral hambúrguer               ║
+  ║  #fab-btn         — botão flutuante (mobile)              ║
+  ║  #main            — área de conteúdo principal (views)    ║
+  ║  #modal-del       — modal de confirmação de exclusão      ║
+  ║  #mesa-overlay    — overlay de jogo (Mesa Mode)           ║
+  ║    #mesa-top      — cabeçalho da mesa (timer, nav)        ║
+  ║    #mesa-body     — corpo da mesa                         ║
+  ║      #mesa-col-left  — painel esquerdo PC (controles)     ║
+  ║      #mesa-col-right — painel direito PC (conteúdo)       ║
+  ║      #mob-pane-*     — panes mobile (cena/combate/...)    ║
+  ║      nav.mesa-mob-tabbar — tab bar mobile                 ║
+  ╚════════════════════════════════════════════════════════════╝
+-->
 
 <div class="topbar" id="topbar">
   <button class="hamburger-btn" id="hamburger-btn" onclick="openDrawer()" aria-label="Menu">
@@ -561,9 +627,40 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   TEMA
-═══════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════╗
+   ║  ORDEM PARANORMAL — Organizador de Campanhas                 ║
+   ║  Arquivo único (single-file app) — localStorage persistence  ║
+   ╠═══════════════════════════════════════════════════════════════╣
+   ║  MÓDULOS (ordem de declaração):                              ║
+   ║  1.  TEMA          — variáveis de tema, applyTheme/setTheme  ║
+   ║  2.  STORAGE       — KEY, persist, uid, esc, nl, backup      ║
+   ║  3.  ESTADO GLOBAL — variáveis de view e mesa                ║
+   ║  4.  CONSTANTES    — cores, tipos, ícones de domínio         ║
+   ║  5.  MODELOS       — blank*() factories + schema             ║
+   ║  6.  UI HELPERS    — pills, fieldHtml                        ║
+   ║  7.  RENDER ENGINE — render(), updateTopbar()                ║
+   ║  8.  VIEW: LIST    — renderList(), bindList()                ║
+   ║  9.  VIEW: FORM    — renderForm(), renderEntryCard()         ║
+   ║  10. VIEW: DETAIL  — renderDetail()                          ║
+   ║  11. MESA: CORE    — openMesa, closeMesa, renderMesa         ║
+   ║  12. MESA: AGENTES — tracker de PV/PE/SAN/NEX/condições      ║
+   ║  13. MESA: COMBATE — iniciativa, criaturas                   ║
+   ║  14. MESA: DADOS   — rolador de dados, histórico             ║
+   ║  15. MESA: PISTAS  — clues toggle                           ║
+   ║  16. MESA: UI      — toggle, swipe, busca, tab bar           ║
+   ║  17. TIMER         — cronômetro de sessão                    ║
+   ║  18. NAVIGATION    — goList, goCreate, goDetail...           ║
+   ║  19. FORM OPS      — saveForm, saveFormState, syncSessions   ║
+   ║  20. ENTRY OPS     — addEntry, delEntry, scene/clue ops      ║
+   ║  21. MODAL/DELETE  — askDelete, confirmDelete                ║
+   ║  22. IMPORT/EXPORT — JSON, PDF                               ║
+   ║  23. DRAWER / UI   — openDrawer, showToast                   ║
+   ║  24. INIT          — render() inicial                        ║
+   ╚═══════════════════════════════════════════════════════════════╝ */
+
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 1. TEMA                                                     │
+   └─────────────────────────────────────────────────────────────┘ */
 const THEME_KEY = 'op_theme';
 const THEMES = ['paranormal','manuscrito','vermelho'];
 
@@ -585,30 +682,38 @@ function setTheme(t) {
 // apply saved theme immediately on load
 applyTheme(localStorage.getItem(THEME_KEY) || 'paranormal');
 
-/* ═══════════════════════════════════════
-   STATE
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 2. STORAGE — persistência e utilitários de string           │
+   └─────────────────────────────────────────────────────────────┘ */
 const KEY = 'op_v3';
 let camps = [];
 try { camps = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { camps = []; }
 
-let view = 'list';      // list | form | detail
-let viewingId = null;
-let editingId = null;
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 3. ESTADO GLOBAL — view e controle de mesa                  │
+   └─────────────────────────────────────────────────────────────┘ */
+let view = 'list';      // 'list' | 'form' | 'detail'
+let viewingId = null;   // id da campanha sendo visualizada
+let editingId = null;   // id da campanha sendo editada (null = nova)
 let delTargetId = null;
-let formData = null;
+let formData = null;    // rascunho em edição
 let activeFormTab = 'info';
 let activeDetailTab = 'overview';
-let mesaSessionId = null;
-let mesaCenaAtivaId = null; // marcador de cena atual
-let mesaBusca = '';         // pesquisa no modo mesa
 
-/* ── TEMPORIZADOR DE SESSÃO ── */
+// Mesa Mode
+let mesaSessionId = null;
+let mesaCenaAtivaId = null; // cena marcada como atual
+let mesaBusca = '';         // filtro de pesquisa em tempo real
+
+// Timer de sessão (módulo 17)
 let _timerInterval = null;
 let _timerStart = null;
 let _timerRunning = false;
-let _timerAlerts = { 30: false, 15: false, 5: false }; // minutos
+let _timerAlerts = { 30: false, 15: false, 5: false }; // minutos restantes para alertar
 
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 17. TIMER — cronômetro de sessão com alertas               │
+   └─────────────────────────────────────────────────────────────┘ */
 function timerStart() {
   if (_timerRunning) return;
   _timerStart = Date.now() - (_timerStart ? Date.now() - _timerStart : 0);
@@ -672,11 +777,21 @@ function timerTick() {
   }
 }
 
-/* ── BACKUP AUTOMÁTICO ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 2. STORAGE — persistência, backup, utilitários              │
+   └─────────────────────────────────────────────────────────────┘ */
 const BACKUP_KEY = 'op_backup_ts';
+
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(camps)); } catch(e) {}
 }
+
+// Utilitários de string
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nl(t)  { return esc(t).replace(/\n/g,'<br>'); }
+
+// Backup rápido
 function getBackupAge() {
   const ts = parseInt(localStorage.getItem(BACKUP_KEY)||'0');
   if (!ts) return null;
@@ -706,13 +821,14 @@ function updateBackupBadge() {
     el.textContent = days===0?'Hoje':days+'d atrás'; el.style.background='#27674922'; el.style.color='#4ade80';
   }
 }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function nl(t) { return esc(t).replace(/\n/g,'<br>'); }
 
-/* ═══════════════════════════════════════
-   BLANKS
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 4. CONSTANTES — cores, tipos e ícones de domínio           │
+   └─────────────────────────────────────────────────────────────┘ */
+// (blankCamp e demais factories estão no módulo 5 abaixo)
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 5. MODELOS DE DADOS — factories blank*()                    │
+   └─────────────────────────────────────────────────────────────┘ */
 function blankCamp() {
   return { id:uid(), title:'', synopsis:'', sessions:1, status:'Em Andamento', nex:'5%',
     createdAt:new Date().toISOString(),
@@ -776,25 +892,34 @@ const AGENTE_ICONS = [
   {g:'Geral',      v:'📻', l:'Comunicador'},
   {g:'Geral',      v:'🧠', l:'Estrategista'},
 ];
-function blankNPC()  { return { id:uid(), name:'', role:'', description:'', secret:'', rituals:'', sanity:'' }; }
-function blankLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo' }; }
-function blankItem() { return { id:uid(), name:'', type:'', description:'', effect:'' }; }
-function blankSess(n){ return { id:uid(), number:n, title:'', opening:'', synopsis:'', objectives:'', scenes:[], rewards:'', hook:'', notes:'', quicknotes:'', status:'Pendente', clues:[], linkedNpcs:[] }; }
-function blankScene(n){ return { id:uid(), number:n, name:'', type:'Investigação', description:'', locations:[] }; }
-function blankSceneLoc() { return { id:uid(), name:'', type:'', description:'', danger:'Baixo', rooms:[] }; }
+// Entidades simples (sem sub-estrutura)
+function blankNPC()       { return { id:uid(), name:'', role:'', description:'', secret:'', rituals:'', sanity:'' }; }
+function blankLoc()       { return { id:uid(), name:'', type:'', description:'', danger:'Baixo' }; }
+function blankItem()      { return { id:uid(), name:'', type:'', description:'', effect:'' }; }
+
+// Sessão e subelementos
+function blankSess(n)     { return { id:uid(), number:n, title:'', opening:'', synopsis:'', objectives:'', scenes:[], rewards:'', hook:'', notes:'', quicknotes:'', status:'Pendente', clues:[], linkedNpcs:[] }; }
+function blankScene(n)    { return { id:uid(), number:n, name:'', type:'Investigação', description:'', locations:[] }; }
+function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo', rooms:[] }; }
 function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', items:[] }; }
 function blankSceneItem() { return { id:uid(), name:'', cat:'objeto', desc:'', secret:'' }; }
-function blankClue() { return { id:uid(), text:'', found:false, type:'Física' }; }
+function blankClue()      { return { id:uid(), text:'', found:false, type:'Física' }; }
 
-const SCENE_TYPES = ['Investigação','Combate','Roleplay','Revelação','Exploração','Armadilha','Ritual','Fuga','Social'];
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 4. CONSTANTES — enums, cores e ícones de domínio           │
+   └─────────────────────────────────────────────────────────────┘ */
+// Cenas
+const SCENE_TYPES  = ['Investigação','Combate','Roleplay','Revelação','Exploração','Armadilha','Ritual','Fuga','Social'];
 const SCENE_COLORS = {'Investigação':'#b8860b','Combate':'#c0392b','Roleplay':'#276749','Revelação':'#7c3aed','Exploração':'#0e7490','Armadilha':'#e65c00','Ritual':'#4c1d95','Fuga':'#dc2626','Social':'#0891b2'};
 const SCENE_ICONS  = {'Investigação':'🔍','Combate':'⚔️','Roleplay':'💬','Revelação':'💡','Exploração':'🗺','Armadilha':'⚠️','Ritual':'🕯','Fuga':'💨','Social':'🤝'};
-const CLUE_TYPES = ['Física','Testemunhal','Ocultista','Documental','Tecnológica'];
+
+// Pistas
+const CLUE_TYPES  = ['Física','Testemunhal','Ocultista','Documental','Tecnológica'];
 const CLUE_COLORS = {'Física':'#b8860b','Testemunhal':'#276749','Ocultista':'#7c3aed','Documental':'#0e7490','Tecnológica':'#6b7280'};
 
-/* ═══════════════════════════════════════
-   PILLS & HELPERS
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 6. UI HELPERS — pills e fieldHtml                          │
+   └─────────────────────────────────────────────────────────────┘ */
 const STATUS_COLORS = {'Em Andamento':'#276749','Concluída':'#b8860b','Pausada':'#7a7060','Planejada':'#c0392b'};
 const DANGER_COLORS = {'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
 const SESS_COLORS   = {'Pendente':'#7a7060','Jogada':'#276749','Pulada':'#b8860b'};
@@ -816,9 +941,9 @@ function fieldHtml(label, inputHtml, hint='') {
   return `<div class="field"><label class="field-label">${label}${hint?`<span class="field-hint">${hint}</span>`:''}</label>${inputHtml}</div>`;
 }
 
-/* ═══════════════════════════════════════
-   RENDER ENGINE
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 7. RENDER ENGINE — dispatcher de views                     │
+   └─────────────────────────────────────────────────────────────┘ */
 function render() {
   const main = document.getElementById('main');
   updateTopbar();
@@ -843,9 +968,9 @@ function updateTopbar() {
   }
 }
 
-/* ═══════════════════════════════════════
-   LIST VIEW
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 8. VIEW: LIST — lista de campanhas                          │
+   └─────────────────────────────────────────────────────────────┘ */
 function renderList() {
   if (camps.length === 0) return `
     <div class="empty-big fade-up">
@@ -896,9 +1021,9 @@ function bindList() {
   document.getElementById('logo-btn').onclick = () => { view='list'; viewingId=null; editingId=null; render(); };
 }
 
-/* ═══════════════════════════════════════
-   FORM VIEW
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 9. VIEW: FORM — criação e edição de campanha               │
+   └─────────────────────────────────────────────────────────────┘ */
 function renderForm() {
   const d = formData;
   const tabs = [
@@ -1088,9 +1213,9 @@ function bindForm() {
   });
 }
 
-/* ═══════════════════════════════════════
-   DETAIL VIEW
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 10. VIEW: DETAIL — visualização de campanha                │
+   └─────────────────────────────────────────────────────────────┘ */
 function renderDetail() {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return '';
@@ -1282,9 +1407,9 @@ function renderDetail() {
 
 function bindDetail() {}
 
-/* ═══════════════════════════════════════
-   MESA MODE
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 11. MESA: CORE — abertura, fechamento e render principal   │
+   └─────────────────────────────────────────────────────────────┘ */
 function openMesa(sessId) {
   mesaSessionId = sessId;
   iniciativaRodada = 1;
@@ -1708,7 +1833,9 @@ function renderMesa() {
   renderIniciativa();
 }
 
-// ── Mobile tab switching ──────────────────────────────────────
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 16. MESA: UI — tab bar, toggle, swipe, busca, marcador     │
+   └─────────────────────────────────────────────────────────────┘ */
 let _mobActiveTab = 'cena';
 function mesaMobTab(tab, btn) {
   _mobActiveTab = tab;
@@ -1809,7 +1936,9 @@ function mesaSaveQuicknotes(val) {
   persist();
 }
 
-/* ── ROLADOR DE DADOS ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 14. MESA: DADOS — rolador e histórico de dados             │
+   └─────────────────────────────────────────────────────────────┘ */
 const diceLog = [];
 function rollDice(faces) {
   const result = Math.floor(Math.random() * faces) + 1;
@@ -1847,7 +1976,9 @@ function renderDiceLog() {
   });
 }
 
-/* ── TRACKER DE SANIDADE ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 12. MESA: AGENTES — PV / PE / SAN / NEX / condições       │
+   └─────────────────────────────────────────────────────────────┘ */
 function mesaAddAgente() {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return;
@@ -1901,10 +2032,12 @@ function mesaToggleCondicao(id, cond) {
   renderAgentesTracker();
 }
 
-/* ── INICIATIVA & CRIATURAS ── */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 13. MESA: COMBATE — iniciativa e criaturas                 │
+   └─────────────────────────────────────────────────────────────┘ */
 let iniciativaRodada = 1;
 
-// criaturas são combatentes temporários (inimigos/npcs de combate), vivem só na sessão
+// Criaturas: combatentes temporários (inimigos), vivem apenas na sessão ativa
 function getCriaturas() {
   const c = camps.find(x=>x.id===viewingId);
   const sess = c?.sessions_data.find(x=>x.id===mesaSessionId);
@@ -2226,8 +2359,11 @@ function renderAgentesTracker() {
     </div>`;
   }).join('');
 }
-// alias for legacy call in renderMesa
-function renderSanTracker() { renderAgentesTracker(); }
+function renderSanTracker() { renderAgentesTracker(); } // alias mantido por compatibilidade
+
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 15. MESA: PISTAS — toggle encontrada/não encontrada        │
+   └─────────────────────────────────────────────────────────────┘ */
 function mesaSetStatus(st) {
   const c = camps.find(x=>x.id===viewingId);
   const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
@@ -2242,9 +2378,9 @@ function mesaToggleClue(clueId) {
   cl.found = !cl.found; persist(); renderMesa();
 }
 
-/* ═══════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 18. NAVIGATION — troca de views e tabs                     │
+   └─────────────────────────────────────────────────────────────┘ */
 function goList()   { view='list';   viewingId=null; editingId=null; activeDetailTab='overview'; render(); }
 function goCreate() { editingId=null; formData=blankCamp(); syncSessionsData(1); activeFormTab='info'; view='form'; render(); }
 function goDetail(id) { viewingId=id; activeDetailTab='overview'; view='detail'; render(); }
@@ -2256,9 +2392,9 @@ function switchDetailTab(tab) { activeDetailTab=tab; render(); window.scrollTo({
 
 document.getElementById('logo-btn').addEventListener('click', goList);
 
-/* ═══════════════════════════════════════
-   FORM STATE SAVE (on tab switch)
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 19. FORM OPS — salvar, sincronizar sessões, estado         │
+   └─────────────────────────────────────────────────────────────┘ */
 function saveFormState() {
   if (!formData) return;
   // info tab
@@ -2291,9 +2427,9 @@ function saveForm() {
   render(); showToast('Campanha salva!');
 }
 
-/* ═══════════════════════════════════════
-   ENTRY HELPERS
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 20. ENTRY OPS — CRUD de NPCs, locais, itens, cenas, pistas │
+   └─────────────────────────────────────────────────────────────┘ */
 function toggleEntry(bodyId, arrowId) {
   const b = document.getElementById(bodyId);
   const a = document.getElementById(arrowId);
@@ -2320,13 +2456,16 @@ function setEntryField(type, id, field, val) {
   if (entry) entry[field] = val;
 }
 
-const ROOM_TYPES = ['sala','quarto','cozinha','banheiro','jardim','garagem','corredor','porao','sotao','escritorio','laboratorio','deposito','outro'];
-const ROOM_IC = {sala:'🛋',quarto:'🛏',cozinha:'🍳',banheiro:'🚿',jardim:'🌿',garagem:'🚗',corredor:'🚪',porao:'🕯',sotao:'🕷',escritorio:'💼',laboratorio:'⚗️',deposito:'📦',outro:'📍'};
-const ITEM_CATS = ['objeto','pista','perigo','npc','passagem','paranormal','nota'];
-const ITEM_IC = {objeto:'📦',pista:'🔍',perigo:'⚠️',npc:'👤',passagem:'🚪',paranormal:'👁',nota:'📝'};
+// Constantes de cômodos e itens de cena (parte do módulo 4 declaradas aqui
+// por dependência com as funções de render de cena abaixo)
+const ROOM_TYPES  = ['sala','quarto','cozinha','banheiro','jardim','garagem','corredor','porao','sotao','escritorio','laboratorio','deposito','outro'];
+const ROOM_IC     = {sala:'🛋',quarto:'🛏',cozinha:'🍳',banheiro:'🚿',jardim:'🌿',garagem:'🚗',corredor:'🚪',porao:'🕯',sotao:'🕷',escritorio:'💼',laboratorio:'⚗️',deposito:'📦',outro:'📍'};
+const ITEM_CATS   = ['objeto','pista','perigo','npc','passagem','paranormal','nota'];
+const ITEM_IC     = {objeto:'📦',pista:'🔍',perigo:'⚠️',npc:'👤',passagem:'🚪',paranormal:'👁',nota:'📝'};
 const ROOM_DANGER = ['Sem Perigo','Baixo','Médio','Alto','Extremo'];
 const ROOM_DANGER_C = {'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
 
+// ── Render de cenas no formulário ────────────────────────────
 function renderSceneRow(sessId, sc, idx) {
   const col = SCENE_COLORS[sc.type]||'#b8860b';
   const locs = sc.locations || [];
@@ -2572,6 +2711,7 @@ function refreshSceneRow(sessId, scId) {
   const num = el.querySelector('span');
   if (num) num.style.color = col;
 }
+// ── Campos de sessão e pistas ────────────────────────────────
 function setSessField(sessId, field, val) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
   if (s) s[field] = val;
@@ -2629,9 +2769,9 @@ function syncSessionsData(n) {
   formData.sessions = n;
 }
 
-/* ═══════════════════════════════════════
-   DELETE
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 21. MODAL / DELETE — confirmação de exclusão               │
+   └─────────────────────────────────────────────────────────────┘ */
 function askDelete(id) {
   delTargetId = id;
   document.getElementById('modal-del').style.display='flex';
@@ -2643,9 +2783,9 @@ document.getElementById('btn-del-confirm').onclick = () => {
   persist(); closeDelModal(); render();
 };
 
-/* ═══════════════════════════════════════
-   EXPORT / IMPORT JSON
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 22. IMPORT / EXPORT — JSON e PDF                           │
+   └─────────────────────────────────────────────────────────────┘ */
 function exportJSON() {
   const blob = new Blob([JSON.stringify(camps,null,2)],{type:'application/json'});
   const a = document.createElement('a');
@@ -2668,9 +2808,7 @@ function importJSON(input) {
   r.readAsText(f); input.value='';
 }
 
-/* ═══════════════════════════════════════
-   PDF EXPORT
-═══════════════════════════════════════ */
+// ── PDF ──────────────────────────────────────────────────────
 function exportPDF() {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return;
@@ -2895,9 +3033,9 @@ ${cover}
 }
 
 
-/* ═══════════════════════════════════════
-   TOAST
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 23. DRAWER / UI — drawer, toast, FAB                       │
+   └─────────────────────────────────────────────────────────────┘ */
 let _toastT;
 function showToast(msg, type='ok') {
   clearTimeout(_toastT);
@@ -2911,9 +3049,7 @@ function showToast(msg, type='ok') {
   _toastT = setTimeout(() => { el.style.display='none'; }, 2400);
 }
 
-/* ═══════════════════════════════════════
-   DRAWER & FAB
-═══════════════════════════════════════ */
+// ── Drawer ───────────────────────────────────────────────────
 function openDrawer() {
   document.getElementById('drawer').classList.add('open');
   document.getElementById('drawer-overlay').classList.add('open');
@@ -2938,9 +3074,9 @@ function updateDrawerItems() {
   if (fab && view==='list') fab.style.display = '';
 }
 
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 24. INIT — bootstrap da aplicação                          │
+   └─────────────────────────────────────────────────────────────┘ */
 render();
 </script>
 </body>
