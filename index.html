@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ordem Paranormal — Organizador de Campanhas</title>
+<title>Gerenciador de Campanhas RPG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
 /* ╔═══════════════════════════════════════════════════════════════╗
-   ║  ESTILOS — Ordem Paranormal Organizador                      ║
+   ║  ESTILOS — Gerenciador de Campanhas RPG                      ║
    ╠═══════════════════════════════════════════════════════════════╣
    ║  SEÇÕES:                                                     ║
    ║  1. TEMAS        — variáveis CSS por data-theme              ║
@@ -494,7 +494,7 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     <span></span><span></span><span></span>
   </button>
   <div class="logo-icon">☠</div>
-  <span class="logo-text" style="cursor:pointer" id="logo-btn">Ordem Paranormal</span>
+  <span class="logo-text" style="cursor:pointer" id="logo-btn">Gerenciador de Campanhas RPG</span>
   <span id="bc-sep" style="color:#302c24;display:none">›</span>
   <span id="bc-current" style="color:#7a7060;font-size:12px;letter-spacing:.06em;text-transform:uppercase;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
   <div style="flex:1"></div>
@@ -521,8 +521,8 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
   <div class="drawer-head">
     <div class="logo-icon">☠</div>
     <div>
-      <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#ede8dc;font-weight:700">Ordem Paranormal</div>
-      <div style="font-size:10px;color:#7a7060;letter-spacing:.08em">Organizador de Campanhas</div>
+      <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#ede8dc;font-weight:700">Gerenciador de Campanhas RPG</div>
+      <div style="font-size:10px;color:#7a7060;letter-spacing:.08em">Organize suas aventuras</div>
     </div>
   </div>
   <div class="drawer-item" onclick="closeDrawer();goList()">
@@ -976,8 +976,11 @@ function renderList() {
     <div class="empty-big fade-up">
       <div style="font-size:40px;margin-bottom:16px">📁</div>
       <div class="serif ink" style="font-size:18px;margin-bottom:8px">Nenhuma campanha ainda</div>
-      <div class="muted" style="font-size:13px;margin-bottom:24px">Crie sua primeira campanha de Ordem Paranormal</div>
-      <button class="btn-primary" onclick="goCreate()" style="margin:0 auto">＋ Criar Campanha</button>
+      <div class="muted" style="font-size:13px;margin-bottom:24px">Crie sua primeira campanha de RPG</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-ghost" onclick="document.getElementById('file-import-global').click()">⬆ Importar Campanhas</button>
+        <button class="btn-primary" onclick="goCreate()">＋ Criar Campanha</button>
+      </div>
     </div>`;
 
   const rows = camps.map(c => {
@@ -2871,7 +2874,7 @@ ${sc('Notas Gerais','#7a7060')}
 
   const html = `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"/>
-<title>${esc(c.title||'Campanha')} — Ordem Paranormal</title>
+<title>${esc(c.title||'Campanha')} — Gerenciador de Campanhas RPG</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -2910,7 +2913,7 @@ ${sc('Notas Gerais','#7a7060')}
 
 <div class="page-header">
   <span class="page-header-title">☠ ${esc(c.title||'Campanha')}</span>
-  <span class="page-header-mark">Ordem Paranormal — Dossiê</span>
+  <span class="page-header-mark">Gerenciador de Campanhas RPG — Dossiê</span>
 </div>
 
 ${cover}
