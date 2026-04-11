@@ -253,7 +253,7 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 /* ── ENTRY CARD ── */
 .entry-card{border:1px solid var(--border);border-radius:3px;background:var(--bg-alt);margin-bottom:8px;overflow:hidden;transition:border-color .2s}
 .entry-card:hover{border-color:var(--gold)}
-.entry-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
+.entry-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .entry-arrow{color:var(--text-muted);font-size:11px;transition:transform .2s;flex-shrink:0;display:inline-block}
 .entry-body{padding:14px;border-top:1px solid var(--border-sub)}
 
@@ -2480,20 +2480,27 @@ function renderSceneRow(sessId, sc, idx) {
   const col = SCENE_COLORS[sc.type]||'#b8860b';
   const locs = sc.locations || [];
   const locsHtml = locs.map((loc, li) => renderSceneLocCard(sessId, sc.id, loc, li)).join('');
+  const bodyId = 'scbody-'+sc.id;
+  const arrId  = 'scarr-'+sc.id;
   return `
   <div id="scrow-${sc.id}" style="background:#0a0908;border:1px solid #2c2820;border-left:3px solid ${col};border-radius:3px;margin-bottom:10px;overflow:hidden">
-    <!-- cabeçalho da cena -->
-    <div style="display:flex;gap:8px;align-items:center;padding:10px 12px;flex-wrap:wrap">
+    <!-- cabeçalho clicável da cena -->
+    <div style="display:flex;gap:8px;align-items:center;padding:10px 12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
+      <span id="${arrId}" style="color:#7a7060;font-size:11px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
       <span style="font-size:10px;font-weight:700;color:${col};flex-shrink:0;font-family:'Share Tech Mono',monospace">C${String(idx+1).padStart(2,'0')}</span>
-      <input value="${esc(sc.name)}" oninput="setSceneField('${sessId}','${sc.id}','name',this.value)"
-        placeholder="Nome da cena..." style="flex:1;min-width:120px"/>
-      <select onchange="setSceneField('${sessId}','${sc.id}','type',this.value);refreshSceneRow('${sessId}','${sc.id}')"
-        style="width:130px;flex-shrink:0;font-size:11px;padding:5px 6px">
-        ${SCENE_TYPES.map(t=>`<option value="${t}"${t===sc.type?' selected':''}>${SCENE_ICONS[t]} ${t}</option>`).join('')}
-      </select>
-      <button class="btn-del" onclick="delScene('${sessId}','${sc.id}')">✕</button>
+      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+      <span style="display:inline-block;padding:1px 7px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;flex-shrink:0">${SCENE_ICONS[sc.type]||'🎬'} ${sc.type}</span>
+      <button class="btn-del" onclick="event.stopPropagation();delScene('${sessId}','${sc.id}')">✕</button>
     </div>
-    <div style="padding:0 12px 10px">
+    <div id="${bodyId}" style="display:none;padding:0 12px 10px;border-top:1px solid #1c1a16">
+      <div style="display:flex;gap:8px;align-items:center;padding-top:10px;flex-wrap:wrap;margin-bottom:8px">
+        <input value="${esc(sc.name)}" oninput="setSceneField('${sessId}','${sc.id}','name',this.value)"
+          placeholder="Nome da cena..." style="flex:1;min-width:120px"/>
+        <select onchange="setSceneField('${sessId}','${sc.id}','type',this.value);refreshSceneRow('${sessId}','${sc.id}')"
+          style="width:130px;flex-shrink:0;font-size:11px;padding:5px 6px">
+          ${SCENE_TYPES.map(t=>`<option value="${t}"${t===sc.type?' selected':''}>${SCENE_ICONS[t]} ${t}</option>`).join('')}
+        </select>
+      </div>
       <textarea rows="2" oninput="setSceneField('${sessId}','${sc.id}','description',this.value)"
         placeholder="O que acontece nesta cena? Como o mestre narra? Qual o gatilho de início?"
         style="resize:vertical;margin-bottom:10px">${esc(sc.description)}</textarea>
@@ -2511,21 +2518,30 @@ function renderSceneLocCard(sessId, scId, loc, li) {
   const dc = ROOM_DANGER_C[loc.danger]||'#7a7060';
   const rooms = loc.rooms || [];
   const roomsHtml = rooms.map((r, ri) => renderSceneRoomCard(sessId, scId, loc.id, r, ri)).join('');
+  const bodyId = 'sclbody-'+loc.id;
+  const arrId  = 'sclarr-'+loc.id;
   return `
   <div id="scloc-${loc.id}" style="background:#111009;border:1px solid #2c2820;border-left:3px solid #b8860b;border-radius:2px;margin-bottom:8px;overflow:hidden">
-    <div style="display:flex;gap:8px;align-items:center;padding:8px 10px;flex-wrap:wrap">
-      <span style="color:#b8860b;font-size:12px">📍</span>
-      <input value="${esc(loc.name)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','name',this.value)"
-        placeholder="Nome do local..." style="flex:1;min-width:100px;font-size:13px;padding:7px 10px"/>
-      <input value="${esc(loc.type)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','type',this.value)"
-        placeholder="Tipo (ex: Urbano)" style="width:120px;flex-shrink:0;font-size:12px;padding:6px 8px"/>
-      <select onchange="setSceneLocField('${sessId}','${scId}','${loc.id}','danger',this.value)"
-        style="width:100px;flex-shrink:0;font-size:11px;padding:5px 6px">
-        ${['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===loc.danger?' selected':''}>${d}</option>`).join('')}
-      </select>
-      <button class="btn-del" onclick="delSceneLoc('${sessId}','${scId}','${loc.id}')">✕</button>
+    <!-- cabeçalho clicável do local -->
+    <div style="display:flex;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
+      <span id="${arrId}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
+      <span style="color:#b8860b;font-size:12px;flex-shrink:0">📍</span>
+      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(loc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+      ${loc.type?`<span style="color:#7a7060;font-size:10px;flex-shrink:0">${esc(loc.type)}</span>`:''}
+      <span style="display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;background:${dc}22;border:1px solid ${dc}44;color:${dc};text-transform:uppercase;flex-shrink:0">${esc(loc.danger)}</span>
+      <button class="btn-del" onclick="event.stopPropagation();delSceneLoc('${sessId}','${scId}','${loc.id}')">✕</button>
     </div>
-    <div style="padding:0 10px 10px">
+    <div id="${bodyId}" style="display:none;padding:0 10px 10px;border-top:1px solid #1c1a16">
+      <div style="display:flex;gap:8px;align-items:center;padding-top:8px;flex-wrap:wrap;margin-bottom:6px">
+        <input value="${esc(loc.name)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','name',this.value)"
+          placeholder="Nome do local..." style="flex:1;min-width:100px;font-size:13px;padding:7px 10px"/>
+        <input value="${esc(loc.type)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','type',this.value)"
+          placeholder="Tipo (ex: Urbano)" style="width:120px;flex-shrink:0;font-size:12px;padding:6px 8px"/>
+        <select onchange="setSceneLocField('${sessId}','${scId}','${loc.id}','danger',this.value)"
+          style="width:100px;flex-shrink:0;font-size:11px;padding:5px 6px">
+          ${['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===loc.danger?' selected':''}>${d}</option>`).join('')}
+        </select>
+      </div>
       <textarea rows="2" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','description',this.value)"
         placeholder="Descrição do local, atmosfera geral..."
         style="resize:vertical;margin-bottom:8px;font-size:13px">${esc(loc.description)}</textarea>
@@ -2543,22 +2559,32 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
   const dc = ROOM_DANGER_C[r.danger]||'#7a7060';
   const items = r.items || [];
   const itemsHtml = items.map((it, ii) => renderSceneItemRow(sessId, scId, locId, r.id, it, ii)).join('');
+  const bodyId = 'scrbody-'+r.id;
+  const arrId  = 'scrarr-'+r.id;
   return `
   <div id="scroom-${r.id}" style="background:#080706;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;margin-bottom:6px;overflow:hidden">
-    <div style="display:flex;gap:6px;align-items:center;padding:7px 10px;flex-wrap:wrap">
-      <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','type',this.value)"
-        style="width:44px;flex-shrink:0;font-size:14px;padding:4px 4px;background:#0c0b09;border:1px solid #2c2820;color:#d6d0c4;border-radius:2px">
-        ${ROOM_TYPES.map(t=>`<option value="${t}"${t===r.type?' selected':''}>${ROOM_IC[t]}</option>`).join('')}
-      </select>
-      <input value="${esc(r.name)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','name',this.value)"
-        placeholder="Nome do cômodo..." style="flex:1;min-width:90px;font-size:13px;padding:6px 9px"/>
-      <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','danger',this.value);refreshSceneRoom('${r.id}',this.value)"
-        style="width:90px;flex-shrink:0;font-size:11px;padding:4px 5px">
-        ${ROOM_DANGER.map(d=>`<option${d===r.danger?' selected':''}>${d}</option>`).join('')}
-      </select>
-      <button class="btn-del" style="width:32px;height:32px" onclick="delSceneRoom('${sessId}','${scId}','${locId}','${r.id}')">✕</button>
+    <!-- cabeçalho clicável do cômodo -->
+    <div style="display:flex;gap:6px;align-items:center;padding:7px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
+      <span id="${arrId}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
+      <span style="font-size:14px;flex-shrink:0">${ROOM_IC[r.type]||'📍'}</span>
+      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+      ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${dc};font-size:10px;text-transform:uppercase;flex-shrink:0">${esc(r.danger)}</span>`:''}
+      ${items.length?`<span style="color:#7a7060;font-size:10px;flex-shrink:0">${items.length} obj.</span>`:''}
+      <button class="btn-del" style="width:32px;height:32px" onclick="event.stopPropagation();delSceneRoom('${sessId}','${scId}','${locId}','${r.id}')">✕</button>
     </div>
-    <div style="padding:0 10px 8px">
+    <div id="${bodyId}" style="display:none;padding:0 10px 8px;border-top:1px solid #1c1a16">
+      <div style="display:flex;gap:6px;align-items:center;padding-top:7px;flex-wrap:wrap;margin-bottom:6px">
+        <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','type',this.value)"
+          style="width:44px;flex-shrink:0;font-size:14px;padding:4px 4px;background:#0c0b09;border:1px solid #2c2820;color:#d6d0c4;border-radius:2px">
+          ${ROOM_TYPES.map(t=>`<option value="${t}"${t===r.type?' selected':''}>${ROOM_IC[t]}</option>`).join('')}
+        </select>
+        <input value="${esc(r.name)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','name',this.value)"
+          placeholder="Nome do cômodo..." style="flex:1;min-width:90px;font-size:13px;padding:6px 9px"/>
+        <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','danger',this.value);refreshSceneRoom('${r.id}',this.value)"
+          style="width:90px;flex-shrink:0;font-size:11px;padding:4px 5px">
+          ${ROOM_DANGER.map(d=>`<option${d===r.danger?' selected':''}>${d}</option>`).join('')}
+        </select>
+      </div>
       <textarea rows="2" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','description',this.value)"
         placeholder="O que os agentes veem ao entrar?" style="resize:vertical;font-size:12px;margin-bottom:5px">${esc(r.description)}</textarea>
       <input value="${esc(r.atmosphere)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','atmosphere',this.value)"
@@ -2602,16 +2628,16 @@ function addSceneLoc(sessId, scId) {
   if (!sc) return;
   if (!sc.locations) sc.locations=[];
   sc.locations.push(blankSceneLoc());
-  const container = document.getElementById('scenes-'+sessId);
-  if (container) container.innerHTML = (s.scenes||[]).map((sc,i)=>renderSceneRow(sessId,sc,i)).join('');
+  const container = document.getElementById('scene-locs-'+scId);
+  if (container) container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
 }
 function delSceneLoc(sessId, scId, locId) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
   const sc = (s?.scenes||[]).find(x=>x.id===scId);
   if (!sc) return;
   sc.locations = (sc.locations||[]).filter(x=>x.id!==locId);
-  const container = document.getElementById('scenes-'+sessId);
-  if (container) container.innerHTML = (s.scenes||[]).map((sc,i)=>renderSceneRow(sessId,sc,i)).join('');
+  const container = document.getElementById('scene-locs-'+scId);
+  if (container) container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
 }
 function setSceneLocField(sessId, scId, locId, field, val) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
@@ -2711,15 +2737,13 @@ function setSceneField(sessId, scId, field, val) {
   if (sc) sc[field] = val;
 }
 function refreshSceneRow(sessId, scId) {
-  // update border color and number icon when type changes
+  // update border color when type changes
   const s = formData.sessions_data.find(x=>x.id===sessId);
   const sc = (s?.scenes||[]).find(x=>x.id===scId);
   const el = document.getElementById('scrow-'+scId);
   if (!sc||!el) return;
   const col = SCENE_COLORS[sc.type]||'#b8860b';
   el.style.borderLeftColor = col;
-  const num = el.querySelector('span');
-  if (num) num.style.color = col;
 }
 // ── Campos de sessão e pistas ────────────────────────────────
 function setSessField(sessId, field, val) {
