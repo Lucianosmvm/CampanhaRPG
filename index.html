@@ -1501,9 +1501,10 @@ function renderMesa() {
     ? c.npcs.filter(n=>(s.linkedNpcs||[]).includes(n.id))
     : c.npcs;
 
-  const npcsHtml = linkedNpcs.map(n=>{
-    const nid='mn-'+n.id;
-    return `
+  function buildNpcsHtml(pfx='') {
+    return linkedNpcs.map(n=>{
+      const nid=pfx+'mn-'+n.id;
+      return `
     <div style="border-bottom:1px solid #302c24;padding:8px 0" data-busca="${[(n.name||''),(n.role||''),(n.description||'')].join(' ').toLowerCase().replace(/"/g,'')}">
       <div style="display:flex;align-items:center;gap:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${nid}')">
         <span id="arr-${nid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
@@ -1519,7 +1520,9 @@ function renderMesa() {
         ${n.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d55;border-radius:2px;padding:6px 10px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px;line-height:1.5">${nl(n.secret)}</div></div>`:''}
       </div>
     </div>`;
-  }).join('');
+    }).join('');
+  }
+  const npcsHtml = buildNpcsHtml();
 
   const a = c.antagonist;
   const antaHtml = a?.name ? `
@@ -1767,7 +1770,7 @@ function renderMesa() {
       ${buildCenasHtml('mob-')}
     </div>`:''}
     ${antaHtml?`<div style="margin-bottom:12px">${antaHtml}</div>`:''}
-    ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${npcsHtml}</div>`:''}
+    ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${buildNpcsHtml('mob-')}</div>`:''}
     ${c.items.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🗡 Itens & Artefatos</div>${itemsHtml}</div>`:''}
     ${s.rewards?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0;font-size:13px">${nl(s.rewards)}</p></div>`:''}
     ${s.hook?`<div class="mesa-card" style="border-color:#0e749033;margin-bottom:12px"><div class="mesa-card-title" style="color:#67e8f9">🪝 Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
