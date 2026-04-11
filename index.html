@@ -840,10 +840,11 @@ function blankCamp() {
   return { id:uid(), title:'', synopsis:'', sessions:1, status:'Em Andamento', nex:'5%',
     createdAt:new Date().toISOString(),
     antagonist:{name:'',nature:'',motivation:'',power:''},
-    npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
+    criaturas:[], npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
 }
 function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'' }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
+function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', pvMax:30, ataque:'', habilidades:'', descricao:'' }; }
 
 const CONDICOES = [
   {v:'abalado',    l:'Abalado',      c:'#b8860b', ic:'😨'},
@@ -1057,11 +1058,18 @@ function renderForm() {
     </div>`;
 
   if (activeFormTab === 'antagonist') body = `
-    <div class="grid2">
+    <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#c0392b;font-weight:700;margin-bottom:12px">☠ Antagonista Principal</div>
+    <div class="grid2" style="margin-bottom:20px">
       ${fieldHtml('Nome / Designação','<input id="a-name" value="'+esc(d.antagonist.name)+'" placeholder="Ex: O Devorador de Nomes"/>')}
       ${fieldHtml('Natureza','<input id="a-nature" value="'+esc(d.antagonist.nature)+'" placeholder="Ex: Entidade do Outro Lado, Cultista"/>')}
       <div class="span2">${fieldHtml('Motivação / Objetivo','<textarea id="a-motivation" rows="3" placeholder="O que esse antagonista quer?">'+esc(d.antagonist.motivation)+'</textarea>')}</div>
       <div class="span2">${fieldHtml('Poder / Habilidade Paranormal','<textarea id="a-power" rows="3" placeholder="Quais habilidades sobrenaturais?">'+esc(d.antagonist.power)+'</textarea>')}</div>
+    </div>
+    <div style="border-top:1px solid #2c2820;padding-top:16px">
+      <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7c3aed;font-weight:700;margin-bottom:12px">💀 Criaturas & Inimigos</div>
+      <p style="color:#4a4440;font-size:11px;margin-bottom:12px">Criaturas salvas ficam disponíveis para adicionar à iniciativa na Mesa de Jogo.</p>
+      <div id="criaturas-list">${(d.criaturas||[]).map((cr,i)=>renderCriaturaCard(cr,i)).join('')}</div>
+      <button class="btn-add" style="border-color:#7c3aed55;color:#a78bfa" onclick="addCriaturaBase()">+ Adicionar Criatura</button>
     </div>`;
 
   if (activeFormTab === 'npcs') body = `
@@ -1124,14 +1132,16 @@ function renderForm() {
               ? `<div style="color:#4a4440;font-size:12px;padding:8px;border:1px dashed #302c24;border-radius:2px">Nenhum NPC cadastrado. Adicione NPCs na aba 👤 NPCs.</div>`
               : d.npcs.map(n=>{
                   const linked = (s.linkedNpcs||[]).includes(n.id);
-                  return `<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:2px;cursor:pointer;margin-bottom:4px;background:${linked?'#c0392b12':'#0a0908'};border:1px solid ${linked?'#c0392b44':'#2c2820'};transition:all .15s">
-                    <input type="checkbox" ${linked?'checked':''} onchange="toggleLinked('npc','${s.id}','${n.id}',this.checked)"
-                      style="width:16px;height:16px;accent-color:#c0392b;flex-shrink:0"/>
+                  return `<div id="npc-link-row-${s.id}-${n.id}" onclick="toggleLinkedRow('npc','${s.id}','${n.id}')"
+                    style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:2px;cursor:pointer;margin-bottom:4px;background:${linked?'#c0392b12':'#0a0908'};border:1px solid ${linked?'#c0392b44':'#2c2820'};transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none">
+                    <div style="width:16px;height:16px;border-radius:3px;border:2px solid ${linked?'#c0392b':'#4a4440'};background:${linked?'#c0392b':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s">
+                      ${linked?'<span style="color:#fff;font-size:11px;line-height:1">✓</span>':''}
+                    </div>
                     <div style="flex:1;min-width:0">
                       <div style="color:#ede8dc;font-size:13px">${esc(n.name||'Sem nome')}</div>
                       ${n.role?`<div style="color:#b8860b;font-size:11px">${esc(n.role)}</div>`:''}
                     </div>
-                  </label>`;
+                  </div>`;
                 }).join('')}
           </div>
         </div>
@@ -1155,6 +1165,32 @@ function renderForm() {
       <div class="form-tabs">${tabs.map(t=>`<button class="btn-tab ${activeFormTab===t.k?'active':''}" onclick="switchFormTab('${t.k}')">${t.l}</button>`).join('')}</div>
       <div class="form-body">${body}</div>
     </div>`;
+}
+
+function renderCriaturaCard(cr, idx) {
+  const bodyId = 'crbody-'+cr.id;
+  const arrId  = 'crarr-'+cr.id;
+  return `
+  <div id="crcard-${cr.id}" style="background:#0a0408;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;margin-bottom:8px;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
+      <span id="${arrId}" style="color:#7a7060;font-size:11px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
+      <span style="font-size:14px;flex-shrink:0">💀</span>
+      <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cr.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+      ${cr.tipo?`<span style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${esc(cr.tipo)}</span>`:''}
+      <span style="font-size:10px;color:#c0392b;font-family:'Share Tech Mono',monospace;flex-shrink:0">PV ${cr.pvMax||0}</span>
+      <button class="btn-del" onclick="event.stopPropagation();delCriaturaBase('${cr.id}')">✕</button>
+    </div>
+    <div id="${bodyId}" style="display:none;padding:0 12px 12px;border-top:1px solid #1c1a16">
+      <div class="grid2" style="padding-top:10px">
+        ${fieldHtml('Nome','<input value="'+esc(cr.name)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'name\',this.value)" placeholder="Ex: Sombra Rastejante"/>')}
+        ${fieldHtml('Tipo / Origem','<input value="'+esc(cr.tipo)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'tipo\',this.value)" placeholder="Ex: Entidade, Cultista, Paranormal"/>')}
+        ${fieldHtml('PV Máximo','<input type="number" value="'+esc(cr.pvMax)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'pvMax\',this.value)" min="1" style="max-width:100px"/>')}
+        ${fieldHtml('Ataque / Dano','<input value="'+esc(cr.ataque)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'ataque\',this.value)" placeholder="Ex: Garras 1d6, Mordida 2d4+2"/>')}
+        <div class="span2">${fieldHtml('Habilidades Especiais','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'habilidades\',this.value)" placeholder="Poderes, rituais, fraquezas...">'+esc(cr.habilidades)+'</textarea>')}</div>
+        <div class="span2">${fieldHtml('Descrição','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'descricao\',this.value)" placeholder="Aparência, comportamento...">'+esc(cr.descricao)+'</textarea>')}</div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function renderEntryCard(type, entry, idx) {
@@ -1671,7 +1707,7 @@ function renderMesa() {
       <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap">
         <button onclick="mesaRolarTodos()" style="background:none;border:1px solid #b8860b55;color:#b8860b;padding:5px 10px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'">🎲 Rolar Todos</button>
         <button onclick="mesaProximoTurno()" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:5px 10px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#c0392b33'" onmouseleave="this.style.background='#c0392b22'">▶ Próximo</button>
-        <button onclick="mesaAddCriatura()" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">💀 +Inimigo</button>
+        <button onclick="mesaAbrirPickerCriatura()" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;text-transform:uppercase;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">💀 +Inimigo</button>
         <div style="display:flex;align-items:center;gap:5px;margin-left:auto">
           <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">R.</span>
           <span id="ini-rodada" style="font-size:18px;font-weight:700;color:#b8860b;font-family:'Share Tech Mono',monospace">1</span>
@@ -1787,7 +1823,7 @@ function renderMesa() {
         <button onclick="mesaProximoTurno()" style="flex:1;background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">▶ Próximo</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
-        <button onclick="mesaAddCriatura()" style="flex:1;background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">💀 + Inimigo</button>
+        <button onclick="mesaAbrirPickerCriatura()" style="flex:1;background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:10px 8px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;-webkit-tap-highlight-color:transparent;min-height:48px">💀 + Inimigo</button>
         <div style="display:flex;align-items:center;gap:8px;padding:0 12px;background:#090807;border:1px solid #1c1a16;border-radius:2px">
           <span style="font-size:10px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">Rodada</span>
           <span id="ini-rodada" style="font-size:24px;font-weight:700;color:#b8860b;font-family:'Share Tech Mono',monospace">1</span>
@@ -2058,14 +2094,61 @@ function getCriaturas() {
   if (!sess.criaturas) sess.criaturas = [];
   return sess.criaturas;
 }
-function mesaAddCriatura() {
+function mesaAddCriatura(criaturaBaseId) {
   const c = camps.find(x=>x.id===viewingId);
   const sess = c?.sessions_data.find(x=>x.id===mesaSessionId);
   if (!sess) return;
   if (!sess.criaturas) sess.criaturas = [];
-  sess.criaturas.push(blankCriatura());
+  if (criaturaBaseId) {
+    // adicionar a partir de uma criatura salva
+    const base = (c.criaturas||[]).find(x=>x.id===criaturaBaseId);
+    if (base) sess.criaturas.push({ id:uid(), name:base.name, pv:base.pvMax||30, pvMax:base.pvMax||30, _ini:null, conditions:[], _baseId:base.id });
+  } else {
+    sess.criaturas.push(blankCriatura());
+  }
   persist();
   renderIniciativa();
+  mesaFecharPickerCriatura();
+}
+
+function mesaAbrirPickerCriatura() {
+  const c = camps.find(x=>x.id===viewingId);
+  const salvas = c?.criaturas||[];
+  // usar overlay fixo para funcionar em mobile e PC
+  let overlay = document.getElementById('criatura-picker-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'criatura-picker-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:#00000066;touch-action:manipulation';
+    overlay.addEventListener('click', e => { if (e.target===overlay) mesaFecharPickerCriatura(); });
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `
+    <div style="background:#0a0408;border:1px solid #4c1d9555;border-radius:4px;padding:16px;width:90%;max-width:320px;max-height:80vh;overflow-y:auto">
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:12px">💀 Adicionar Inimigo</div>
+      ${salvas.length ? `
+        <div style="font-size:10px;color:#7a7060;margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase">Criaturas Salvas</div>
+        ${salvas.map(cr=>`
+          <button onclick="mesaAddCriatura('${cr.id}')" style="display:flex;align-items:center;gap:10px;width:100%;background:#0c0309;border:1px solid #4c1d9533;border-radius:2px;padding:10px 12px;margin-bottom:6px;cursor:pointer;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:transparent">
+            <span style="font-size:16px;flex-shrink:0">💀</span>
+            <div style="flex:1;min-width:0">
+              <div style="color:#ede8dc;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cr.name||'Sem nome')}</div>
+              <div style="color:#7a7060;font-size:11px">PV ${cr.pvMax||0}${cr.tipo?' · '+esc(cr.tipo):''}${cr.ataque?' · '+esc(cr.ataque):''}</div>
+            </div>
+          </button>`).join('')}
+        <div style="border-top:1px solid #2c2820;margin:10px 0"></div>` : ''}
+      <button onclick="mesaAddCriatura(null)" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:1px solid #302c24;border-radius:2px;padding:10px 12px;margin-bottom:8px;cursor:pointer;text-align:left;touch-action:manipulation;-webkit-tap-highlight-color:transparent">
+        <span style="font-size:16px">⚡</span>
+        <div style="color:#9a9088;font-size:13px">Nova criatura temporária</div>
+      </button>
+      <button onclick="mesaFecharPickerCriatura()" style="width:100%;background:none;border:1px solid #2c2820;border-radius:2px;color:#4a4440;font-size:12px;padding:10px;cursor:pointer;touch-action:manipulation">Cancelar</button>
+    </div>`;
+  overlay.style.display = 'flex';
+}
+
+function mesaFecharPickerCriatura() {
+  const overlay = document.getElementById('criatura-picker-overlay');
+  if (overlay) overlay.style.display = 'none';
 }
 function mesaDelCriatura(id) {
   const c = camps.find(x=>x.id===viewingId);
@@ -2494,6 +2577,29 @@ function openOnlyLastRoom(containerId) {
   openOnlyLastCollapsible(containerId, 'scroom-', 'scrbody-', 'scrarr-');
 }
 
+function addCriaturaBase() {
+  saveFormState();
+  if (!formData.criaturas) formData.criaturas = [];
+  formData.criaturas.push(blankCriaturaBase());
+  const container = document.getElementById('criaturas-list');
+  if (container) {
+    container.innerHTML = formData.criaturas.map((cr,i)=>renderCriaturaCard(cr,i)).join('');
+    openOnlyLastCollapsible('criaturas-list','crcard-','crbody-','crarr-');
+  }
+}
+function delCriaturaBase(id) {
+  saveFormState();
+  formData.criaturas = (formData.criaturas||[]).filter(x=>x.id!==id);
+  const container = document.getElementById('criaturas-list');
+  if (container) container.innerHTML = formData.criaturas.map((cr,i)=>renderCriaturaCard(cr,i)).join('');
+}
+function setCriaturaBaseField(id, field, val) {
+  const cr = (formData.criaturas||[]).find(x=>x.id===id);
+  if (!cr) return;
+  if (field==='pvMax') { const n=parseInt(val); cr[field]=isNaN(n)?0:Math.max(0,n); }
+  else cr[field] = val;
+}
+
 function addEntry(type) {
   saveFormState();
   if (type==='npcs')      formData.npcs.push(blankNPC());
@@ -2809,6 +2915,26 @@ function toggleLinked(type, sessId, itemId, checked) {
   if (!s.linkedNpcs) s.linkedNpcs = [];
   if (checked) { if (!s.linkedNpcs.includes(itemId)) s.linkedNpcs.push(itemId); }
   else { s.linkedNpcs = s.linkedNpcs.filter(id=>id!==itemId); }
+}
+function toggleLinkedRow(type, sessId, itemId) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  if (!s) return;
+  if (!s.linkedNpcs) s.linkedNpcs = [];
+  const isLinked = s.linkedNpcs.includes(itemId);
+  if (isLinked) s.linkedNpcs = s.linkedNpcs.filter(id=>id!==itemId);
+  else s.linkedNpcs.push(itemId);
+  // atualiza visual do row sem rerenderizar tudo
+  const row = document.getElementById('npc-link-row-'+sessId+'-'+itemId);
+  if (!row) return;
+  const nowLinked = s.linkedNpcs.includes(itemId);
+  row.style.background = nowLinked ? '#c0392b12' : '#0a0908';
+  row.style.borderColor = nowLinked ? '#c0392b44' : '#2c2820';
+  const box = row.querySelector('div');
+  if (box) {
+    box.style.borderColor = nowLinked ? '#c0392b' : '#4a4440';
+    box.style.background  = nowLinked ? '#c0392b'  : 'transparent';
+    box.innerHTML = nowLinked ? '<span style="color:#fff;font-size:11px;line-height:1">✓</span>' : '';
+  }
 }
 function addClue(sessId) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
