@@ -1505,7 +1505,7 @@ function renderMesa() {
     const nid='mn-'+n.id;
     return `
     <div style="border-bottom:1px solid #302c24;padding:8px 0" data-busca="${[(n.name||''),(n.role||''),(n.description||'')].join(' ').toLowerCase().replace(/"/g,'')}">
-      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="mesaToggle('${nid}')">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${nid}')">
         <span id="arr-${nid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
         <div style="flex:1;min-width:0">
           <div style="color:#ede8dc;font-size:13px;font-weight:700">${esc(n.name)||'Sem nome'}</div>
@@ -1563,7 +1563,7 @@ function renderMesa() {
         const dc2=DANGER_COLORS[loc.danger]||'#7a7060';
         const locid='msl-'+loc.id;
         return `<div style="background:#0a0908;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;margin-top:6px">
-          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer" onclick="mesaToggle('${locid}')">
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${locid}')">
             <span id="arr-${locid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
             <span style="color:#b8860b;font-size:12px">📍</span>
             <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(loc.name)||'Local'}</span>
@@ -1577,7 +1577,7 @@ function renderMesa() {
               const items=r.items||[];
               const roomid='msr-'+r.id;
               return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;margin-bottom:4px;overflow:hidden">
-                <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer" onclick="mesaToggle('${roomid}')">
+                <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${roomid}')">
                   <span id="arr-${roomid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
                   <span style="font-size:13px">${ROOM_IC[r.type]||'📍'}</span>
                   <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name)||'Cômodo'}</span>
@@ -1606,7 +1606,7 @@ function renderMesa() {
       return `<div class="mesa-cena-row" data-scid="${sc.id}" data-col="${col}" data-busca="${buscaTxt.replace(/"/g,'')}"
         style="border-bottom:1px solid #302c24;padding:8px 0;background:${isAtiva?'#7f1d1d12':'transparent'};border-left:${isAtiva?`3px solid ${col}`:'3px solid transparent'};padding-left:${isAtiva?'8px':'0'};transition:all .2s;border-radius:${isAtiva?'2px':'0'}">
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="cursor:pointer;flex:1;display:flex;align-items:center;gap:8px;min-width:0" onclick="mesaToggle('${scid}')">
+          <div style="cursor:pointer;flex:1;display:flex;align-items:center;gap:8px;min-width:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${scid}')">
             <span id="arr-${scid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
             <span style="font-size:10px;font-weight:700;color:${col};font-family:'Share Tech Mono',monospace;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
             <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'Sem nome'}</span>
