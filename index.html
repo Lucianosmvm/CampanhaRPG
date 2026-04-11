@@ -1544,7 +1544,7 @@ function renderMesa() {
   const quicknotes = s.quicknotes||'';
 
   // ── helper: cenas HTML (shared between columns)
-  function buildCenasHtml() {
+  function buildCenasHtml(pfx='') {
     if (!(s.scenes||[]).length) return '';
     // sort: active scene first, rest in original order
     let scenes = [...(s.scenes||[])];
@@ -1555,13 +1555,13 @@ function renderMesa() {
     return scenes.map((sc,i)=>{
       const col=SCENE_COLORS[sc.type]||'#b8860b';
       const ic=SCENE_ICONS[sc.type]||'🎬';
-      const scid='msc-'+sc.id;
+      const scid=pfx+'msc-'+sc.id;
       const isAtiva = sc.id === mesaCenaAtivaId;
       const locs=sc.locations||[];
       const mesaLocsHtml=locs.map(loc=>{
         const rooms=loc.rooms||[];
         const dc2=DANGER_COLORS[loc.danger]||'#7a7060';
-        const locid='msl-'+loc.id;
+        const locid=pfx+'msl-'+loc.id;
         return `<div style="background:#0a0908;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;margin-top:6px">
           <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${locid}')">
             <span id="arr-${locid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
@@ -1575,7 +1575,7 @@ function renderMesa() {
             ${rooms.map(r=>{
               const rdc=ROOM_DANGER_C[r.danger]||'#7a7060';
               const items=r.items||[];
-              const roomid='msr-'+r.id;
+              const roomid=pfx+'msr-'+r.id;
               return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;margin-bottom:4px;overflow:hidden">
                 <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${roomid}')">
                   <span id="arr-${roomid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
@@ -1764,7 +1764,7 @@ function renderMesa() {
     <div class="mesa-busca-container">
     ${(s.scenes||[]).length?`<div class="mesa-card" style="margin-bottom:12px">
       <div class="mesa-card-title">🎬 Cenas da Sessão</div>
-      ${buildCenasHtml()}
+      ${buildCenasHtml('mob-')}
     </div>`:''}
     ${antaHtml?`<div style="margin-bottom:12px">${antaHtml}</div>`:''}
     ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${npcsHtml}</div>`:''}
