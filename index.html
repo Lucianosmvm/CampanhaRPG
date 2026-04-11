@@ -1053,7 +1053,7 @@ function renderForm() {
       <div class="span2">${fieldHtml('Título da Campanha','<input id="f-title" value="'+esc(d.title)+'" placeholder="Ex: O Silêncio da Carne" style="font-size:16px"/>')}</div>
       ${fieldHtml('Número de Sessões','<input id="f-sessions" type="number" min="1" max="20" value="'+d.sessions+'"/>')}
       ${fieldHtml('Status','<select id="f-status">'+['Em Andamento','Planejada','Pausada','Concluída'].map(s=>`<option${s===d.status?' selected':''}>${s}</option>`).join('')+'</select>')}
-      ${fieldHtml('NEX dos Agentes','<select id="f-nex">'+['5%','10%','15%','20%','25%','30%','35%','40%','45%','50%','55%','60%','65%','70%','75%','80%','85%','90%','95%','99%'].map(n=>`<option${n===d.nex?' selected':''}>${n}</option>`).join('')+'</select>','(Nível de Exposição ao Paranormal)')}
+      ${fieldHtml('NEX dos Agentes','<select id="f-nex">'+['0%','5%','10%','15%','20%','25%','30%','35%','40%','45%','50%','55%','60%','65%','70%','75%','80%','85%','90%','95%','99%'].map(n=>`<option${n===d.nex?' selected':''}>${n}</option>`).join('')+'</select>','(Nível de Exposição ao Paranormal)')}
       <div class="span2">${fieldHtml('Sinopse / Premissa','<textarea id="f-synopsis" rows="5" placeholder="Descreva o arco central, o mistério principal...">'+esc(d.synopsis)+'</textarea>')}</div>
     </div>`;
 
@@ -2427,7 +2427,7 @@ function renderAgentesTracker() {
           <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">NEX</span>
           <select onchange="mesaSetAgente('${a.id}','nex',this.value)"
             style="background:#0c0b09;border:1px solid ${nexColor}44;color:${nexColor};font-size:11px;font-weight:700;padding:2px 4px;border-radius:2px;width:auto;font-family:'Share Tech Mono',monospace">
-            ${[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99].map(v=>
+            ${[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99].map(v=>
               `<option value="${v}"${a.nex===v?' selected':''}>${v}%</option>`
             ).join('')}
           </select>
