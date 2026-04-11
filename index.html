@@ -2452,12 +2452,56 @@ function toggleEntry(bodyId, arrowId) {
   if (a) a.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
 }
 
+// Fecha todos os entry-cards de um container e abre só o último
+function openOnlyLast(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const cards = container.querySelectorAll('.entry-card');
+  cards.forEach((card, i) => {
+    const body  = card.querySelector('.entry-body');
+    const arrow = card.querySelector('.entry-arrow');
+    const isLast = i === cards.length - 1;
+    if (body)  body.style.display = isLast ? 'block' : 'none';
+    if (arrow) arrow.style.transform = isLast ? 'rotate(90deg)' : 'rotate(0deg)';
+  });
+}
+
+// Fecha todas as cenas/locais/cômodos de um container e abre só o último
+// rowSelector: seletor dos elementos filhos (ex: '[id^="scrow-"]')
+// bodyPrefix, arrowPrefix: prefixos do id do body/arrow
+// idAttr: atributo do elemento que contém o id base (ex: 'id' → strip rowPrefix)
+function openOnlyLastCollapsible(containerId, rowPrefix, bodyPrefix, arrowPrefix) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const rows = container.querySelectorAll('[id^="' + rowPrefix + '"]');
+  rows.forEach((row, i) => {
+    const isLast = i === rows.length - 1;
+    const baseId = row.id.replace(rowPrefix, '');
+    const body  = document.getElementById(bodyPrefix  + baseId);
+    const arrow = document.getElementById(arrowPrefix + baseId);
+    if (body)  body.style.display = isLast ? 'block' : 'none';
+    if (arrow) arrow.style.transform = isLast ? 'rotate(90deg)' : 'rotate(0deg)';
+  });
+}
+
+function openOnlyLastScene(containerId) {
+  openOnlyLastCollapsible(containerId, 'scrow-', 'scbody-', 'scarr-');
+}
+function openOnlyLastLoc(containerId) {
+  openOnlyLastCollapsible(containerId, 'scloc-', 'sclbody-', 'sclarr-');
+}
+function openOnlyLastRoom(containerId) {
+  openOnlyLastCollapsible(containerId, 'scroom-', 'scrbody-', 'scrarr-');
+}
+
 function addEntry(type) {
   saveFormState();
   if (type==='npcs')      formData.npcs.push(blankNPC());
   if (type==='locations') formData.locations.push(blankLoc());
   if (type==='items')     formData.items.push(blankItem());
   render();
+  const containerId = type==='npcs' ? 'npcs-list' : type==='locations' ? 'locs-list' : 'items-list';
+  openOnlyLast(containerId);
 }
 function delEntry(type, id) {
   saveFormState();
@@ -2632,7 +2676,10 @@ function addSceneLoc(sessId, scId) {
   if (!sc.locations) sc.locations=[];
   sc.locations.push(blankSceneLoc());
   const container = document.getElementById('scene-locs-'+scId);
-  if (container) container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
+  if (container) {
+    container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
+    openOnlyLastLoc('scene-locs-'+scId);
+  }
 }
 function delSceneLoc(sessId, scId, locId) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
@@ -2658,7 +2705,10 @@ function addSceneRoom(sessId, scId, locId) {
   if (!loc.rooms) loc.rooms=[];
   loc.rooms.push(blankSceneRoom());
   const container = document.getElementById('scene-rooms-'+locId);
-  if (container) container.innerHTML = loc.rooms.map((r,ri)=>renderSceneRoomCard(sessId,scId,locId,r,ri)).join('');
+  if (container) {
+    container.innerHTML = loc.rooms.map((r,ri)=>renderSceneRoomCard(sessId,scId,locId,r,ri)).join('');
+    openOnlyLastRoom('scene-rooms-'+locId);
+  }
 }
 function delSceneRoom(sessId, scId, locId, roomId) {
   const s = formData.sessions_data.find(x=>x.id===sessId);
@@ -2718,10 +2768,10 @@ function addScene(sessId) {
   if (!s) return;
   if (!s.scenes) s.scenes=[];
   s.scenes.push(blankScene(s.scenes.length+1));
-  // re-render only the scenes container
   const container = document.getElementById('scenes-'+sessId);
   if (container) {
     container.innerHTML = s.scenes.map((sc,i)=>renderSceneRow(sessId,sc,i)).join('');
+    openOnlyLastScene('scenes-'+sessId);
   }
 }
 function delScene(sessId, scId) {
