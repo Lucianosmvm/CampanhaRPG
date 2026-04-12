@@ -909,7 +909,7 @@ function blankItem()      { return { id:uid(), name:'', type:'', description:'',
 function blankSess(n)     { return { id:uid(), number:n, title:'', opening:'', synopsis:'', objectives:'', scenes:[], rewards:'', hook:'', notes:'', quicknotes:'', status:'Pendente', clues:[], linkedNpcs:[] }; }
 function blankScene(n)    { return { id:uid(), number:n, name:'', type:'Investigação', description:'', locations:[] }; }
 function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo', rooms:[] }; }
-function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', items:[] }; }
+function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', items:[], criaturas:[] }; }
 function blankSceneItem() { return { id:uid(), name:'', cat:'objeto', desc:'', secret:'' }; }
 function blankClue()      { return { id:uid(), text:'', found:false, type:'Física' }; }
 
@@ -2749,6 +2749,20 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
   const itemsHtml = items.map((it, ii) => renderSceneItemRow(sessId, scId, locId, r.id, it, ii)).join('');
   const bodyId = 'scrbody-'+r.id;
   const arrId  = 'scrarr-'+r.id;
+  // criaturas disponíveis na campanha
+  const campanha = camps.find(x=>x.id===viewingId);
+  const criaturasSalvas = campanha?.criaturas||[];
+  const roomCriaturas = r.criaturas||[];
+  const criaturasSelecionadas = roomCriaturas.map(cid=>criaturasSalvas.find(x=>x.id===cid)).filter(Boolean);
+  const criaturasDisponiveis = criaturasSalvas.filter(x=>!roomCriaturas.includes(x.id));
+  const criaturasHtml = criaturasSelecionadas.map(cr=>`
+    <div style="display:flex;align-items:center;gap:6px;background:#0d0b10;border:1px solid #4c1d9544;border-left:2px solid #7c3aed;border-radius:2px;padding:4px 8px;margin-bottom:4px">
+      <span style="font-size:12px">💀</span>
+      <span style="flex:1;color:#c4b5fd;font-size:12px;font-weight:700">${esc(cr.name)}</span>
+      ${cr.tipo?`<span style="color:#7a7060;font-size:10px;text-transform:uppercase">${esc(cr.tipo)}</span>`:''}
+      <span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${cr.pvMax||0}</span>
+      <button onclick="removeRoomCriatura('${sessId}','${scId}','${locId}','${r.id}','${cr.id}')" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
+    </div>`).join('');
   return `
   <div id="scroom-${r.id}" style="background:#080706;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;margin-bottom:6px;overflow:hidden">
     <!-- cabeçalho clicável do cômodo -->
@@ -2758,6 +2772,7 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
       <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
       ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${dc};font-size:10px;text-transform:uppercase;flex-shrink:0">${esc(r.danger)}</span>`:''}
       ${items.length?`<span style="color:#7a7060;font-size:10px;flex-shrink:0">${items.length} obj.</span>`:''}
+      ${roomCriaturas.length?`<span style="color:#a78bfa;font-size:10px;flex-shrink:0">💀 ${roomCriaturas.length}</span>`:''}
       <button class="btn-del" style="width:32px;height:32px" onclick="event.stopPropagation();delSceneRoom('${sessId}','${scId}','${locId}','${r.id}')">✕</button>
     </div>
     <div id="${bodyId}" style="display:none;padding:0 10px 8px;border-top:1px solid #1c1a16">
@@ -2779,6 +2794,23 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
         placeholder="🌫 Atmosfera / sons / cheiros..." style="font-size:12px;padding:6px 9px;margin-bottom:5px"/>
       <input value="${esc(r.secret)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','secret',this.value)"
         placeholder="🔒 Segredo do cômodo (só mestre vê)..." style="font-size:12px;padding:6px 9px;margin-bottom:8px"/>
+      <!-- Criaturas do cômodo -->
+      <div style="border-top:1px solid #1c1a16;padding-top:6px;margin-bottom:6px">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:5px">💀 Criaturas do Cômodo</div>
+        <div id="room-criaturas-${r.id}">${criaturasHtml}</div>
+        ${criaturasSalvas.length===0
+          ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Nenhuma criatura cadastrada na campanha.</div>`
+          : criaturasDisponiveis.length===0
+            ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Todas as criaturas já foram adicionadas.</div>`
+            : `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <select id="room-cr-select-${r.id}" style="flex:1;min-width:120px;font-size:12px;padding:5px 7px;background:#0c0b09;border:1px solid #4c1d9533;color:#c4b5fd;border-radius:2px">
+                  <option value="">Selecionar criatura...</option>
+                  ${criaturasDisponiveis.map(cr=>`<option value="${cr.id}">${esc(cr.name)}${cr.tipo?' — '+esc(cr.tipo):''} (PV ${cr.pvMax||0})</option>`).join('')}
+                </select>
+                <button onclick="addRoomCriatura('${sessId}','${scId}','${locId}','${r.id}')" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">+ Adicionar</button>
+              </div>`
+        }
+      </div>
       <!-- Objetos/Itens -->
       <div style="border-top:1px solid #1c1a16;padding-top:6px">
         <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:5px">Objetos / Elementos</div>
@@ -2866,6 +2898,42 @@ function setSceneRoomField(sessId, scId, locId, roomId, field, val) {
   const loc = (sc?.locations||[]).find(x=>x.id===locId);
   const r = (loc?.rooms||[]).find(x=>x.id===roomId);
   if (r) r[field] = val;
+}
+function addRoomCriatura(sessId, scId, locId, roomId) {
+  const sel = document.getElementById('room-cr-select-'+roomId);
+  if (!sel || !sel.value) return;
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+  const loc = (sc?.locations||[]).find(x=>x.id===locId);
+  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
+  if (!r) return;
+  if (!r.criaturas) r.criaturas = [];
+  if (!r.criaturas.includes(sel.value)) r.criaturas.push(sel.value);
+  const container = document.getElementById('scene-rooms-'+locId);
+  if (container) container.innerHTML = loc.rooms.map((rm,ri)=>renderSceneRoomCard(sessId,scId,locId,rm,ri)).join('');
+  // reabre o cômodo que estava aberto
+  const bodyId = 'scrbody-'+roomId;
+  const arrId  = 'scrarr-'+roomId;
+  const body = document.getElementById(bodyId);
+  const arr  = document.getElementById(arrId);
+  if (body) body.style.display = 'block';
+  if (arr)  arr.style.transform = 'rotate(90deg)';
+}
+function removeRoomCriatura(sessId, scId, locId, roomId, criaturaId) {
+  const s = formData.sessions_data.find(x=>x.id===sessId);
+  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+  const loc = (sc?.locations||[]).find(x=>x.id===locId);
+  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
+  if (!r) return;
+  r.criaturas = (r.criaturas||[]).filter(x=>x!==criaturaId);
+  const container = document.getElementById('scene-rooms-'+locId);
+  if (container) container.innerHTML = loc.rooms.map((rm,ri)=>renderSceneRoomCard(sessId,scId,locId,rm,ri)).join('');
+  const bodyId = 'scrbody-'+roomId;
+  const arrId  = 'scrarr-'+roomId;
+  const body = document.getElementById(bodyId);
+  const arr  = document.getElementById(arrId);
+  if (body) body.style.display = 'block';
+  if (arr)  arr.style.transform = 'rotate(90deg)';
 }
 function refreshSceneRoom(roomId, danger) {
   const el = document.getElementById('scroom-'+roomId);
@@ -3083,15 +3151,30 @@ function exportPDF() {
   <div style="margin-top:40px;font-size:10px;color:#302c24;font-family:'Share Tech Mono',monospace">Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
 </div>`;
 
-  const anta = c.antagonist?.name ? `
-${sc('Antagonista Principal','#c0392b')}
-<div style="background:#7f1d1d12;border:1px solid #7f1d1d55;border-left:4px solid #c0392b;border-radius:3px;padding:20px;margin-bottom:10px">
+  const criaturasPDF = (c.criaturas||[]).length ? `
+<div style="margin-top:14px">
+  <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#7c3aed;font-weight:700;margin-bottom:8px">💀 Criaturas & Inimigos</div>
+  ${(c.criaturas||[]).map(cr=>`
+  <div style="background:#0d0b10;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:2px;padding:12px 14px;margin-bottom:8px;page-break-inside:avoid">
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:700;color:#ede8dc;margin-bottom:2px">${esc(cr.name)}</div>
+    ${cr.tipo?`<div style="font-size:10px;color:#a78bfa;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">${esc(cr.tipo)}</div>`:''}
+    <div style="font-size:11px;color:#7a7060;margin-bottom:6px">PV Máximo: <span style="color:#c0392b;font-weight:700">${cr.pvMax||0}</span></div>
+    ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:5px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><div style="color:#e8d5d5;font-size:12px;line-height:1.6;white-space:pre-line">${esc(cr.ataque)}</div></div>`:''}
+    ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:5px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><div style="color:#c4b5fd;font-size:12px;line-height:1.6">${nl(cr.habilidades)}</div></div>`:''}
+    ${cr.descricao?`<div style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-top:4px">${nl(cr.descricao)}</div>`:''}
+  </div>`).join('')}
+</div>` : '';
+
+  const anta = (c.antagonist?.name || (c.criaturas||[]).length) ? `
+${sc('Antagonista','#c0392b')}
+${c.antagonist?.name ? `<div style="background:#7f1d1d12;border:1px solid #7f1d1d55;border-left:4px solid #c0392b;border-radius:3px;padding:20px;margin-bottom:10px">
   <div style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:900;color:#ede8dc;margin-bottom:4px">${esc(c.antagonist.name)}</div>
   ${c.antagonist.nature?`<div style="font-size:11px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">${esc(c.antagonist.nature)}</div>`:''}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     ${block('Motivação',c.antagonist.motivation)} ${block('Poder Paranormal',c.antagonist.power)}
   </div>
-</div>` : '';
+</div>` : ''}
+${criaturasPDF}` : '';
 
   const npcs = c.npcs.length ? `
 ${sc('NPCs','#b8860b')}
@@ -3100,7 +3183,7 @@ ${c.npcs.map(n=>`<div style="background:#141210;border:1px solid #b8860b33;borde
   ${n.role?`<div style="font-size:10px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 8px">${esc(n.role)}</div>`:''}
   ${n.description?`<div style="color:#c0b8b0;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin-bottom:8px">${nl(n.description)}</div>`:''}
   ${n.rituals?`<div style="background:#7c3aed18;border:1px solid #7c3aed44;border-radius:2px;padding:7px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Rituais / Habilidades</div><div style="color:#c4b5fd;font-size:12px;line-height:1.6">${nl(n.rituals)}</div></div>`:''}
-  ${n.sanity?`<div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🧠 Impacto na Sanidade</div><div style="color:#a5f3fc;font-size:12px">${esc(n.sanity)}</div></div>`:''}
+  ${n.sanity?`<div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🧠 Impacto na Sanidade</div><div style="color:#a5f3fc;font-size:12px;white-space:pre-line">${nl(n.sanity)}</div></div>`:''}
   ${n.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d44;border-radius:2px;padding:7px 10px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px;line-height:1.6">${nl(n.secret)}</div></div>`:''}
 </div>`).join('')}` : '';
 
@@ -3208,8 +3291,11 @@ ${cover}
                 const RIIC={'sala':'🛋','quarto':'🛏','cozinha':'🍳','banheiro':'🚿','jardim':'🌿','garagem':'🚗','corredor':'🚪','porao':'🕯','sotao':'🕷','escritorio':'💼','laboratorio':'⚗️','deposito':'📦','outro':'📍'};
                 const IIIC={'objeto':'📦','pista':'🔍','perigo':'⚠️','npc':'👤','passagem':'🚪','paranormal':'👁','nota':'📝'};
                 const IICOL={'objeto':'#7a7060','pista':'#b8860b','perigo':'#c0392b','npc':'#276749','passagem':'#0e7490','paranormal':'#7c3aed','nota':'#4a4440'};
+                const roomCrIds = r.criaturas||[];
+                const campCriaturas = c.criaturas||[];
+                const roomCrObjs = roomCrIds.map(cid=>campCriaturas.find(x=>x.id===cid)).filter(Boolean);
                 return `<div style="background:#060504;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;padding:7px 10px;margin-bottom:4px">
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.description||r.atmosphere||r.secret||its.length?'5px':'0'}">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.description||r.atmosphere||r.secret||its.length||roomCrObjs.length?'5px':'0'}">
                     <span>${RIIC[r.type]||'📍'}</span>
                     <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name||'Sem nome')}</span>
                     ${r.danger&&r.danger!=='Sem Perigo'?`<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${rdc}22;border:1px solid ${rdc}44;color:${rdc};text-transform:uppercase">${esc(r.danger)}</span>`:''}
@@ -3226,6 +3312,15 @@ ${cover}
                     </div>
                     <span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${IICOL[it.cat]||'#7a7060'}22;border:1px solid ${IICOL[it.cat]||'#7a7060'}44;color:${IICOL[it.cat]||'#7a7060'};text-transform:uppercase;flex-shrink:0">${it.cat}</span>
                   </div>`).join('')}
+                  ${roomCrObjs.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-top:4px">
+                    <div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">💀 Criaturas</div>
+                    ${roomCrObjs.map(cr=>`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #1a0e20">
+                      <span style="color:#a78bfa;font-size:11px;font-weight:700;flex:1">${esc(cr.name)}</span>
+                      ${cr.tipo?`<span style="color:#7a7060;font-size:9px;text-transform:uppercase">${esc(cr.tipo)}</span>`:''}
+                      <span style="color:#c0392b;font-size:10px;font-family:monospace">PV ${cr.pvMax||0}</span>
+                      ${cr.ataque?`<span style="color:#9a9088;font-size:10px;white-space:pre-line">${esc(cr.ataque)}</span>`:''}
+                    </div>`).join('')}
+                  </div>`:''}
                 </div>`;
               }).join('');
               return `<div style="background:#0a0908;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;padding:8px 10px;margin-bottom:5px">
