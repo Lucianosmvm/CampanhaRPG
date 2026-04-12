@@ -1313,17 +1313,25 @@ function renderDetail() {
     const criaturas = c.criaturas||[];
     const criaturasBlock = criaturas.length===0 ? '' : `
       <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7c3aed;font-weight:700;margin-bottom:12px">💀 Criaturas & Inimigos</div>
-      ${criaturas.map(cr=>`
-        <div style="background:#0d0b10;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;padding:14px 18px;margin-bottom:10px">
-          <div class="serif ink" style="font-size:17px;font-weight:700;margin-bottom:2px">${esc(cr.name)}</div>
-          ${cr.tipo?`<div style="color:#a78bfa;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">${esc(cr.tipo)}</div>`:''}
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px">
-            <div style="font-size:11px;color:#7a7060">PV Máximo: <span style="color:#c0392b;font-weight:700">${cr.pvMax||0}</span></div>
+      ${criaturas.map(cr=>{
+        const bid = 'dcr-body-'+cr.id;
+        const aid = 'dcr-arr-'+cr.id;
+        return `
+        <div style="background:#0d0b10;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;margin-bottom:10px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bid}','${aid}')">
+            <span id="${aid}" style="color:#7a7060;font-size:11px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
+            <span style="font-size:14px;flex-shrink:0">💀</span>
+            <span style="flex:1;color:#ede8dc;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cr.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+            ${cr.tipo?`<span style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${esc(cr.tipo)}</span>`:''}
+            <span style="font-size:10px;color:#c0392b;font-family:'Share Tech Mono',monospace;flex-shrink:0">PV ${cr.pvMax||0}</span>
           </div>
-          ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
-          ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
-          ${cr.descricao?`<p class="body-text" style="margin-top:6px">${nl(cr.descricao)}</p>`:''}
-        </div>`).join('')}`;
+          <div id="${bid}" style="display:none;padding:0 14px 14px;border-top:1px solid #1c1a16">
+            ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-top:10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
+            ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
+            ${cr.descricao?`<p class="body-text" style="margin-top:6px">${nl(cr.descricao)}</p>`:''}
+          </div>
+        </div>`;
+      }).join('')}`;
     body = antaBlock + criaturasBlock;
   }
 
