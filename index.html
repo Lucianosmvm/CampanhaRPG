@@ -1205,7 +1205,7 @@ function renderEntryCard(type, entry, idx) {
       <div class="span2">${fieldHtml('Descrição','<textarea rows="3" oninput="setEntryField(\'npcs\',\''+id+'\',\'description\',this.value)" placeholder="Aparência, personalidade, como age...">'+esc(entry.description)+'</textarea>')}</div>
       <div class="span2">${fieldHtml('Rituais / Habilidades Paranormais','<textarea rows="3" oninput="setEntryField(\'npcs\',\''+id+'\',\'rituals\',this.value)" placeholder="Poderes, rituais, ataques especiais, fraquezas...">'+esc(entry.rituals||'')+'</textarea>')}</div>
       <div class="span2">${fieldHtml('Segredo / Motivação Oculta','<textarea rows="2" oninput="setEntryField(\'npcs\',\''+id+'\',\'secret\',this.value)" placeholder="O que esse NPC esconde? Qual seu real objetivo?">'+esc(entry.secret)+'</textarea>','(só o mestre vê)')}</div>
-      ${fieldHtml('Impacto na Sanidade','<input value="'+esc(entry.sanity||'')+'" oninput="setEntryField(\'npcs\',\''+id+'\',\'sanity\',this.value)" placeholder="Ex: -1d4 SAN ao ver, -2 SAN por turno"/>')}
+      <div class="span2">${fieldHtml('Impacto na Sanidade','<textarea rows="3" oninput="setEntryField(\'npcs\',\''+id+'\',\'sanity\',this.value)" placeholder="Ex:\n-1d4 SAN ao ver\n-2 SAN por turno">'+esc(entry.sanity||'')+'</textarea>')}</div>
     </div>`;
   }
   if (type==='loc') {
