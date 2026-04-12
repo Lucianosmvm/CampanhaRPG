@@ -2749,20 +2749,34 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
   const itemsHtml = items.map((it, ii) => renderSceneItemRow(sessId, scId, locId, r.id, it, ii)).join('');
   const bodyId = 'scrbody-'+r.id;
   const arrId  = 'scrarr-'+r.id;
-  // criaturas disponíveis na campanha
+  // criaturas e NPCs disponíveis na campanha
   const campanha = camps.find(x=>x.id===viewingId);
   const criaturasSalvas = campanha?.criaturas||[];
-  const roomCriaturas = r.criaturas||[];
-  const criaturasSelecionadas = roomCriaturas.map(cid=>criaturasSalvas.find(x=>x.id===cid)).filter(Boolean);
-  const criaturasDisponiveis = criaturasSalvas.filter(x=>!roomCriaturas.includes(x.id));
-  const criaturasHtml = criaturasSelecionadas.map(cr=>`
-    <div style="display:flex;align-items:center;gap:6px;background:#0d0b10;border:1px solid #4c1d9544;border-left:2px solid #7c3aed;border-radius:2px;padding:4px 8px;margin-bottom:4px">
-      <span style="font-size:12px">💀</span>
-      <span style="flex:1;color:#c4b5fd;font-size:12px;font-weight:700">${esc(cr.name)}</span>
-      ${cr.tipo?`<span style="color:#7a7060;font-size:10px;text-transform:uppercase">${esc(cr.tipo)}</span>`:''}
-      <span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${cr.pvMax||0}</span>
-      <button onclick="removeRoomCriatura('${sessId}','${scId}','${locId}','${r.id}','${cr.id}')" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
-    </div>`).join('');
+  const npcsSalvos = campanha?.npcs||[];
+  const roomEntries = r.criaturas||[]; // valores prefixados: 'cr:ID' ou 'npc:ID'
+  const entriesSelecionadas = roomEntries.map(key=>{
+    if (key.startsWith('cr:'))  { const o=criaturasSalvas.find(x=>x.id===key.slice(3)); return o?{...o,_tipo:'cr',_key:key}:null; }
+    if (key.startsWith('npc:')) { const o=npcsSalvos.find(x=>x.id===key.slice(4));      return o?{...o,_tipo:'npc',_key:key}:null; }
+    // legado: IDs sem prefixo eram criaturas
+    const o=criaturasSalvas.find(x=>x.id===key); return o?{...o,_tipo:'cr',_key:key}:null;
+  }).filter(Boolean);
+  const criaturasDisponiveis = criaturasSalvas.filter(x=>!roomEntries.includes('cr:'+x.id)&&!roomEntries.includes(x.id));
+  const npcsDisponiveis = npcsSalvos.filter(x=>!roomEntries.includes('npc:'+x.id));
+  const temDisponiveis = criaturasDisponiveis.length||npcsDisponiveis.length;
+  const criaturasHtml = entriesSelecionadas.map(e=>{
+    const isCr = e._tipo==='cr';
+    const ic = isCr?'💀':'👤';
+    const cor = isCr?'#7c3aed':'#b8860b';
+    const sub = isCr?(e.tipo||''):(e.role||'');
+    const pv  = isCr?`<span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${e.pvMax||0}</span>`:'';
+    return `<div style="display:flex;align-items:center;gap:6px;background:#0d0b10;border:1px solid ${cor}44;border-left:2px solid ${cor};border-radius:2px;padding:4px 8px;margin-bottom:4px">
+      <span style="font-size:12px">${ic}</span>
+      <span style="flex:1;color:#ede8dc;font-size:12px;font-weight:700">${esc(e.name)}</span>
+      ${sub?`<span style="color:#7a7060;font-size:10px;text-transform:uppercase">${esc(sub)}</span>`:''}
+      ${pv}
+      <button onclick="removeRoomCriatura('${sessId}','${scId}','${locId}','${r.id}','${e._key}')" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
+    </div>`;
+  }).join('');
   return `
   <div id="scroom-${r.id}" style="background:#080706;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;margin-bottom:6px;overflow:hidden">
     <!-- cabeçalho clicável do cômodo -->
@@ -2772,7 +2786,7 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
       <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
       ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${dc};font-size:10px;text-transform:uppercase;flex-shrink:0">${esc(r.danger)}</span>`:''}
       ${items.length?`<span style="color:#7a7060;font-size:10px;flex-shrink:0">${items.length} obj.</span>`:''}
-      ${roomCriaturas.length?`<span style="color:#a78bfa;font-size:10px;flex-shrink:0">💀 ${roomCriaturas.length}</span>`:''}
+      ${roomEntries.length?`<span style="color:#a78bfa;font-size:10px;flex-shrink:0">💀 ${roomEntries.length}</span>`:''}
       <button class="btn-del" style="width:32px;height:32px" onclick="event.stopPropagation();delSceneRoom('${sessId}','${scId}','${locId}','${r.id}')">✕</button>
     </div>
     <div id="${bodyId}" style="display:none;padding:0 10px 8px;border-top:1px solid #1c1a16">
@@ -2794,21 +2808,20 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
         placeholder="🌫 Atmosfera / sons / cheiros..." style="font-size:12px;padding:6px 9px;margin-bottom:5px"/>
       <input value="${esc(r.secret)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','secret',this.value)"
         placeholder="🔒 Segredo do cômodo (só mestre vê)..." style="font-size:12px;padding:6px 9px;margin-bottom:8px"/>
-      <!-- Criaturas do cômodo -->
+      <!-- Criaturas / NPCs do cômodo -->
       <div style="border-top:1px solid #1c1a16;padding-top:6px;margin-bottom:6px">
-        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:5px">💀 Criaturas do Cômodo</div>
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:5px">💀 Inimigos & NPCs do Cômodo</div>
         <div id="room-criaturas-${r.id}">${criaturasHtml}</div>
-        ${criaturasSalvas.length===0
-          ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Nenhuma criatura cadastrada na campanha.</div>`
-          : criaturasDisponiveis.length===0
-            ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Todas as criaturas já foram adicionadas.</div>`
-            : `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-                <select id="room-cr-select-${r.id}" style="flex:1;min-width:120px;font-size:12px;padding:5px 7px;background:#0c0b09;border:1px solid #4c1d9533;color:#c4b5fd;border-radius:2px">
-                  <option value="">Selecionar criatura...</option>
-                  ${criaturasDisponiveis.map(cr=>`<option value="${cr.id}">${esc(cr.name)}${cr.tipo?' — '+esc(cr.tipo):''} (PV ${cr.pvMax||0})</option>`).join('')}
-                </select>
-                <button onclick="addRoomCriatura('${sessId}','${scId}','${locId}','${r.id}')" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">+ Adicionar</button>
-              </div>`
+        ${!temDisponiveis
+          ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Nenhuma criatura ou NPC cadastrado na campanha.</div>`
+          : `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <select id="room-cr-select-${r.id}" style="flex:1;min-width:140px;font-size:12px;padding:5px 7px;background:#0c0b09;border:1px solid #4c1d9533;color:#c4b5fd;border-radius:2px">
+                <option value="">Selecionar...</option>
+                ${criaturasDisponiveis.length?`<optgroup label="💀 Criaturas">${criaturasDisponiveis.map(cr=>`<option value="cr:${cr.id}">${esc(cr.name)}${cr.tipo?' — '+esc(cr.tipo):''} (PV ${cr.pvMax||0})</option>`).join('')}</optgroup>`:''}
+                ${npcsDisponiveis.length?`<optgroup label="👤 NPCs">${npcsDisponiveis.map(n=>`<option value="npc:${n.id}">${esc(n.name)}${n.role?' — '+esc(n.role):''}</option>`).join('')}</optgroup>`:''}
+              </select>
+              <button onclick="addRoomCriatura('${sessId}','${scId}','${locId}','${r.id}')" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">+ Adicionar</button>
+            </div>`
         }
       </div>
       <!-- Objetos/Itens -->
@@ -3293,7 +3306,12 @@ ${cover}
                 const IICOL={'objeto':'#7a7060','pista':'#b8860b','perigo':'#c0392b','npc':'#276749','passagem':'#0e7490','paranormal':'#7c3aed','nota':'#4a4440'};
                 const roomCrIds = r.criaturas||[];
                 const campCriaturas = c.criaturas||[];
-                const roomCrObjs = roomCrIds.map(cid=>campCriaturas.find(x=>x.id===cid)).filter(Boolean);
+                const campNpcs = c.npcs||[];
+                const roomCrObjs = roomCrIds.map(key=>{
+                  if (key.startsWith('cr:'))  { const o=campCriaturas.find(x=>x.id===key.slice(3));  return o?{...o,_tipo:'cr'}:null; }
+                  if (key.startsWith('npc:')) { const o=campNpcs.find(x=>x.id===key.slice(4));        return o?{...o,_tipo:'npc'}:null; }
+                  const o=campCriaturas.find(x=>x.id===key); return o?{...o,_tipo:'cr'}:null;
+                }).filter(Boolean);
                 return `<div style="background:#060504;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;padding:7px 10px;margin-bottom:4px">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.description||r.atmosphere||r.secret||its.length||roomCrObjs.length?'5px':'0'}">
                     <span>${RIIC[r.type]||'📍'}</span>
@@ -3313,13 +3331,21 @@ ${cover}
                     <span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${IICOL[it.cat]||'#7a7060'}22;border:1px solid ${IICOL[it.cat]||'#7a7060'}44;color:${IICOL[it.cat]||'#7a7060'};text-transform:uppercase;flex-shrink:0">${it.cat}</span>
                   </div>`).join('')}
                   ${roomCrObjs.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-top:4px">
-                    <div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">💀 Criaturas</div>
-                    ${roomCrObjs.map(cr=>`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #1a0e20">
-                      <span style="color:#a78bfa;font-size:11px;font-weight:700;flex:1">${esc(cr.name)}</span>
-                      ${cr.tipo?`<span style="color:#7a7060;font-size:9px;text-transform:uppercase">${esc(cr.tipo)}</span>`:''}
-                      <span style="color:#c0392b;font-size:10px;font-family:monospace">PV ${cr.pvMax||0}</span>
-                      ${cr.ataque?`<span style="color:#9a9088;font-size:10px;white-space:pre-line">${esc(cr.ataque)}</span>`:''}
-                    </div>`).join('')}
+                    <div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">💀 Inimigos & NPCs</div>
+                    ${roomCrObjs.map(e=>{
+                      const isCr=e._tipo==='cr';
+                      return `<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid #1a0e20">
+                        <span style="font-size:11px">${isCr?'💀':'👤'}</span>
+                        <div style="flex:1;min-width:0">
+                          <span style="color:#ede8dc;font-size:11px;font-weight:700">${esc(e.name)}</span>
+                          ${isCr&&e.tipo?`<span style="color:#7a7060;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.tipo)}</span>`:''}
+                          ${!isCr&&e.role?`<span style="color:#b8860b;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.role)}</span>`:''}
+                          ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:monospace;margin-left:5px">PV ${e.pvMax||0}</span>`:''}
+                          ${isCr&&e.ataque?`<div style="color:#9a9088;font-size:10px;white-space:pre-line;margin-top:1px">${esc(e.ataque)}</div>`:''}
+                          ${!isCr&&e.description?`<div style="color:#9a9088;font-size:10px;margin-top:1px">${nl(e.description)}</div>`:''}
+                        </div>
+                      </div>`;
+                    }).join('')}
                   </div>`:''}
                 </div>`;
               }).join('');
