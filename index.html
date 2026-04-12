@@ -1301,8 +1301,8 @@ function renderDetail() {
 
   if (activeDetailTab === 'antagonist') {
     const a = c.antagonist;
-    body = !a?.name ? '<div class="empty-state">Nenhum antagonista cadastrado</div>' : `
-      <div style="background:#141210;border:1px solid #7f1d1d44;border-left:3px solid #c0392b;border-radius:3px;padding:24px">
+    const antaBlock = !a?.name ? '<div class="empty-state">Nenhum antagonista cadastrado</div>' : `
+      <div style="background:#141210;border:1px solid #7f1d1d44;border-left:3px solid #c0392b;border-radius:3px;padding:24px;margin-bottom:24px">
         <div class="serif ink" style="font-size:24px;font-weight:900;margin-bottom:4px">${esc(a.name)}</div>
         ${a.nature?`<div style="color:#c0392b;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">${esc(a.nature)}</div>`:''}
         <div class="grid2">
@@ -1310,6 +1310,21 @@ function renderDetail() {
           ${a.power?`<div><div style="font-size:10px;color:#7a7060;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Poder Paranormal</div><p class="body-text">${nl(a.power)}</p></div>`:''}
         </div>
       </div>`;
+    const criaturas = c.criaturas||[];
+    const criaturasBlock = criaturas.length===0 ? '' : `
+      <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7c3aed;font-weight:700;margin-bottom:12px">💀 Criaturas & Inimigos</div>
+      ${criaturas.map(cr=>`
+        <div style="background:#0d0b10;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;padding:14px 18px;margin-bottom:10px">
+          <div class="serif ink" style="font-size:17px;font-weight:700;margin-bottom:2px">${esc(cr.name)}</div>
+          ${cr.tipo?`<div style="color:#a78bfa;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">${esc(cr.tipo)}</div>`:''}
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px">
+            <div style="font-size:11px;color:#7a7060">PV Máximo: <span style="color:#c0392b;font-weight:700">${cr.pvMax||0}</span></div>
+          </div>
+          ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
+          ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
+          ${cr.descricao?`<p class="body-text" style="margin-top:6px">${nl(cr.descricao)}</p>`:''}
+        </div>`).join('')}`;
+    body = antaBlock + criaturasBlock;
   }
 
   if (activeDetailTab === 'items') body = c.items.length===0?'<div class="empty-state">Nenhum item cadastrado</div>':
@@ -1561,13 +1576,25 @@ function renderMesa() {
   const npcsHtml = buildNpcsHtml();
 
   const a = c.antagonist;
-  const antaHtml = a?.name ? `
+  const criaturasSalvas = c.criaturas||[];
+  const antaHtml = (a?.name || criaturasSalvas.length) ? `
     <div class="mesa-card" style="border-color:#7f1d1d44">
+      ${a?.name ? `
       <div class="mesa-card-title">☠ Antagonista</div>
       <div class="serif ink" style="font-size:16px;font-weight:700;margin-bottom:8px">${esc(a.name)}</div>
       ${a.nature?`<div style="color:#7a7060;font-size:12px;margin-bottom:4px"><span style="color:#c0392b">Natureza:</span> ${esc(a.nature)}</div>`:''}
       ${a.motivation?`<div style="color:#7a7060;font-size:12px;margin-bottom:4px"><span style="color:#c0392b">Motivação:</span> ${esc(a.motivation)}</div>`:''}
-      ${a.power?`<div style="color:#7a7060;font-size:12px"><span style="color:#c0392b">Poder:</span> ${esc(a.power)}</div>`:''}
+      ${a.power?`<div style="color:#7a7060;font-size:12px;margin-bottom:8px"><span style="color:#c0392b">Poder:</span> ${esc(a.power)}</div>`:''}
+      ` : ''}
+      ${criaturasSalvas.length ? `
+      <div style="font-size:9px;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:8px;${a?.name?'border-top:1px solid #4c1d9533;padding-top:10px':''}">💀 Criaturas Salvas</div>
+      ${criaturasSalvas.map(cr=>`
+        <div style="padding:6px 0;border-bottom:1px solid #1c1a16">
+          <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(cr.name)}</div>
+          ${cr.tipo?`<div style="color:#a78bfa;font-size:10px;text-transform:uppercase;letter-spacing:.06em">${esc(cr.tipo)}</div>`:''}
+          <div style="color:#7a7060;font-size:10px">PV ${cr.pvMax||0}${cr.ataque?' · '+esc(cr.ataque.split('\n')[0]):''}</div>
+        </div>`).join('')}
+      ` : ''}
     </div>` : '';
 
   const itemsHtml = c.items.length ? c.items.map(item=>`
