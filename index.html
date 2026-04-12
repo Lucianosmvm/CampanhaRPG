@@ -1185,7 +1185,7 @@ function renderCriaturaCard(cr, idx) {
         ${fieldHtml('Nome','<input value="'+esc(cr.name)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'name\',this.value)" placeholder="Ex: Sombra Rastejante"/>')}
         ${fieldHtml('Tipo / Origem','<input value="'+esc(cr.tipo)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'tipo\',this.value)" placeholder="Ex: Entidade, Cultista, Paranormal"/>')}
         ${fieldHtml('PV Máximo','<input type="number" value="'+esc(cr.pvMax)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'pvMax\',this.value)" min="1" style="max-width:100px"/>')}
-        ${fieldHtml('Ataque / Dano','<input value="'+esc(cr.ataque)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'ataque\',this.value)" placeholder="Ex: Garras 1d6, Mordida 2d4+2"/>')}
+        <div class="span2">${fieldHtml('Ataque / Dano','<input value="'+esc(cr.ataque)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'ataque\',this.value)" placeholder="Ex: Garras 1d6, Mordida 2d4+2"/>')}</div>
         <div class="span2">${fieldHtml('Habilidades Especiais','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'habilidades\',this.value)" placeholder="Poderes, rituais, fraquezas...">'+esc(cr.habilidades)+'</textarea>')}</div>
         <div class="span2">${fieldHtml('Descrição','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'descricao\',this.value)" placeholder="Aparência, comportamento...">'+esc(cr.descricao)+'</textarea>')}</div>
       </div>
