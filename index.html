@@ -842,9 +842,9 @@ function blankCamp() {
     antagonist:{name:'',nature:'',motivation:'',power:''},
     criaturas:[], npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
 }
-function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'' }; }
+function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'', agilidade:0, rituaisList:[] }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
-function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', pvMax:30, ataque:'', habilidades:'', descricao:'' }; }
+function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', pvMax:30, defesa:0, resistencias:'', imunidades:'', ataque:'', habilidades:'', descricao:'' }; }
 
 const CONDICOES = [
   {v:'abalado',    l:'Abalado',      c:'#b8860b', ic:'😨'},
@@ -908,18 +908,18 @@ function blankItem()      { return { id:uid(), name:'', type:'', description:'',
 // Sessão e subelementos
 function blankSess(n)     { return { id:uid(), number:n, title:'', opening:'', synopsis:'', objectives:'', scenes:[], rewards:'', hook:'', notes:'', quicknotes:'', status:'Pendente', clues:[], linkedNpcs:[] }; }
 function blankScene(n)    { return { id:uid(), number:n, name:'', type:'Investigação', description:'', locations:[] }; }
-function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', danger:'Baixo', rooms:[] }; }
+function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', paranormal:'', danger:'Baixo', rooms:[] }; }
 function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', evento:'', items:[], criaturas:[] }; }
 function blankSceneItem() { return { id:uid(), name:'', cat:'objeto', desc:'', secret:'' }; }
-function blankClue()      { return { id:uid(), text:'', found:false, type:'Física' }; }
+function blankClue()      { return { id:uid(), text:'', found:false, foundSessId:null, type:'Física' }; }
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 4. CONSTANTES — enums, cores e ícones de domínio           │
    └─────────────────────────────────────────────────────────────┘ */
 // Cenas
-const SCENE_TYPES  = ['Investigação','Combate','Roleplay','Revelação','Exploração','Armadilha','Ritual','Fuga','Social'];
-const SCENE_COLORS = {'Investigação':'#b8860b','Combate':'#c0392b','Roleplay':'#276749','Revelação':'#7c3aed','Exploração':'#0e7490','Armadilha':'#e65c00','Ritual':'#4c1d95','Fuga':'#dc2626','Social':'#0891b2'};
-const SCENE_ICONS  = {'Investigação':'🔍','Combate':'⚔️','Roleplay':'💬','Revelação':'💡','Exploração':'🗺','Armadilha':'⚠️','Ritual':'🕯','Fuga':'💨','Social':'🤝'};
+const SCENE_TYPES  = ['Investigação','Combate','Roleplay','Revelação','Exploração','Armadilha','Ritual','Fuga','Social','Perseguição'];
+const SCENE_COLORS = {'Investigação':'#b8860b','Combate':'#c0392b','Roleplay':'#276749','Revelação':'#7c3aed','Exploração':'#0e7490','Armadilha':'#e65c00','Ritual':'#4c1d95','Fuga':'#dc2626','Social':'#0891b2','Perseguição':'#e65c00'};
+const SCENE_ICONS  = {'Investigação':'🔍','Combate':'⚔️','Roleplay':'💬','Revelação':'💡','Exploração':'🗺','Armadilha':'⚠️','Ritual':'🕯','Fuga':'💨','Social':'🤝','Perseguição':'🏃'};
 
 // Pistas
 const CLUE_TYPES  = ['Física','Testemunhal','Ocultista','Documental','Tecnológica'];
@@ -1011,8 +1011,20 @@ function renderList() {
     </div>`;
   }).join('');
 
+  const backupDays = getBackupAge();
+  const backupAlert = (backupDays === null || backupDays >= 7) ? `
+    <div style="display:flex;align-items:center;gap:12px;background:#7f1d1d18;border:1px solid #c0392b44;border-left:3px solid #c0392b;border-radius:3px;padding:10px 14px;margin-bottom:16px;flex-wrap:wrap">
+      <span style="font-size:18px;flex-shrink:0">⚠️</span>
+      <div style="flex:1;min-width:0">
+        <div style="color:#c0392b;font-size:12px;font-weight:700;margin-bottom:2px">${backupDays===null?'Nenhum backup realizado ainda':'Último backup há '+backupDays+' dias'}</div>
+        <div style="color:#9a9088;font-size:11px">Dados salvos apenas no navegador — limpar cache apaga tudo.</div>
+      </div>
+      <button onclick="doBackup()" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:7px 14px;border-radius:2px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s;flex-shrink:0" onmouseenter="this.style.background='#c0392b33'" onmouseleave="this.style.background='#c0392b22'">💾 Fazer Backup</button>
+    </div>` : '';
+
   return `
     <div class="fade-up">
+      ${backupAlert}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap">
         <div>
           <div class="serif ink" style="font-size:28px;font-weight:900">Arquivo de Campanhas</div>
@@ -1185,6 +1197,9 @@ function renderCriaturaCard(cr, idx) {
         ${fieldHtml('Nome','<input value="'+esc(cr.name)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'name\',this.value)" placeholder="Ex: Sombra Rastejante"/>')}
         ${fieldHtml('Tipo / Origem','<input value="'+esc(cr.tipo)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'tipo\',this.value)" placeholder="Ex: Entidade, Cultista, Paranormal"/>')}
         ${fieldHtml('PV Máximo','<input type="number" value="'+esc(cr.pvMax)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'pvMax\',this.value)" min="1" style="max-width:100px"/>')}
+        ${fieldHtml('Defesa','<input type="number" value="'+(cr.defesa||0)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'defesa\',this.value)" min="0" style="max-width:100px" placeholder="0"/>','(reduz dano recebido)')}
+        <div class="span2">${fieldHtml('Resistências','<input value="'+esc(cr.resistencias||'')+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'resistencias\',this.value)" placeholder="Ex: Físico ½, Paranormal imune, Fogo vulnerável"/>')}</div>
+        <div class="span2">${fieldHtml('Imunidades','<input value="'+esc(cr.imunidades||'')+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'imunidades\',this.value)" placeholder="Ex: Imune a medo, veneno, sangramento"/>')}</div>
         <div class="span2">${fieldHtml('Ataque / Dano','<textarea rows="3" oninput="setCriaturaBaseField(\''+cr.id+'\',\'ataque\',this.value)" placeholder="Ex:\nGarras 1d6\nMordida 2d4+2">'+esc(cr.ataque)+'</textarea>')}</div>
         <div class="span2">${fieldHtml('Habilidades Especiais','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'habilidades\',this.value)" placeholder="Poderes, rituais, fraquezas...">'+esc(cr.habilidades)+'</textarea>')}</div>
         <div class="span2">${fieldHtml('Descrição','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'descricao\',this.value)" placeholder="Aparência, comportamento...">'+esc(cr.descricao)+'</textarea>')}</div>
@@ -1326,7 +1341,15 @@ function renderDetail() {
             <span style="font-size:10px;color:#c0392b;font-family:'Share Tech Mono',monospace;flex-shrink:0">PV ${cr.pvMax||0}</span>
           </div>
           <div id="${bid}" style="display:none;padding:0 14px 14px;border-top:1px solid #1c1a16">
-            ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-top:10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px">
+              <div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:5px 10px;display:flex;align-items:center;gap:6px">
+                <span style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;font-weight:700">🛡 Defesa</span>
+                <span style="color:#ede8dc;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace">${cr.defesa||0}</span>
+              </div>
+              ${cr.resistencias?`<div style="background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:5px 10px"><span style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;font-weight:700">⚖ Resistências · </span><span style="color:#ede8dc;font-size:12px">${esc(cr.resistencias)}</span></div>`:''}
+              ${cr.imunidades?`<div style="background:#27674918;border:1px solid #27674944;border-radius:2px;padding:5px 10px"><span style="font-size:9px;color:#4ade80;letter-spacing:.1em;text-transform:uppercase;font-weight:700">✦ Imunidades · </span><span style="color:#ede8dc;font-size:12px">${esc(cr.imunidades)}</span></div>`:''}
+            </div>
+            ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
             ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
             ${cr.descricao?`<p class="body-text" style="margin-top:6px">${nl(cr.descricao)}</p>`:''}
           </div>
@@ -1388,6 +1411,7 @@ function renderDetail() {
                   <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>
                 </div>
                 ${loc.description?`<p class="body-text" style="margin:0 0 6px;font-size:12px">${nl(loc.description)}</p>`:''}
+                ${loc.paranormal?`<div style="background:#7c3aed12;border:1px solid #7c3aed44;border-left:2px solid #7c3aed;border-radius:2px;padding:5px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:2px">👁 Outro Lado</div><div style="color:#c4b5fd;font-size:12px;line-height:1.5">${nl(loc.paranormal)}</div></div>`:''}
                 ${rooms.map(r=>{
                   const rdc=ROOM_DANGER_C[r.danger]||'#7a7060';
                   const items=r.items||[];
@@ -1545,11 +1569,20 @@ function renderMesa() {
 
   const cluesHtml = (s.clues||[]).map(cl=>{
     const cc = CLUE_COLORS[cl.type||'Física']||'#b8860b';
+    // descobre o número da sessão em que foi encontrada (se diferente desta)
+    let foundSessLabel = '';
+    if (cl.found && cl.foundSessId && cl.foundSessId !== s.id) {
+      const foundSess = c.sessions_data.find(x=>x.id===cl.foundSessId);
+      if (foundSess) foundSessLabel = `<span style="font-size:9px;color:#276749;background:#27674922;border:1px solid #27674944;border-radius:2px;padding:1px 5px;margin-left:4px">✓ Sessão ${foundSess.number}</span>`;
+    }
     return `
     <div class="mesa-pista" onclick="mesaToggleClue('${cl.id}')" data-busca="${(cl.text||'').toLowerCase().replace(/"/g,'')} ${(cl.type||'').toLowerCase()}">
       <div class="pista-check ${cl.found?'done':''}">${cl.found?'✓':''}</div>
       <div style="flex:1;min-width:0">
-        <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">${esc(cl.type||'Física')}</span>
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px">
+          <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em">${esc(cl.type||'Física')}</span>
+          ${foundSessLabel}
+        </div>
         <div style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;line-height:1.5;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)||'<em style="color:#7a7060">Sem texto</em>'}</div>
       </div>
     </div>`;
@@ -1600,7 +1633,13 @@ function renderMesa() {
         <div style="padding:6px 0;border-bottom:1px solid #1c1a16">
           <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(cr.name)}</div>
           ${cr.tipo?`<div style="color:#a78bfa;font-size:10px;text-transform:uppercase;letter-spacing:.06em">${esc(cr.tipo)}</div>`:''}
-          <div style="color:#7a7060;font-size:10px">PV ${cr.pvMax||0}${cr.ataque?' · '+esc(cr.ataque.split('\n')[0]):''}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">
+            <span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${cr.pvMax||0}</span>
+            ${cr.defesa?`<span style="color:#67e8f9;font-size:10px">🛡 DEF ${cr.defesa}</span>`:''}
+          </div>
+          ${cr.resistencias?`<div style="color:#b8860b;font-size:10px;margin-top:1px">⚖ ${esc(cr.resistencias)}</div>`:''}
+          ${cr.imunidades?`<div style="color:#4ade80;font-size:10px;margin-top:1px">✦ ${esc(cr.imunidades)}</div>`:''}
+          ${cr.ataque?`<div style="color:#7a7060;font-size:10px;margin-top:1px">⚔ ${esc(cr.ataque.split('\n')[0])}</div>`:''}
         </div>`).join('')}
       ` : ''}
     </div>` : '';
@@ -1646,30 +1685,68 @@ function renderMesa() {
           </div>
           <div id="${locid}" style="display:none;padding:0 10px 8px">
             ${loc.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:6px">${nl(loc.description)}</p>`:''}
+            ${loc.paranormal?`<div style="background:#7c3aed12;border:1px solid #7c3aed44;border-left:2px solid #7c3aed;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:3px">👁 Outro Lado / Paranormal</div><div style="color:#c4b5fd;font-size:12px;line-height:1.5;font-family:Georgia,serif">${nl(loc.paranormal)}</div></div>`:''}
             ${rooms.map(r=>{
               const rdc=ROOM_DANGER_C[r.danger]||'#7a7060';
               const items=r.items||[];
               const roomid=pfx+'msr-'+r.id;
+              // criaturas e NPCs do cômodo
+              const criaturasSalvas=c.criaturas||[];
+              const npcsSalvos=c.npcs||[];
+              const rawEntries=r.criaturas||[];
+              const roomEntries=rawEntries.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+              const entriesSel=roomEntries.map(entry=>{
+                const key=entry.key;
+                let obj=null,tipo='cr';
+                if(key.startsWith('cr:'))      {obj=criaturasSalvas.find(x=>x.id===key.slice(3));tipo='cr';}
+                else if(key.startsWith('npc:')){obj=npcsSalvos.find(x=>x.id===key.slice(4));tipo='npc';}
+                else                           {obj=criaturasSalvas.find(x=>x.id===key);tipo='cr';}
+                return obj?{...obj,_tipo:tipo,_qtd:entry.qtd||1}:null;
+              }).filter(Boolean);
+              const criaturasRoomHtml=entriesSel.map(e=>{
+                const isCr=e._tipo==='cr';
+                const ic=isCr?'💀':'👤';
+                const cor=isCr?'#7c3aed':'#b8860b';
+                const sub=isCr?(e.tipo||''):(e.role||'');
+                return `<div style="background:#0d0b10;border:1px solid ${cor}44;border-left:2px solid ${cor};border-radius:2px;padding:5px 8px;margin-bottom:4px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:12px;flex-shrink:0">${ic}</span>
+                    <span style="flex:1;color:#ede8dc;font-size:12px;font-weight:700">${esc(e.name)}</span>
+                    ${sub?`<span style="color:#7a7060;font-size:10px;text-transform:uppercase">${esc(sub)}</span>`:''}
+                    ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${e.pvMax||0}</span>`:''}
+                    ${e._qtd>1?`<span style="color:#a78bfa;font-size:11px;font-family:'Share Tech Mono',monospace">×${e._qtd}</span>`:''}
+                  </div>
+                  ${isCr&&(e.defesa||e.resistencias||e.imunidades)?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
+                    ${e.defesa?`<span style="font-size:9px;color:#67e8f9;background:#0e749018;border:1px solid #0e749033;border-radius:2px;padding:1px 5px">🛡 DEF ${e.defesa}</span>`:''}
+                    ${e.resistencias?`<span style="font-size:9px;color:#b8860b;background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:1px 5px">⚖ ${esc(e.resistencias)}</span>`:''}
+                    ${e.imunidades?`<span style="font-size:9px;color:#4ade80;background:#27674918;border:1px solid #27674933;border-radius:2px;padding:1px 5px">✦ ${esc(e.imunidades)}</span>`:''}
+                  </div>`:''}
+                </div>`;
+              }).join('');
+              const totalInimigos=roomEntries.reduce((s,e)=>s+(e.qtd||1),0);
               return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;margin-bottom:4px;overflow:hidden">
                 <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${roomid}')">
                   <span id="arr-${roomid}" style="color:#7a7060;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
                   <span style="font-size:13px">${ROOM_IC[r.type]||'📍'}</span>
                   <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name)||'Cômodo'}</span>
                   ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${rdc};font-size:10px;text-transform:uppercase">${esc(r.danger)}</span>`:''}
+                  ${entriesSel.length?`<span style="color:#a78bfa;font-size:10px">💀 ${totalInimigos}</span>`:''}
                   ${items.length?`<span style="color:#7a7060;font-size:10px">${items.length} elem.</span>`:''}
                 </div>
                 <div id="${roomid}" style="display:none;padding:0 10px 8px">
                   ${r.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:4px">${nl(r.description)}</p>`:''}
                   ${r.atmosphere?`<div style="color:#7a7060;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(r.atmosphere)}</div>`:''}
                   ${r.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d55;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px">${nl(r.secret)}</div></div>`:''}
-                  ${items.map(it=>`<div style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #1c1a16">
+                  ${r.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#e65c00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">⚡ Evento</div><div style="color:#fbbf7c;font-size:12px">${nl(r.evento)}</div></div>`:''}
+                  ${criaturasRoomHtml?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-bottom:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:4px">💀 Inimigos & NPCs</div>${criaturasRoomHtml}</div>`:''}
+                  ${items.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:4px">Objetos / Elementos</div>${items.map(it=>`<div style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #1c1a16">
                     <span style="font-size:12px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
                     <div style="flex:1;min-width:0">
                       <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(it.name)}</div>
                       ${it.desc?`<div style="color:#9a9088;font-size:11px;line-height:1.5">${nl(it.desc)}</div>`:''}
                       ${it.secret?`<div style="color:#c0392b;font-size:11px;margin-top:2px">🔒 ${esc(it.secret)}</div>`:''}
                     </div>
-                  </div>`).join('')}
+                  </div>`).join('')}</div>`:''}
                 </div>
               </div>`;
             }).join('')}
@@ -2082,10 +2159,10 @@ function mesaSetAgente(id, field, val) {
   const c = camps.find(x=>x.id===viewingId);
   const a = (c?.agentes||[]).find(x=>x.id===id);
   if (!a) return;
-  const numFields = ['san','sanMax','pv','pvMax','pe','peMax','nex'];
+  const numFields = ['san','sanMax','pv','pvMax','pe','peMax','nex','agilidade'];
   if (numFields.includes(field)) {
     const n = parseInt(val);
-    a[field] = isNaN(n) ? 0 : Math.max(0, n);
+    a[field] = isNaN(n) ? 0 : (field==='agilidade' ? n : Math.max(0, n));
   } else {
     a[field] = val;
   }
@@ -2168,7 +2245,9 @@ function mesaAbrirPickerCriatura() {
             <span style="font-size:16px;flex-shrink:0">💀</span>
             <div style="flex:1;min-width:0">
               <div style="color:#ede8dc;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cr.name||'Sem nome')}</div>
-              <div style="color:#7a7060;font-size:11px">PV ${cr.pvMax||0}${cr.tipo?' · '+esc(cr.tipo):''}${cr.ataque?' · '+esc(cr.ataque):''}</div>
+              <div style="color:#7a7060;font-size:11px">PV ${cr.pvMax||0}${cr.tipo?' · '+esc(cr.tipo):''}${cr.defesa?' · 🛡'+cr.defesa:''}</div>
+              ${cr.resistencias?`<div style="color:#b8860b;font-size:10px;margin-top:1px">⚖ ${esc(cr.resistencias)}</div>`:''}
+              ${cr.imunidades?`<div style="color:#4ade80;font-size:10px;margin-top:1px">✦ ${esc(cr.imunidades)}</div>`:''}
             </div>
           </button>`).join('')}
         <div style="border-top:1px solid #2c2820;margin:10px 0"></div>` : ''}
@@ -2300,7 +2379,7 @@ function renderIniciativa() {
         </div>
         ${isActive?`<span style="font-size:9px;padding:2px 7px;background:#c0392b22;border:1px solid #c0392b55;border-radius:2px;color:#c0392b;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">▶ Vez</span>`:''}
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-          ${x._ini==null?`<button onclick="${isAg?`mesaRolarIniciativa('${x.id}')`:`mesaRolarIniciativaCriatura('${x.id}')`}" style="background:none;border:1px solid #b8860b44;color:#b8860b;height:26px;padding:0 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'">🎲</button>`:''}
+          ${x._ini==null?`<button onclick="${isAg?`mesaRolarIniciativa('${x.id}')`:`mesaRolarIniciativaCriatura('${x.id}')`}" style="background:none;border:1px solid #b8860b44;color:#b8860b;height:26px;padding:0 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'" title="${isAg?'d20 + Agilidade ('+((x.agilidade||0)>=0?'+':''+(x.agilidade||0))+')':'d20'}">🎲${isAg&&(x.agilidade||0)!==0?`<span style="font-size:9px;margin-left:2px">${(x.agilidade||0)>0?'+':''}${x.agilidade||0}</span>`:''}</button>`:''}
           <input type="number" min="1" max="30" value="${x._ini??''}" placeholder="—"
             onchange="${isAg?`mesaSetIniciativa('${x.id}',this.value)`:`mesaSetIniciativaCriatura('${x.id}',this.value)`}"
             style="width:38px;text-align:center;background:#0c0b09;border:1px solid ${isActive?'#c0392b55':'#2c2820'};border-radius:2px;padding:2px 0;font-size:14px;font-weight:700;color:${isActive?'#c0392b':'#ede8dc'};font-family:'Share Tech Mono',monospace"/>
@@ -2322,7 +2401,7 @@ function mesaRolarIniciativa(id) {
   const c = camps.find(x=>x.id===viewingId);
   const a = (c?.agentes||[]).find(x=>x.id===id);
   if (!a) return;
-  a._ini = Math.ceil(Math.random()*20);
+  a._ini = Math.max(1, Math.ceil(Math.random()*20) + (a.agilidade||0));
   persist(); renderIniciativa();
 }
 function mesaSetIniciativa(id, val) {
@@ -2336,7 +2415,7 @@ function mesaSetIniciativa(id, val) {
 function mesaRolarTodos() {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return;
-  (c.agentes||[]).forEach(a => { a._ini = Math.ceil(Math.random()*20); });
+  (c.agentes||[]).forEach(a => { a._ini = Math.max(1, Math.ceil(Math.random()*20) + (a.agilidade||0)); });
   getCriaturas().forEach(cr => { cr._ini = Math.ceil(Math.random()*20); });
   const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
   if (sess) sess._iniTurn = 0;
@@ -2417,6 +2496,8 @@ function renderAgentesTracker() {
     if (a.nex === undefined) a.nex = 5;
     if (!a.conditions) a.conditions = [];
     if (a.icon === undefined) a.icon = '❤️';
+    if (a.agilidade === undefined) a.agilidade = 0;
+    if (!a.rituaisList) a.rituaisList = [];
     const displayIcon = a.icon || '❤️';
     const isDead = a.conditions.includes('morto');
     // build grouped options for select
@@ -2457,15 +2538,23 @@ function renderAgentesTracker() {
             oninput="mesaSetAgente('${a.id}','name',this.value)"
             style="width:100%;background:transparent;border:none;border-bottom:1px solid #302c24;border-radius:0;padding:3px 0;font-size:14px;font-weight:700;color:#ede8dc;font-family:'Playfair Display',Georgia,serif"/>
         </div>
-        <!-- NEX -->
-        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" title="Nível de Exposição Paranormal">
-          <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">NEX</span>
-          <select onchange="mesaSetAgente('${a.id}','nex',this.value)"
-            style="background:#0c0b09;border:1px solid ${nexColor}44;color:${nexColor};font-size:11px;font-weight:700;padding:2px 4px;border-radius:2px;width:auto;font-family:'Share Tech Mono',monospace">
-            ${[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99].map(v=>
-              `<option value="${v}"${a.nex===v?' selected':''}>${v}%</option>`
-            ).join('')}
-          </select>
+        <!-- AGI + NEX -->
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:3px" title="Bônus de Agilidade (somado ao d20 de iniciativa)">
+            <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">AGI</span>
+            <input type="number" min="-10" max="30" value="${a.agilidade||0}"
+              onchange="mesaSetAgente('${a.id}','agilidade',parseInt(this.value)||0)"
+              style="width:34px;text-align:center;background:#0c0b09;border:1px solid #b8860b33;border-radius:2px;padding:2px 0;font-size:12px;font-weight:700;color:#b8860b;font-family:'Share Tech Mono',monospace"/>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px" title="Nível de Exposição Paranormal">
+            <span style="font-size:9px;color:#7a7060;letter-spacing:.1em;text-transform:uppercase">NEX</span>
+            <select onchange="mesaSetAgente('${a.id}','nex',this.value)"
+              style="background:#0c0b09;border:1px solid ${nexColor}44;color:${nexColor};font-size:11px;font-weight:700;padding:2px 4px;border-radius:2px;width:auto;font-family:'Share Tech Mono',monospace">
+              ${[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99].map(v=>
+                `<option value="${v}"${a.nex===v?' selected':''}>${v}%</option>`
+              ).join('')}
+            </select>
+          </div>
         </div>
         <button onclick="mesaDelAgente('${a.id}')" style="background:none;border:none;color:#4a4440;font-size:16px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;transition:color .15s;-webkit-tap-highlight-color:transparent" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
       </div>
@@ -2479,18 +2568,61 @@ function renderAgentesTracker() {
       <div style="padding:0 12px 6px;display:flex;flex-wrap:wrap;gap:4px">
         ${condBadges}
       </div>
-      <!-- rituais -->
-      <div style="padding:0 12px 10px">
-        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7c3aed;font-weight:700;margin-bottom:4px">🔮 Rituais</div>
-        <textarea placeholder="Liste os rituais aprendidos, custo em PE, efeito..."
-          oninput="mesaSetAgente('${a.id}','rituais',this.value)"
-          style="width:100%;background:#080706;border:1px solid #7c3aed22;color:#c4b5fd;font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 8px;border-radius:2px;outline:none;resize:none;min-height:52px;line-height:1.5;-webkit-appearance:none"
-          onfocus="this.style.borderColor='#7c3aed66'" onblur="this.style.borderColor='#7c3aed22'">${esc(a.rituais||'')}</textarea>
+      <!-- rituais estruturados -->
+      <div style="padding:0 12px 10px;border-top:1px solid #1c1a16">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;padding-top:8px">
+          <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7c3aed;font-weight:700">🔮 Rituais Conhecidos</div>
+          <button onclick="mesaAddRitual('${a.id}')" style="background:none;border:1px solid #7c3aed55;color:#a78bfa;padding:2px 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#7c3aed18'" onmouseleave="this.style.background='none'">+ Ritual</button>
+        </div>
+        <div id="rituais-list-${a.id}">
+        ${(()=>{
+          const rits = a.rituaisList||[];
+          if(!rits.length) return `<div style="color:#4a4440;font-size:11px;font-style:italic;padding:4px 0">Nenhum ritual cadastrado.</div>`;
+          return rits.map((r,ri)=>`
+            <div style="background:#0a0410;border:1px solid #7c3aed33;border-left:2px solid #7c3aed;border-radius:2px;padding:6px 8px;margin-bottom:5px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                <input value="${esc(r.nome||'')}" placeholder="Nome do ritual..." onchange="mesaSetRitual('${a.id}',${ri},'nome',this.value)"
+                  style="flex:1;background:transparent;border:none;border-bottom:1px solid #7c3aed33;color:#c4b5fd;font-size:12px;font-weight:700;padding:1px 0;font-family:'Playfair Display',Georgia,serif"/>
+                <div style="display:flex;align-items:center;gap:3px;flex-shrink:0" title="Custo em PE">
+                  <span style="font-size:9px;color:#0e7490;letter-spacing:.08em;text-transform:uppercase">PE</span>
+                  <input type="number" min="0" value="${r.pe||0}" onchange="mesaSetRitual('${a.id}',${ri},'pe',parseInt(this.value)||0)"
+                    style="width:34px;text-align:center;background:#0a0b0c;border:1px solid #0e749044;border-radius:2px;padding:2px 0;font-size:12px;font-weight:700;color:#67e8f9;font-family:'Share Tech Mono',monospace"/>
+                </div>
+                <button onclick="mesaDelRitual('${a.id}',${ri})" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0;flex-shrink:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
+              </div>
+              <input value="${esc(r.efeito||'')}" placeholder="Efeito, alcance, duração..." onchange="mesaSetRitual('${a.id}',${ri},'efeito',this.value)"
+                style="width:100%;background:transparent;border:none;border-bottom:1px solid #1c1a16;color:#9a9088;font-size:11px;padding:1px 0"/>
+            </div>`).join('');
+        })()}
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 function renderSanTracker() { renderAgentesTracker(); } // alias mantido por compatibilidade
+
+function mesaAddRitual(agenteId) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===agenteId);
+  if (!a) return;
+  if (!a.rituaisList) a.rituaisList = [];
+  a.rituaisList.push({ nome:'', pe:0, efeito:'' });
+  persist(); renderAgentesTracker();
+}
+function mesaDelRitual(agenteId, idx) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===agenteId);
+  if (!a || !a.rituaisList) return;
+  a.rituaisList.splice(idx, 1);
+  persist(); renderAgentesTracker();
+}
+function mesaSetRitual(agenteId, idx, field, val) {
+  const c = camps.find(x=>x.id===viewingId);
+  const a = (c?.agentes||[]).find(x=>x.id===agenteId);
+  if (!a || !a.rituaisList || !a.rituaisList[idx]) return;
+  a.rituaisList[idx][field] = val;
+  persist();
+}
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 15. MESA: PISTAS — toggle encontrada/não encontrada        │
@@ -2506,7 +2638,9 @@ function mesaToggleClue(clueId) {
   const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
   const cl = s?.clues?.find(x=>x.id===clueId);
   if (!cl) return;
-  cl.found = !cl.found; persist(); renderMesa();
+  cl.found = !cl.found;
+  cl.foundSessId = cl.found ? mesaSessionId : null;
+  persist(); renderMesa();
 }
 
 /* ┌─────────────────────────────────────────────────────────────┐
@@ -2732,7 +2866,10 @@ function renderSceneLocCard(sessId, scId, loc, li) {
       </div>
       <textarea rows="2" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','description',this.value)"
         placeholder="Descrição do local, atmosfera geral..."
-        style="resize:vertical;margin-bottom:8px;font-size:13px">${esc(loc.description)}</textarea>
+        style="resize:vertical;margin-bottom:6px;font-size:13px">${esc(loc.description)}</textarea>
+      <textarea rows="2" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','paranormal',this.value)"
+        placeholder="👁 Versão Paranormal / Outro Lado — como este local aparece no plano paranormal..."
+        style="resize:vertical;margin-bottom:8px;font-size:12px;border-color:#7c3aed44;color:#c4b5fd">${esc(loc.paranormal||'')}</textarea>
       <!-- Cômodos -->
       <div style="border-top:1px solid #1c1a16;padding-top:8px">
         <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#276749;font-weight:700;margin-bottom:6px">🚪 Cômodos</div>

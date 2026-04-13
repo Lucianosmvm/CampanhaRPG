@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MestreRPG — Manual do Mestre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0c0b09;
+  --bg-alt:   #111009;
+  --bg-card:  #141210;
+  --bg-deep:  #080706;
+  --border:   #2c2820;
+  --border-sub:#302c24;
+  --text:     #d6d0c4;
+  --text-head:#ede8dc;
+  --muted:    #7a7060;
+  --dim:      #4a4440;
+  --red:      #c0392b;
+  --gold:     #b8860b;
+  --green:    #276749;
+  --green-t:  #4ade80;
+  --purple:   #7c3aed;
+  --purple-t: #a78bfa;
+  --cyan:     #0e7490;
+  --cyan-t:   #67e8f9;
+  --orange:   #e65c00;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.75;
+}
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── LAYOUT ── */
+.page-wrap {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 24px 0 40px;
+}
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.sidebar-logo-icon { font-size: 24px; }
+.sidebar-logo-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-head);
+}
+.sidebar-logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nav-section {
+  padding: 6px 20px 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 700;
+}
+.nav-item {
+  display: block;
+  padding: 6px 20px 6px 24px;
+  font-size: 13px;
+  color: var(--muted);
+  border-left: 2px solid transparent;
+  transition: all .15s;
+  cursor: pointer;
+}
+.nav-item:hover {
+  color: var(--text-head);
+  border-left-color: var(--red);
+  background: #7f1d1d0a;
+  text-decoration: none;
+}
+.nav-item.sub {
+  padding-left: 36px;
+  font-size: 12px;
+  color: var(--dim);
+}
+.nav-item.sub:hover { color: var(--muted); }
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 48px 56px;
+  max-width: 860px;
+}
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .content { padding: 24px 20px; }
+}
+
+/* ── TYPOGRAPHY ── */
+h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--text-head);
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-head);
+  margin-top: 56px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+h3 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 10px;
+}
+h4 {
+  font-size: 15px;
+  color: var(--text-head);
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 6px;
+}
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { margin: 0 0 12px 0; padding-left: 20px; }
+li { margin-bottom: 5px; }
+strong { color: var(--text-head); font-weight: 700; }
+em { color: var(--muted); font-style: italic; }
+code {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1px 6px;
+  color: var(--gold);
+}
+
+/* ── COMPONENTS ── */
+.hero {
+  background: linear-gradient(135deg, var(--bg-card), #7f1d1d12);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 4px;
+  padding: 28px 32px;
+  margin-bottom: 40px;
+}
+.hero-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.hero-desc {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.tip {
+  display: flex;
+  gap: 12px;
+  background: var(--bg-alt);
+  border: 1px solid var(--gold);
+  border-left: 3px solid var(--gold);
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.tip-body { flex: 1; min-width: 0; }
+.tip-body p { margin: 0; font-size: 13px; }
+.tip-title { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); font-family: 'Share Tech Mono', monospace; font-weight: 700; margin-bottom: 3px; }
+
+.warn {
+  display: flex;
+  gap: 12px;
+  background: #7f1d1d12;
+  border: 1px solid var(--red);
+  border-left: 3px solid var(--red);
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.warn-icon { font-size: 18px; flex-shrink: 0; }
+.warn-body { flex: 1; min-width: 0; }
+.warn-body p { margin: 0; font-size: 13px; }
+.warn-title { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--red); font-family: 'Share Tech Mono', monospace; font-weight: 700; margin-bottom: 3px; }
+
+.step-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.step-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-sub);
+}
+.step-list li:last-child { border-bottom: none; }
+.step-num {
+  width: 26px;
+  height: 26px;
+  background: var(--red);
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-body { flex: 1; min-width: 0; font-size: 14px; }
+.step-body strong { display: block; color: var(--text-head); margin-bottom: 2px; }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+@media (max-width: 640px) { .feature-grid { grid-template-columns: 1fr; } }
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+.feature-card-icon { font-size: 20px; margin-bottom: 6px; }
+.feature-card-title { font-size: 13px; font-weight: 700; color: var(--text-head); margin-bottom: 4px; }
+.feature-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.field-table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+.field-table th {
+  text-align: left;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+}
+.field-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-sub);
+  vertical-align: top;
+}
+.field-table tr:last-child td { border-bottom: none; }
+.field-table .field-name {
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--gold);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.field-table .field-desc { color: var(--text); }
+.field-table .field-note { color: var(--muted); font-size: 11px; font-style: italic; }
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.pill-red    { background: #c0392b22; border: 1px solid #c0392b55; color: #c0392b; }
+.pill-gold   { background: #b8860b22; border: 1px solid #b8860b55; color: #b8860b; }
+.pill-green  { background: #27674922; border: 1px solid #27674955; color: #4ade80; }
+.pill-purple { background: #7c3aed22; border: 1px solid #7c3aed55; color: #a78bfa; }
+.pill-cyan   { background: #0e749022; border: 1px solid #0e749055; color: #67e8f9; }
+.pill-orange { background: #e65c0022; border: 1px solid #e65c0055; color: #e65c00; }
+
+.tab-demo {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 12px 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+}
+.tab-demo span {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  background: var(--bg-deep);
+}
+.tab-demo span:last-child { border-right: none; }
+.tab-demo span.active { color: var(--red); border-bottom: 2px solid var(--red); background: var(--bg-alt); }
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 48px 0;
+}
+
+.index-list { list-style: none; padding: 0; }
+.index-list li { padding: 5px 0; border-bottom: 1px solid var(--border-sub); display: flex; justify-content: space-between; align-items: center; }
+.index-list li:last-child { border-bottom: none; }
+.index-list a { color: var(--text); font-size: 14px; }
+.index-list a:hover { color: var(--gold); }
+.index-list .pg { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--dim); }
+
+.shortcut { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-sub); font-size: 13px; }
+.shortcut:last-child { border-bottom: none; }
+.shortcut kbd {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border-sub);
+  border-radius: 3px;
+  padding: 2px 7px;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.shortcut-desc { flex: 1; color: var(--muted); }
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 4px 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.version-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-t); }
+
+.back-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .15s;
+  z-index: 100;
+}
+.back-top:hover { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">☠</div>
+    <div>
+      <div class="sidebar-logo-text">MestreRPG</div>
+      <div class="sidebar-logo-sub">Manual do Mestre</div>
+    </div>
+  </div>
+
+  <div class="nav-section">Início</div>
+  <a class="nav-item" href="#sobre">O que é o MestreRPG</a>
+  <a class="nav-item" href="#instalacao">Instalação (PWA)</a>
+  <a class="nav-item" href="#dados">Dados e Backup</a>
+
+  <div class="nav-section" style="margin-top:12px">Preparação</div>
+  <a class="nav-item" href="#criar-campanha">Criando uma Campanha</a>
+  <a class="nav-item sub" href="#aba-info">Aba Info</a>
+  <a class="nav-item sub" href="#aba-antagonista">Aba Antagonista</a>
+  <a class="nav-item sub" href="#aba-npcs">Aba NPCs</a>
+  <a class="nav-item sub" href="#aba-itens">Aba Itens</a>
+  <a class="nav-item sub" href="#aba-sessoes">Aba Sessões</a>
+  <a class="nav-item sub" href="#cenas">Cenas, Locais e Cômodos</a>
+  <a class="nav-item sub" href="#aba-notas">Aba Notas</a>
+
+  <div class="nav-section" style="margin-top:12px">Na Sessão</div>
+  <a class="nav-item" href="#modo-mesa">Modo Mesa</a>
+  <a class="nav-item sub" href="#mesa-pc">Layout PC</a>
+  <a class="nav-item sub" href="#mesa-mobile">Layout Mobile</a>
+  <a class="nav-item sub" href="#mesa-cenas">Cenas e Locais</a>
+  <a class="nav-item sub" href="#mesa-agentes">Tracker de Agentes</a>
+  <a class="nav-item sub" href="#mesa-iniciativa">Iniciativa e Combate</a>
+  <a class="nav-item sub" href="#mesa-dados">Rolador de Dados</a>
+  <a class="nav-item sub" href="#mesa-pistas">Pistas</a>
+  <a class="nav-item sub" href="#mesa-notas">Notas Rápidas</a>
+  <a class="nav-item sub" href="#mesa-timer">Cronômetro</a>
+
+  <div class="nav-section" style="margin-top:12px">Referência</div>
+  <a class="nav-item" href="#temas">Temas Visuais</a>
+  <a class="nav-item" href="#exportar">Exportar e Importar</a>
+  <a class="nav-item" href="#fluxo">Fluxo de Uso Recomendado</a>
+  <a class="nav-item" href="#glossario">Glossário de Campos</a>
+</aside>
+
+<!-- ═══════════ CONTENT ═══════════ -->
+<main class="content">
+
+  <!-- CAPA -->
+  <div class="hero">
+    <div class="hero-sub">Documentação Oficial</div>
+    <h1>MestreRPG</h1>
+    <div class="version-badge"><div class="version-dot"></div> Ordem Paranormal Edition</div>
+    <p class="hero-desc">Organizador de campanhas de RPG focado em <strong>Ordem Paranormal</strong>. Roda direto no navegador, sem instalação, sem conta — seus dados ficam no dispositivo.</p>
+  </div>
+
+  <!-- ÍNDICE -->
+  <h3>Índice Rápido</h3>
+  <ul class="index-list">
+    <li><a href="#criar-campanha">Criando uma Campanha</a><span class="pg">Preparação</span></li>
+    <li><a href="#aba-sessoes">Planejando Sessões, Cenas e Cômodos</a><span class="pg">Preparação</span></li>
+    <li><a href="#modo-mesa">Modo Mesa — Usar Durante a Sessão</a><span class="pg">Jogo</span></li>
+    <li><a href="#mesa-agentes">Tracker de Agentes (PV / PE / SAN / NEX)</a><span class="pg">Jogo</span></li>
+    <li><a href="#mesa-iniciativa">Iniciativa e Combate</a><span class="pg">Jogo</span></li>
+    <li><a href="#dados">Backup — Como Não Perder sua Campanha</a><span class="pg">Importante</span></li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: SOBRE
+  ══════════════════════════════════════ -->
+  <h2 id="sobre">O que é o MestreRPG</h2>
+
+  <p>O MestreRPG é um aplicativo web para <strong>mestres de Ordem Paranormal</strong> organizarem campanhas completas e conduzirem sessões sem precisar alternar entre planilhas, PDFs e papéis avulsos.</p>
+
+  <p>Tudo funciona em um único arquivo HTML aberto no navegador. Os dados são salvos localmente no <strong>localStorage</strong> do navegador — sem servidor, sem conta, sem internet necessária após o primeiro carregamento das fontes.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">📁</div>
+      <div class="feature-card-title">Múltiplas Campanhas</div>
+      <div class="feature-card-desc">Gerencie várias campanhas simultâneas. Cada uma com seus NPCs, criaturas, itens e sessões independentes.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">🎬</div>
+      <div class="feature-card-title">Estrutura de Cenas</div>
+      <div class="feature-card-desc">Organize sessões em cenas, cenas em locais, locais em cômodos — com itens, criaturas e NPCs por cômodo.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">🎭</div>
+      <div class="feature-card-title">Tracker de Agentes</div>
+      <div class="feature-card-desc">PV, PE, SAN, NEX e condições de cada agente em tempo real durante a sessão.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">⚔️</div>
+      <div class="feature-card-title">Iniciativa d20+AGI</div>
+      <div class="feature-card-desc">Rola iniciativa com bônus de Agilidade por agente. Criaturas e agentes na mesma fila.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">🔍</div>
+      <div class="feature-card-title">Gestão de Pistas</div>
+      <div class="feature-card-desc">Pistas por sessão com tipo, toggle de descoberta e registro de qual sessão foi revelada.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">📱</div>
+      <div class="feature-card-title">Mobile + PWA</div>
+      <div class="feature-card-desc">Interface responsiva com tab bar mobile. Instale como app na tela inicial (Android e iOS).</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">🔮</div>
+      <div class="feature-card-title">Rituais por Agente</div>
+      <div class="feature-card-desc">Lista estruturada de rituais com nome, custo em PE e efeito para cada agente.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">📄</div>
+      <div class="feature-card-title">Exportar PDF</div>
+      <div class="feature-card-desc">Gera um documento completo da campanha para impressão ou compartilhamento.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: INSTALAÇÃO
+  ══════════════════════════════════════ -->
+  <h2 id="instalacao">Instalação como PWA</h2>
+
+  <p>O MestreRPG pode ser instalado como um aplicativo na tela inicial do celular ou no desktop, funcionando sem barra do navegador — como um app nativo.</p>
+
+  <h3>Android (Chrome)</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abra o arquivo no Chrome</strong>Navegue até o arquivo <code>index.html</code> ou o endereço onde ele está hospedado.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Toque no menu ⋮</strong>No canto superior direito do Chrome.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Toque em "Adicionar à tela inicial"</strong>O app aparecerá como ícone com o símbolo ☠ e o nome MestreRPG.</div></li>
+  </ol>
+
+  <h3>iPhone / iPad (Safari)</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abra no Safari</strong>Outros navegadores no iOS não suportam instalação de PWA.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Toque em Compartilhar</strong>O ícone de caixa com seta para cima, na barra inferior.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Toque em "Adicionar à Tela de Início"</strong>Confirme o nome e toque em Adicionar.</div></li>
+  </ol>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-body">
+      <div class="tip-title">Dica</div>
+      <p>Depois de instalado, o app abre sem barra do navegador e em tela cheia. No celular isso é especialmente útil durante a sessão — mais espaço, menos distração.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: DADOS E BACKUP
+  ══════════════════════════════════════ -->
+  <h2 id="dados">Dados e Backup</h2>
+
+  <div class="warn">
+    <div class="warn-icon">⚠️</div>
+    <div class="warn-body">
+      <div class="warn-title">Atenção — Leia Antes de Usar</div>
+      <p>Os dados ficam salvos no <strong>localStorage do navegador</strong>. Limpar os dados do site, trocar de navegador, reinstalar o app ou formatar o dispositivo <strong>apaga tudo</strong>. Faça backups regularmente.</p>
+    </div>
+  </div>
+
+  <h3>Como fazer backup</h3>
+  <p>O app monitora a data do último backup e exibe um <strong>alerta vermelho</strong> na tela principal quando o backup tem mais de 7 dias ou nunca foi feito.</p>
+
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Clique em "💾 Fazer Backup" no alerta</strong>Ou abra o menu ☰ → "Backup Rápido".</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Salve o arquivo JSON</strong>Um arquivo <code>op-backup-YYYY-MM-DD.json</code> é baixado automaticamente.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Guarde em local seguro</strong>Google Drive, OneDrive, e-mail para si mesmo — qualquer lugar fora do dispositivo.</div></li>
+  </ol>
+
+  <h3>Restaurar um backup</h3>
+  <p>Abra o menu ☰ → <strong>Importar Campanhas</strong> → selecione o arquivo <code>.json</code>. Os dados serão mesclados com o que já existe no app.</p>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-body">
+      <div class="tip-title">Rotina recomendada</div>
+      <p>Faça backup <strong>ao terminar cada sessão</strong>, antes de fechar o navegador. O badge no drawer mostra há quantos dias foi o último backup.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: CRIAR CAMPANHA
+  ══════════════════════════════════════ -->
+  <h2 id="criar-campanha">Criando uma Campanha</h2>
+
+  <p>Na tela inicial (Arquivo de Campanhas), clique em <strong>＋ Nova Campanha</strong> ou no botão flutuante ＋ no celular. O formulário de criação tem seis abas:</p>
+
+  <div class="tab-demo">
+    <span class="active">📋 Info</span>
+    <span>☠ Antagonista</span>
+    <span>👤 NPCs</span>
+    <span>🗡 Itens</span>
+    <span>📅 Sessões</span>
+    <span>📝 Notas</span>
+  </div>
+
+  <div class="warn">
+    <div class="warn-icon">⚠️</div>
+    <div class="warn-body">
+      <div class="warn-title">Salve com frequência</div>
+      <p>O botão <strong>💾 Salvar</strong> está no canto superior direito do formulário. As alterações não são salvas automaticamente ao navegar entre abas — salve antes de sair.</p>
+    </div>
+  </div>
+
+  <!-- ABA INFO -->
+  <h3 id="aba-info">Aba Info — Configuração Geral</h3>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Título</td><td class="field-desc">Nome da campanha</td><td class="field-note">Ex: "O Silêncio da Carne", "Legado da Carne"</td></tr>
+      <tr><td class="field-name">Número de Sessões</td><td class="field-desc">Total de sessões planejadas</td><td class="field-note">Gera os cartões de sessão automaticamente</td></tr>
+      <tr><td class="field-name">Status</td><td class="field-desc">Em Andamento / Planejada / Pausada / Concluída</td><td class="field-note">Aparece na lista de campanhas</td></tr>
+      <tr><td class="field-name">NEX dos Agentes</td><td class="field-desc">Nível de Exposição Paranormal do grupo</td><td class="field-note">De 0% a 99%</td></tr>
+      <tr><td class="field-name">Sinopse / Premissa</td><td class="field-desc">O arco central e o mistério principal da campanha</td><td class="field-note">Use como referência rápida durante a sessão</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ABA ANTAGONISTA -->
+  <h3 id="aba-antagonista">Aba Antagonista — Vilão e Criaturas</h3>
+
+  <p>Esta aba tem duas seções: o <strong>Antagonista Principal</strong> e o <strong>Bestiário</strong> da campanha.</p>
+
+  <h4>Antagonista Principal</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Nome / Designação</td><td class="field-desc">Nome do vilão ou entidade central</td></tr>
+      <tr><td class="field-name">Natureza</td><td class="field-desc">O que ele é: Entidade do Outro Lado, Cultista, Agente Corrompido...</td></tr>
+      <tr><td class="field-name">Motivação / Objetivo</td><td class="field-desc">O que quer e por quê — crucial para narrar consistência</td></tr>
+      <tr><td class="field-name">Poder / Habilidade Paranormal</td><td class="field-desc">Capacidades sobrenaturais para referência em cenas</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Criaturas &amp; Inimigos (Bestiário)</h4>
+  <p>Criaturas cadastradas aqui ficam disponíveis para <strong>adicionar à iniciativa</strong> durante qualquer sessão no Modo Mesa. Clique em <strong>+ Adicionar Criatura</strong>.</p>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Nome</td><td class="field-desc">Nome da criatura</td><td class="field-note">Ex: Sombra Rastejante, Cultista Iniciado</td></tr>
+      <tr><td class="field-name">Tipo / Origem</td><td class="field-desc">Categoria da criatura</td><td class="field-note">Ex: Entidade, Paranormal, Humano Corrompido</td></tr>
+      <tr><td class="field-name">PV Máximo</td><td class="field-desc">Pontos de vida máximos no combate</td><td class="field-note">Base para o tracker de PV na mesa</td></tr>
+      <tr><td class="field-name">Defesa</td><td class="field-desc">Valor que reduz o dano recebido</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Visível no Modo Mesa e no picker de combate</td></tr>
+      <tr><td class="field-name">Resistências</td><td class="field-desc">Dano reduzido ou modificado por tipo</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Ex: "Físico ½, Fogo vulnerável"</td></tr>
+      <tr><td class="field-name">Imunidades</td><td class="field-desc">O que não causa efeito na criatura</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Ex: "Imune a medo, veneno"</td></tr>
+      <tr><td class="field-name">Ataque / Dano</td><td class="field-desc">Ataques disponíveis e suas rolagens</td><td class="field-note">Ex: "Garras 1d6 / Mordida 2d4+2"</td></tr>
+      <tr><td class="field-name">Habilidades Especiais</td><td class="field-desc">Poderes, rituais, fraquezas especiais</td><td class="field-note">Texto livre</td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">Aparência e comportamento</td><td class="field-note">Para narrar quando os agentes a encontrarem</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ABA NPCS -->
+  <h3 id="aba-npcs">Aba NPCs</h3>
+
+  <p>Cadastre todos os personagens não-jogadores relevantes para a campanha. Na edição de cada sessão, você pode <strong>marcar quais NPCs aparecem</strong> naquela sessão — eles ficam destacados no Modo Mesa.</p>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Nome</td><td class="field-desc">Nome do NPC</td></tr>
+      <tr><td class="field-name">Papel / Tipo</td><td class="field-desc">Função na história: Informante, Cultista, Aliado, Entidade...</td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">Aparência, personalidade, como age com os agentes</td></tr>
+      <tr><td class="field-name">Rituais / Habilidades Paranormais</td><td class="field-desc">Poderes, rituais conhecidos, fraquezas — visível no Modo Mesa</td></tr>
+      <tr><td class="field-name">Segredo / Motivação Oculta</td><td class="field-desc">O que o NPC esconde — só o mestre vê</td></tr>
+      <tr><td class="field-name">Impacto na Sanidade</td><td class="field-desc">Quanto SAN os agentes perdem ao interagir</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-body">
+      <div class="tip-title">NPCs vs Criaturas</div>
+      <p>Use <strong>NPCs</strong> para personagens com papel narrativo — aliados, informantes, antagonistas com diálogo. Use <strong>Criaturas</strong> (aba Antagonista) para inimigos de combate que você quer adicionar à iniciativa.</p>
+    </div>
+  </div>
+
+  <!-- ABA ITENS -->
+  <h3 id="aba-itens">Aba Itens</h3>
+
+  <p>Itens, artefatos e relíquias da campanha como um todo. Itens específicos de uma cena ou cômodo são adicionados diretamente no cômodo, na aba Sessões.</p>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Nome</td><td class="field-desc">Nome do item ou artefato</td></tr>
+      <tr><td class="field-name">Tipo</td><td class="field-desc">Artefato, Relíquia, Pista, Ritual, Equipamento...</td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">Aparência e origem do item</td></tr>
+      <tr><td class="field-name">Efeito / Significado</td><td class="field-desc">O que o item faz ou revela na história</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ABA SESSÕES -->
+  <h3 id="aba-sessoes">Aba Sessões — Planejando Cada Sessão</h3>
+
+  <p>Cada sessão tem seu próprio cartão expansível. O número de sessões é definido na aba Info. Clique no cabeçalho do cartão para expandir.</p>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Título</td><td class="field-desc">Nome da sessão</td><td class="field-note">Ex: "A Noite do Coletor"</td></tr>
+      <tr><td class="field-name">Status</td><td class="field-desc">Pendente / Jogada / Pulada</td><td class="field-note">Atualizado após jogar</td></tr>
+      <tr><td class="field-name">Abertura</td><td class="field-desc">Texto lido em voz alta para abrir a sessão</td><td class="field-note">Destaque vermelho no Modo Mesa</td></tr>
+      <tr><td class="field-name">Sinopse</td><td class="field-desc">O que acontece nessa sessão</td><td class="field-note">Resumo para o mestre</td></tr>
+      <tr><td class="field-name">Objetivos</td><td class="field-desc">O que os agentes devem descobrir ou fazer</td><td class="field-note">Visível no Modo Mesa</td></tr>
+      <tr><td class="field-name">Cenas da Sessão</td><td class="field-desc">Lista de cenas que compõem a sessão</td><td class="field-note">Ver seção Cenas abaixo</td></tr>
+      <tr><td class="field-name">Recompensas</td><td class="field-desc">XP, itens, mudanças no mundo ao concluir</td><td class="field-note"></td></tr>
+      <tr><td class="field-name">Gancho</td><td class="field-desc">Como a sessão termina e deixa os jogadores curiosos</td><td class="field-note">Aparecer no Modo Mesa como lembrete</td></tr>
+      <tr><td class="field-name">Notas do Mestre</td><td class="field-desc">Observações internas, segredos, alternativas</td><td class="field-note">Só o mestre vê</td></tr>
+      <tr><td class="field-name">Pistas / Evidências</td><td class="field-desc">Pistas que os agentes podem encontrar</td><td class="field-note">Com tipo: Física, Testemunhal, Ocultista, Documental, Tecnológica</td></tr>
+      <tr><td class="field-name">NPCs desta Sessão</td><td class="field-desc">Marque quais NPCs aparecem nessa sessão</td><td class="field-note">Aparecem primeiro no Modo Mesa</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CENAS -->
+  <h3 id="cenas">Cenas, Locais e Cômodos</h3>
+
+  <p>A estrutura de uma sessão em três níveis:</p>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:16px;margin:12px 0;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:2">
+    <div style="color:var(--red)">📅 Sessão 03 — A Noite do Coletor</div>
+    <div style="color:var(--gold);padding-left:20px">🎬 Cena 01 — Investigação — Hospital Abandonado</div>
+    <div style="color:var(--text);padding-left:40px">📍 Local — Ala Psiquiátrica</div>
+    <div style="color:var(--muted);padding-left:60px">🛏 Cômodo — Quarto 7 → itens, criaturas, segredo</div>
+    <div style="color:var(--muted);padding-left:60px">🚪 Cômodo — Corredor → evento, atmosfera</div>
+    <div style="color:var(--text);padding-left:40px">📍 Local — Porão</div>
+    <div style="color:var(--muted);padding-left:60px">🕯 Cômodo — Câmara do Ritual → criaturas, itens</div>
+    <div style="color:var(--gold);padding-left:20px">🎬 Cena 02 — Combate — Confronto Final</div>
+  </div>
+
+  <h4>Tipos de Cena</h4>
+  <p>
+    <span class="pill pill-gold">🔍 Investigação</span>
+    <span class="pill pill-red">⚔️ Combate</span>
+    <span class="pill pill-green">💬 Roleplay</span>
+    <span class="pill pill-purple">💡 Revelação</span>
+    <span class="pill pill-cyan">🗺 Exploração</span>
+    <span class="pill pill-orange">⚠️ Armadilha</span>
+    <span class="pill pill-purple">🕯 Ritual</span>
+    <span class="pill pill-red">💨 Fuga</span>
+    <span class="pill pill-cyan">🤝 Social</span>
+    <span class="pill pill-orange">🏃 Perseguição</span>
+  </p>
+
+  <h4>Campos do Local</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Nome</td><td class="field-desc">Nome do local — ex: "Ala Psiquiátrica"</td></tr>
+      <tr><td class="field-name">Tipo</td><td class="field-desc">Urbano, Rural, Outro Lado, Subterrâneo...</td></tr>
+      <tr><td class="field-name">Nível de Perigo</td><td class="field-desc"><span class="pill pill-green">Baixo</span> <span class="pill pill-gold">Médio</span> <span class="pill pill-orange">Alto</span> <span class="pill pill-red">Extremo</span></td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">Ambiente e atmosfera geral do local</td></tr>
+      <tr><td class="field-name">Versão Paranormal</td><td class="field-desc"><span class="pill pill-purple">Novo</span> Como esse local aparece no Outro Lado — visível no Modo Mesa com destaque roxo</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Campos do Cômodo</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Tipo</td><td class="field-desc">Ícone do cômodo: 🛋 Sala, 🛏 Quarto, 🍳 Cozinha, 🕯 Porão, ⚗️ Laboratório...</td></tr>
+      <tr><td class="field-name">Nome</td><td class="field-desc">Nome do cômodo</td></tr>
+      <tr><td class="field-name">Nível de Perigo</td><td class="field-desc">Perigo específico deste cômodo</td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">O que os agentes veem ao entrar</td></tr>
+      <tr><td class="field-name">Atmosfera</td><td class="field-desc">Sons, cheiros, sensações — narrado em voz alta</td></tr>
+      <tr><td class="field-name">Segredo</td><td class="field-desc">O que está oculto — só o mestre vê no Modo Mesa</td></tr>
+      <tr><td class="field-name">Evento</td><td class="field-desc">O que acontece quando os agentes entram neste cômodo</td></tr>
+      <tr><td class="field-name">Inimigos &amp; NPCs</td><td class="field-desc">Criaturas e NPCs presentes — com quantidade</td></tr>
+      <tr><td class="field-name">Objetos / Elementos</td><td class="field-desc">Itens, pistas, passagens — com tipo e segredo</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ABA NOTAS -->
+  <h3 id="aba-notas">Aba Notas</h3>
+  <p>Campo de texto livre para anotações gerais da campanha — lore extra, teorias, ideias para sessões futuras, decisões dos jogadores que mudaram o rumo da história.</p>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: MODO MESA
+  ══════════════════════════════════════ -->
+  <h2 id="modo-mesa">Modo Mesa</h2>
+
+  <p>O Modo Mesa é a interface de jogo — tudo que você precisa durante uma sessão em uma tela só. Para acessar, vá até a aba <strong>Sessões</strong> na view de detalhe da campanha e clique em <strong>▶ Modo Mesa</strong> ao lado da sessão desejada.</p>
+
+  <!-- LAYOUT PC -->
+  <h3 id="mesa-pc">Layout no PC (tela maior que 900px)</h3>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:12px 0">
+    <div style="background:var(--bg-deep);border-bottom:1px solid var(--border);padding:10px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">
+      ── Barra Superior: título, cronômetro, status da sessão, fechar ──
+    </div>
+    <div style="background:var(--bg-deep);border-bottom:1px solid var(--border);padding:8px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);text-align:center">
+      ── Navegação entre sessões: ◀ Anterior · 2/6 · Próxima ▶ ──
+    </div>
+    <div style="display:flex;min-height:100px">
+      <div style="width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:12px;font-size:11px;color:var(--muted)">
+        <div style="color:var(--gold);font-size:10px;margin-bottom:8px">⚙ CONTROLES</div>
+        <div>📝 Notas Rápidas</div>
+        <div>🎲 Rolador de Dados</div>
+        <div>⚔️ Iniciativa</div>
+        <div>🎭 Agentes</div>
+      </div>
+      <div style="flex:1;padding:12px;font-size:11px;color:var(--muted)">
+        <div style="color:var(--red);font-size:10px;margin-bottom:8px">🎬 CONTEÚDO DA SESSÃO</div>
+        <div>Abertura · Sinopse · Objetivos</div>
+        <div>Cenas → Locais → Cômodos</div>
+        <div>NPCs da Sessão</div>
+        <div>Itens · Recompensas · Gancho · Notas</div>
+        <div style="margin-top:8px">🔍 Pistas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYOUT MOBILE -->
+  <h3 id="mesa-mobile">Layout Mobile (tela menor que 900px)</h3>
+
+  <p>No celular, o Modo Mesa usa uma <strong>tab bar</strong> na parte inferior com 5 abas:</p>
+
+  <div class="tab-demo">
+    <span class="active">📖 Cena</span>
+    <span>⚔️ Combate</span>
+    <span>🎭 Agentes</span>
+    <span>🎲 Dados</span>
+    <span>🔍 Pistas</span>
+  </div>
+
+  <p>Deslize horizontalmente sobre a área principal para navegar entre sessões.</p>
+
+  <!-- CENAS NA MESA -->
+  <h3 id="mesa-cenas">Cenas e Locais no Modo Mesa</h3>
+
+  <p>O painel de Cenas mostra toda a estrutura planejada de forma colapsável. Clique no nome de uma cena para expandir, clique no local para ver os cômodos, clique no cômodo para ver todo o conteúdo.</p>
+
+  <h4>Marcar Cena Atual</h4>
+  <p>Clique no botão 📍 ao lado do nome da cena para marcá-la como <span class="pill pill-red">● Atual</span>. A cena ativa fica no topo da lista e com destaque vermelho — ótimo para não perder o fio durante a sessão.</p>
+
+  <h4>O que aparece ao abrir um cômodo</h4>
+  <ul>
+    <li><strong>Descrição</strong> — o que narrar ao entrar</li>
+    <li><strong>🌫 Atmosfera</strong> — sons, cheiros, sensações</li>
+    <li><strong>🔒 Segredo</strong> — informação oculta, só o mestre vê</li>
+    <li><strong>⚡ Evento</strong> — o que acontece ao entrar</li>
+    <li><strong>💀 Inimigos &amp; NPCs</strong> — com Defesa, Resistências e Imunidades</li>
+    <li><strong>Objetos / Elementos</strong> — itens e pistas do cômodo</li>
+  </ul>
+
+  <h4>Versão Paranormal</h4>
+  <p>Se um local tiver a <strong>Versão Paranormal</strong> preenchida, ela aparece no Modo Mesa com destaque roxo — <span class="pill pill-purple">👁 Outro Lado</span> — logo abaixo da descrição normal.</p>
+
+  <h4>Pesquisa em tempo real</h4>
+  <p>Use o campo de busca no topo do painel de conteúdo para filtrar cenas, NPCs, itens e pistas instantaneamente por nome ou tipo.</p>
+
+  <!-- TRACKER DE AGENTES -->
+  <h3 id="mesa-agentes">Tracker de Agentes</h3>
+
+  <p>Clique em <strong>+ Adicionar Agente</strong> para registrar cada jogador. Os dados persistem entre sessões da mesma campanha.</p>
+
+  <h4>Recursos rastreados por agente</h4>
+
+  <table class="field-table">
+    <thead><tr><th>Recurso</th><th>Descrição</th><th>Controles</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="field-name">❤️ PV</td>
+        <td class="field-desc">Pontos de Vida — barra vermelha</td>
+        <td class="field-note">−5 / − / + / +5 e campo direto</td>
+      </tr>
+      <tr>
+        <td class="field-name">⚡ PE</td>
+        <td class="field-desc">Pontos de Esforço — barra ciano</td>
+        <td class="field-note">−5 / − / + / +5 e campo direto</td>
+      </tr>
+      <tr>
+        <td class="field-name">🧠 SAN</td>
+        <td class="field-desc">Sanidade — barra roxa</td>
+        <td class="field-note">−5 / − / + / +5 e campo direto</td>
+      </tr>
+      <tr>
+        <td class="field-name">NEX</td>
+        <td class="field-desc">Nível de Exposição Paranormal individual</td>
+        <td class="field-note">Select de 0% a 99%</td>
+      </tr>
+      <tr>
+        <td class="field-name">AGI</td>
+        <td class="field-desc"><span class="pill pill-cyan">Novo</span> Bônus de Agilidade para iniciativa</td>
+        <td class="field-note">Campo numérico, pode ser negativo</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>Condições</h4>
+  <p>Clique nos botões de condição para ativar/desativar. Condições ativas ficam coloridas e são refletidas na linha de iniciativa.</p>
+  <p>
+    <span class="pill pill-gold">😨 Abalado</span>
+    <span class="pill pill-orange">😱 Assustado</span>
+    <span class="pill pill-purple">🌀 Paranóico</span>
+    <span class="pill" style="background:#6b728022;border:1px solid #6b728055;color:#6b7280">💤 Inconsciente</span>
+    <span class="pill pill-red">🩸 Morrendo</span>
+    <span class="pill" style="background:#30282422;border:1px solid #30282455;color:#7a7060">☠️ Morto</span>
+    <span class="pill pill-purple">👁️ Possuído</span>
+    <span class="pill pill-cyan">😮‍💨 Exausto</span>
+  </p>
+
+  <h4>Rituais Conhecidos</h4>
+  <p>Clique em <strong>+ Ritual</strong> para adicionar rituais de forma estruturada. Cada ritual tem:</p>
+  <ul>
+    <li><strong>Nome</strong> — nome do ritual</li>
+    <li><strong>PE</strong> — custo em Pontos de Esforço</li>
+    <li><strong>Efeito</strong> — alcance, duração, efeito resumido</li>
+  </ul>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-body">
+      <div class="tip-title">Ícone do Agente</div>
+      <p>Clique no ícone grande do agente para abrir um selector com ícones organizados por Origens, Classes e Paranormal. Isso ajuda a identificar rapidamente cada agente na lista de iniciativa.</p>
+    </div>
+  </div>
+
+  <!-- INICIATIVA E COMBATE -->
+  <h3 id="mesa-iniciativa">Iniciativa e Combate</h3>
+
+  <p>O tracker de iniciativa unifica <strong>agentes e criaturas</strong> na mesma fila, ordenada do maior para o menor resultado.</p>
+
+  <h4>Fluxo de combate</h4>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Adicionar inimigos</strong>Clique em <strong>💀 +Inimigo</strong>. Selecione uma criatura do bestiário ou crie uma temporária. A criatura aparece com PV rastreável.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Rolar iniciativa</strong>Clique em <strong>🎲 Rolar Todos</strong> para rolar d20 + Agilidade para cada agente e d20 para as criaturas. Ou clique no botão 🎲 individual de cada combatente.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Iniciar os turnos</strong>Clique em <strong>▶ Próximo</strong> para avançar o turno. O combatente ativo fica destacado em vermelho. O número da rodada aparece acima da lista.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Gerenciar PV das criaturas</strong>Use os botões − e + ou edite o campo diretamente. A barra de vida muda de verde → amarelo → vermelho conforme o PV cai.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>Encerrar combate</strong>Clique em <strong>✕ Limpar</strong> (PC) ou <strong>✕ Limpar</strong> (mobile) para zerar a iniciativa e remover as criaturas temporárias.</div></li>
+  </ol>
+
+  <h4>Bônus de Agilidade na iniciativa</h4>
+  <p>O campo <strong>AGI</strong> de cada agente é somado ao d20 no momento de rolar. O botão 🎲 exibe o bônus visualmente: <code>🎲 +3</code> ou <code>🎲 -1</code>. Agentes com AGI 0 veem apenas <code>🎲</code>.</p>
+
+  <h4>Ficha de Defesa no combate</h4>
+  <p>Ao clicar em <strong>💀 +Inimigo</strong>, o picker de criaturas mostra <span class="pill pill-cyan">🛡 DEF</span>, <span class="pill pill-gold">⚖ Resistências</span> e <span class="pill pill-green">✦ Imunidades</span> diretamente — sem precisar abrir o bestiário.</p>
+
+  <!-- DADOS -->
+  <h3 id="mesa-dados">Rolador de Dados</h3>
+
+  <p>Disponível no painel esquerdo (PC) e na aba 🎲 Dados (mobile).</p>
+
+  <ul>
+    <li>Botões rápidos: <code>d4 d6 d8 d10 d12 d20 d%</code></li>
+    <li>Campo personalizado: qualquer valor de 2 a 9999</li>
+    <li>Resultado exibido em destaque com animação</li>
+    <li>Histórico dos últimos 10 resultados com cor: <span style="color:#4ade80">★ crítico</span> / <span style="color:#c0392b">✕ falha</span></li>
+  </ul>
+
+  <!-- PISTAS -->
+  <h3 id="mesa-pistas">Gestão de Pistas</h3>
+
+  <p>A aba 🔍 Pistas lista todas as pistas cadastradas para a sessão atual. Toque em uma pista para marcar como encontrada.</p>
+
+  <ul>
+    <li>Pistas encontradas ficam com <strong>texto riscado</strong> e ícone ✓</li>
+    <li>Pistas descobertas em <strong>outra sessão</strong> mostram o badge <span class="pill pill-green">✓ Sessão N</span> — assim o mestre sabe exatamente quando foi revelada</li>
+    <li>Tipos de pista: <span class="pill pill-gold">Física</span> <span class="pill pill-green">Testemunhal</span> <span class="pill pill-purple">Ocultista</span> <span class="pill pill-cyan">Documental</span> <span class="pill" style="background:#6b728022;border:1px solid #6b728055;color:#9ca3af">Tecnológica</span></li>
+  </ul>
+
+  <!-- NOTAS RÁPIDAS -->
+  <h3 id="mesa-notas">Notas Rápidas</h3>
+
+  <p>O campo de texto no painel esquerdo (PC) ou na aba 📖 Cena → final (mobile) é para <strong>improvisos da sessão</strong> — nomes criados na hora, decisões dos jogadores, reviravoltas. O conteúdo é salvo automaticamente e persiste entre sessões.</p>
+
+  <!-- CRONÔMETRO -->
+  <h3 id="mesa-timer">Cronômetro de Sessão</h3>
+
+  <p>O cronômetro fica na barra superior do Modo Mesa. Clique em <strong>▶</strong> para iniciar, <strong>⏸</strong> para pausar, <strong>↺</strong> para zerar.</p>
+
+  <p>O app assume sessões de 4 horas e alerta automaticamente:</p>
+
+  <ul>
+    <li>Em <strong>30 minutos restantes</strong> — cronômetro fica dourado</li>
+    <li>Em <strong>15 minutos restantes</strong> — cronômetro fica laranja + notificação</li>
+    <li>Em <strong>5 minutos restantes</strong> — cronômetro fica vermelho + notificação</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: TEMAS
+  ══════════════════════════════════════ -->
+  <h2 id="temas">Temas Visuais</h2>
+
+  <p>Três temas disponíveis, alternados pela barra superior (PC) ou pelo menu ☰ (mobile e PC):</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div style="width:32px;height:32px;background:#0c0b09;border:2px solid #302c24;border-radius:3px;margin-bottom:8px"></div>
+      <div class="feature-card-title">Paranormal</div>
+      <div class="feature-card-desc">Escuro profundo com acentos em vermelho, dourado e roxo. Padrão do app.</div>
+    </div>
+    <div class="feature-card">
+      <div style="width:32px;height:32px;background:#2a2318;border:2px solid #5a4a2e;border-radius:3px;margin-bottom:8px"></div>
+      <div class="feature-card-title">Manuscrito</div>
+      <div class="feature-card-desc">Sépia envelhecida, tom de livro antigo. Para quem prefere tom mais caloroso.</div>
+    </div>
+    <div class="feature-card">
+      <div style="width:32px;height:32px;background:#0e0809;border:2px solid #3d1a1e;border-radius:3px;margin-bottom:8px"></div>
+      <div class="feature-card-title">Vermelho</div>
+      <div class="feature-card-desc">Escuro com sotaque sangue. Atmosfera mais pesada para campanhas de horror.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: EXPORTAR
+  ══════════════════════════════════════ -->
+  <h2 id="exportar">Exportar e Importar</h2>
+
+  <h3>Exportar JSON</h3>
+  <p>Menu ☰ → <strong>Exportar Campanhas</strong> ou botão na tela principal. Baixa um arquivo <code>.json</code> com <em>todas</em> as campanhas. Use para backup, migração ou compartilhamento com outro mestre.</p>
+
+  <h3>Importar JSON</h3>
+  <p>Menu ☰ → <strong>Importar Campanhas</strong>. Selecione um arquivo <code>.json</code> exportado anteriormente. Os dados são <em>mesclados</em> — campanhas existentes não são apagadas.</p>
+
+  <h3>Exportar PDF</h3>
+  <p>Menu ☰ → <strong>Exportar PDF</strong> (disponível quando uma campanha está aberta). Gera um documento formatado com toda a campanha: antagonista, criaturas, NPCs, itens, sessões, cenas e pistas. Use para impressão ou envio aos jogadores.</p>
+
+  <div class="warn">
+    <div class="warn-icon">⚠️</div>
+    <div class="warn-body">
+      <div class="warn-title">Exclusão de Campanha</div>
+      <p>O botão <strong>✕</strong> na lista de campanhas exclui permanentemente. Não há desfazer. Faça um backup antes de excluir campanhas importantes.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: FLUXO DE USO
+  ══════════════════════════════════════ -->
+  <h2 id="fluxo">Fluxo de Uso Recomendado</h2>
+
+  <h3>Antes da campanha começar</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Criar a campanha</strong>Título, sinopse, número de sessões, NEX inicial.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Cadastrar o antagonista e as criaturas</strong>Aba Antagonista → preencher vilão principal e adicionar todas as criaturas do bestiário com PV, Defesa, Resistências e Imunidades.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Cadastrar os NPCs</strong>Aba NPCs → todos os personagens com papel narrativo, incluindo segredos e impacto na sanidade.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Cadastrar itens e artefatos</strong>Aba Itens → relíquias, artefatos, itens de trama.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>Fazer backup inicial</strong>Menu ☰ → Backup Rápido.</div></li>
+  </ol>
+
+  <h3>Preparando cada sessão</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a sessão na aba Sessões</strong>Preencher título, abertura, sinopse e objetivos.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Criar as cenas</strong>Botão + Adicionar Cena → definir tipo, nome e descrição.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar locais e cômodos</strong>Cada cena pode ter locais físicos com cômodos detalhados: descrição, atmosfera, segredo, evento, criaturas e itens.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Preencher as pistas</strong>Botão + Adicionar Pista com tipo e texto.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>Marcar NPCs da sessão</strong>Na seção "NPCs desta Sessão", marcar os que aparecem — eles ficam em destaque no Modo Mesa.</div></li>
+    <li><div class="step-num">6</div><div class="step-body"><strong>Salvar e fazer backup</strong>Botão 💾 Salvar → menu ☰ → Backup Rápido.</div></li>
+  </ol>
+
+  <h3>Durante a sessão</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir o Modo Mesa</strong>Aba Sessões → botão ▶ Modo Mesa ao lado da sessão atual.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Iniciar o cronômetro</strong>Botão ▶ na barra superior para registrar o tempo de sessão.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar os agentes</strong>+ Adicionar Agente → nome, ícone, PV/PE/SAN/NEX/AGI. Adicionar rituais com + Ritual.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Marcar a cena atual</strong>Botão 📍 ao lado da cena para mantê-la no topo e destacada.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>No combate: adicionar inimigos e rolar iniciativa</strong>💀 +Inimigo → selecionar do bestiário → 🎲 Rolar Todos → ▶ Próximo para avançar turnos.</div></li>
+    <li><div class="step-num">6</div><div class="step-body"><strong>Marcar pistas encontradas</strong>Aba 🔍 Pistas → toque na pista para marcar como descoberta.</div></li>
+    <li><div class="step-num">7</div><div class="step-body"><strong>Anotar improvisos</strong>Campo Notas Rápidas para nomes criados na hora, decisões dos jogadores, mudanças no roteiro.</div></li>
+  </ol>
+
+  <h3>Após a sessão</h3>
+  <ol class="step-list">
+    <li><div class="step-num">1</div><div class="step-body"><strong>Atualizar o status da sessão</strong>Na barra do Modo Mesa → clicar em "Jogada". Ou na edição da campanha → aba Sessões → status.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Atualizar NEX dos agentes</strong>Se o NEX subiu, atualizar no tracker de cada agente.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Fechar o Modo Mesa</strong>Botão ✕ Fechar na barra superior.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Fazer backup</strong>Menu ☰ → Backup Rápido — sempre após cada sessão.</div></li>
+  </ol>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       SEÇÃO: GLOSSÁRIO
+  ══════════════════════════════════════ -->
+  <h2 id="glossario">Glossário de Campos</h2>
+
+  <h3>Termos do Sistema OP usados no App</h3>
+
+  <table class="field-table">
+    <thead><tr><th>Sigla / Termo</th><th>Significado</th><th>Onde aparece</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">PV</td><td class="field-desc">Pontos de Vida — representa a saúde física do agente</td><td class="field-note">Tracker de agentes, criaturas no combate</td></tr>
+      <tr><td class="field-name">PE</td><td class="field-desc">Pontos de Esforço — recurso gasto em rituais e habilidades</td><td class="field-note">Tracker de agentes, custo de rituais</td></tr>
+      <tr><td class="field-name">SAN</td><td class="field-desc">Sanidade — representa a estabilidade mental</td><td class="field-note">Tracker de agentes</td></tr>
+      <tr><td class="field-name">NEX</td><td class="field-desc">Nível de Exposição Paranormal — de 0% a 99%</td><td class="field-note">Config. da campanha, tracker individual por agente</td></tr>
+      <tr><td class="field-name">AGI</td><td class="field-desc">Bônus de Agilidade somado ao d20 na iniciativa</td><td class="field-note">Tracker de agentes, botão de rolar iniciativa</td></tr>
+      <tr><td class="field-name">DEF</td><td class="field-desc">Defesa — valor que reduz dano recebido pela criatura</td><td class="field-note">Ficha de criatura, picker de combate, cômodos</td></tr>
+      <tr><td class="field-name">Resistências</td><td class="field-desc">Tipos de dano reduzidos ou modificados</td><td class="field-note">Ficha de criatura, modo mesa</td></tr>
+      <tr><td class="field-name">Imunidades</td><td class="field-desc">O que não causa efeito na criatura</td><td class="field-note">Ficha de criatura, modo mesa</td></tr>
+      <tr><td class="field-name">Outro Lado</td><td class="field-desc">Plano paranormal — versão sobrenatural de um local físico</td><td class="field-note">Campo "Versão Paranormal" nos locais de cena</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Status de Sessão</h3>
+  <p>
+    <span class="pill" style="background:#7a706022;border:1px solid #7a706055;color:#7a7060">Pendente</span> — ainda não foi jogada.
+    <span class="pill pill-green">Jogada</span> — concluída.
+    <span class="pill pill-gold">Pulada</span> — descartada ou pulada.
+  </p>
+
+  <h3>Status de Campanha</h3>
+  <p>
+    <span class="pill pill-green">Em Andamento</span>
+    <span class="pill pill-gold">Concluída</span>
+    <span class="pill" style="background:#7a706022;border:1px solid #7a706055;color:#7a7060">Pausada</span>
+    <span class="pill pill-red">Planejada</span>
+  </p>
+
+  <div class="divider"></div>
+
+  <div style="text-align:center;padding:24px 0 48px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em">
+    MestreRPG · Ordem Paranormal Edition<br>
+    <span style="color:var(--red)">☠</span> Que suas sessões sejam inesquecíveis.
+  </div>
+
+</main>
+</div>
+
+<a class="back-top" href="#" title="Voltar ao topo">↑</a>
+
+<script>
+// Highlight active nav item on scroll
+const sections = document.querySelectorAll('h2[id], h3[id]');
+const navItems = document.querySelectorAll('.nav-item');
+function onScroll() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navItems.forEach(a => {
+    const href = a.getAttribute('href');
+    a.style.color = href === '#' + current ? 'var(--text-head)' : '';
+    a.style.borderLeftColor = href === '#' + current ? 'var(--red)' : '';
+    a.style.background = href === '#' + current ? '#7f1d1d0a' : '';
+  });
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+</body>
+</html>
