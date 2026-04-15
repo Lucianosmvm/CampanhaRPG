@@ -433,6 +433,7 @@ code {
   <a class="nav-item sub" href="#mesa-pc">Layout PC</a>
   <a class="nav-item sub" href="#mesa-mobile">Layout Mobile</a>
   <a class="nav-item sub" href="#mesa-cenas">Cenas e Locais</a>
+  <a class="nav-item sub" href="#iniciar-combate">⚔ Iniciar Combate</a>
   <a class="nav-item sub" href="#mesa-agentes">Tracker de Agentes</a>
   <a class="nav-item sub" href="#mesa-iniciativa">Iniciativa e Combate</a>
   <a class="nav-item sub" href="#mesa-dados">Rolador de Dados</a>
@@ -462,10 +463,12 @@ code {
   <h3>Índice Rápido</h3>
   <ul class="index-list">
     <li><a href="#criar-campanha">Criando uma Campanha</a><span class="pg">Preparação</span></li>
+    <li><a href="#aba-antagonista">Ficha de Ameaça — Criaturas e Bestiário</a><span class="pg">Preparação</span></li>
     <li><a href="#aba-sessoes">Planejando Sessões, Cenas e Cômodos</a><span class="pg">Preparação</span></li>
     <li><a href="#modo-mesa">Modo Mesa — Usar Durante a Sessão</a><span class="pg">Jogo</span></li>
+    <li><a href="#iniciar-combate">⚔ Iniciar Combate — Ficha e Controle de PV</a><span class="pg">Jogo</span></li>
     <li><a href="#mesa-agentes">Tracker de Agentes (PV / PE / SAN / NEX)</a><span class="pg">Jogo</span></li>
-    <li><a href="#mesa-iniciativa">Iniciativa e Combate</a><span class="pg">Jogo</span></li>
+    <li><a href="#mesa-iniciativa">Iniciativa e Combate — Aba</a><span class="pg">Jogo</span></li>
     <li><a href="#dados">Backup — Como Não Perder sua Campanha</a><span class="pg">Importante</span></li>
   </ul>
 
@@ -520,6 +523,16 @@ code {
       <div class="feature-card-icon">📄</div>
       <div class="feature-card-title">Exportar PDF</div>
       <div class="feature-card-desc">Gera um documento completo da campanha para impressão ou compartilhamento.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">💀</div>
+      <div class="feature-card-title">Ficha Completa de Ameaça</div>
+      <div class="feature-card-desc">Cadastre criaturas com ficha oficial do OP: atributos, VD, NEX, ataques, habilidades, resistências e mais.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">⚔</div>
+      <div class="feature-card-title">Iniciar Combate</div>
+      <div class="feature-card-desc">Ao chegar em um cômodo com inimigos, abra a ficha de combate — controle PV, condições e morte de cada criatura sem sair da tela.</div>
     </div>
   </div>
 
@@ -642,20 +655,83 @@ code {
   </table>
 
   <h4>Criaturas &amp; Inimigos (Bestiário)</h4>
-  <p>Criaturas cadastradas aqui ficam disponíveis para <strong>adicionar à iniciativa</strong> durante qualquer sessão no Modo Mesa. Clique em <strong>+ Adicionar Criatura</strong>.</p>
+  <p>Criaturas cadastradas aqui ficam disponíveis para <strong>adicionar à iniciativa</strong> durante qualquer sessão no Modo Mesa. Clique em <strong>+ Adicionar Criatura</strong>. A ficha segue o modelo oficial da <strong>Ficha de Ameaça</strong> do Ordem Paranormal.</p>
 
+  <h4 style="color:var(--red)">Identificação</h4>
   <table class="field-table">
     <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
     <tbody>
       <tr><td class="field-name">Nome</td><td class="field-desc">Nome da criatura</td><td class="field-note">Ex: Sombra Rastejante, Cultista Iniciado</td></tr>
-      <tr><td class="field-name">Tipo / Origem</td><td class="field-desc">Categoria da criatura</td><td class="field-note">Ex: Entidade, Paranormal, Humano Corrompido</td></tr>
-      <tr><td class="field-name">PV Máximo</td><td class="field-desc">Pontos de vida máximos no combate</td><td class="field-note">Base para o tracker de PV na mesa</td></tr>
-      <tr><td class="field-name">Defesa</td><td class="field-desc">Valor que reduz o dano recebido</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Visível no Modo Mesa e no picker de combate</td></tr>
-      <tr><td class="field-name">Resistências</td><td class="field-desc">Dano reduzido ou modificado por tipo</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Ex: "Físico ½, Fogo vulnerável"</td></tr>
-      <tr><td class="field-name">Imunidades</td><td class="field-desc">O que não causa efeito na criatura</td><td class="field-note"><span class="pill pill-cyan">Novo</span> Ex: "Imune a medo, veneno"</td></tr>
-      <tr><td class="field-name">Ataque / Dano</td><td class="field-desc">Ataques disponíveis e suas rolagens</td><td class="field-note">Ex: "Garras 1d6 / Mordida 2d4+2"</td></tr>
-      <tr><td class="field-name">Habilidades Especiais</td><td class="field-desc">Poderes, rituais, fraquezas especiais</td><td class="field-note">Texto livre</td></tr>
-      <tr><td class="field-name">Descrição</td><td class="field-desc">Aparência e comportamento</td><td class="field-note">Para narrar quando os agentes a encontrarem</td></tr>
+      <tr><td class="field-name">Tipo / Origem</td><td class="field-desc">Categoria da ameaça</td><td class="field-note">Ex: Entidade, Paranormal, Humano Corrompido</td></tr>
+      <tr><td class="field-name">Elemento Principal</td><td class="field-desc">Elemento primário da criatura</td><td class="field-note">Ex: Morte, Sangue, Conhecimento, Energia</td></tr>
+      <tr><td class="field-name">Elementos Secundários</td><td class="field-desc">Elementos adicionais associados</td><td class="field-note">Múltiplos, separados por vírgula</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Presença Perturbadora</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">PT (Presença Perturbadora)</td><td class="field-desc">Quanto de SAN os agentes perdem ao ver a criatura</td><td class="field-note">Testado contra Vontade</td></tr>
+      <tr><td class="field-name">NEX %</td><td class="field-desc">Nível de Exposição Paranormal da criatura</td><td class="field-note">Indica poder geral (5% a 99%)</td></tr>
+      <tr><td class="field-name">Dano Mental</td><td class="field-desc">Dano de SAN causado por ataques mentais</td><td class="field-note">Ex: "1d6 SAN", "2d4"</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Sentidos</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Percepção</td><td class="field-desc">Valor base de percepção (detectar agentes, armadilhas)</td><td class="field-note">Numérico</td></tr>
+      <tr><td class="field-name">Iniciativa</td><td class="field-desc">Bônus de iniciativa da criatura</td><td class="field-note">Somado ao d20 ao rolar iniciativa</td></tr>
+      <tr><td class="field-name">Sentido Especial</td><td class="field-desc">Sentidos além do normal</td><td class="field-note">Ex: "Visão no escuro 18m", "Telepatia"</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Defesa</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">VD (Valor de Defesa)</td><td class="field-desc">Valor que deve ser superado para acertar a criatura</td><td class="field-note">Visível no Modo Mesa e no picker de combate</td></tr>
+      <tr><td class="field-name">Fortitude</td><td class="field-desc">Resistência física — contra venenos, doenças</td><td class="field-note">Numérico</td></tr>
+      <tr><td class="field-name">Reflexos</td><td class="field-desc">Resistência a ataques em área e explosões</td><td class="field-note">Numérico</td></tr>
+      <tr><td class="field-name">Vontade</td><td class="field-desc">Resistência mental — contra PT e efeitos psíquicos</td><td class="field-note">Numérico</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Pontos de Vida e Resistências</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">PV Máximo</td><td class="field-desc">Pontos de vida máximos</td><td class="field-note">Base para a barra de HP no combate. Ao chegar a 0, a criatura morre automaticamente.</td></tr>
+      <tr><td class="field-name">Machucado</td><td class="field-desc">Valor de PV abaixo do qual a criatura fica machucada</td><td class="field-note">Ex: metade do PV máximo</td></tr>
+      <tr><td class="field-name">Resistências</td><td class="field-desc">Tipos de dano reduzidos ou modificados</td><td class="field-note">Ex: "Físico ½, Fogo vulnerável"</td></tr>
+      <tr><td class="field-name">Vulnerabilidades</td><td class="field-desc">Danos que causam efeito dobrado ou especial</td><td class="field-note">Ex: "Vulnerável a Fogo ×2"</td></tr>
+      <tr><td class="field-name">Imunidades</td><td class="field-desc">O que não causa efeito na criatura</td><td class="field-note">Ex: "Imune a medo, veneno, frio"</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Atributos</h4>
+  <table class="field-table">
+    <thead><tr><th>Atributo</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">AGI</td><td class="field-desc">Agilidade — velocidade e esquiva</td></tr>
+      <tr><td class="field-name">FOR</td><td class="field-desc">Força — poder físico bruto</td></tr>
+      <tr><td class="field-name">INT</td><td class="field-desc">Intelecto — inteligência e percepção tática</td></tr>
+      <tr><td class="field-name">PRE</td><td class="field-desc">Presença — carisma e poder de influência</td></tr>
+      <tr><td class="field-name">VIG</td><td class="field-desc">Vigor — resistência física e vitalidade</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="color:var(--red)">Combate e Habilidades</h4>
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="field-name">Perícias</td><td class="field-desc">Habilidades treinadas da criatura</td><td class="field-note">Ex: "Furtividade +8, Percepção +5"</td></tr>
+      <tr><td class="field-name">Deslocamento</td><td class="field-desc">Metros de movimento por turno</td><td class="field-note">Padrão: 9m. Ex: "9m (voo 18m)"</td></tr>
+      <tr><td class="field-name">Ataques</td><td class="field-desc">Tabela de ataques com Teste | Dano | Crítico</td><td class="field-note">Ex: "Garras — Teste: +8 / Dano: 2d6+4 / Crítico: ×2"</td></tr>
+      <tr><td class="field-name">Habilidades e Ações</td><td class="field-desc">Poderes especiais, ações de combate, rituais</td><td class="field-note">Texto livre com quebras de linha</td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">Aparência e comportamento da criatura</td><td class="field-note">Para narrar quando os agentes a encontrarem</td></tr>
     </tbody>
   </table>
 
@@ -850,7 +926,7 @@ code {
     <li><strong>🌫 Atmosfera</strong> — sons, cheiros, sensações</li>
     <li><strong>🔒 Segredo</strong> — informação oculta, só o mestre vê</li>
     <li><strong>⚡ Evento</strong> — o que acontece ao entrar</li>
-    <li><strong>💀 Inimigos &amp; NPCs</strong> — com Defesa, Resistências e Imunidades</li>
+    <li><strong>💀 Inimigos &amp; NPCs</strong> — com Defesa, Resistências e Imunidades. Cômodos com criaturas exibem o botão <span class="pill pill-red">⚔ Iniciar Combate</span></li>
     <li><strong>Objetos / Elementos</strong> — itens e pistas do cômodo</li>
   </ul>
 
@@ -859,6 +935,64 @@ code {
 
   <h4>Pesquisa em tempo real</h4>
   <p>Use o campo de busca no topo do painel de conteúdo para filtrar cenas, NPCs, itens e pistas instantaneamente por nome ou tipo.</p>
+
+  <!-- INICIAR COMBATE -->
+  <h3 id="iniciar-combate">⚔ Iniciar Combate — Ficha de Ameaça no Modo Mesa</h3>
+
+  <p>Quando os agentes chegam a um cômodo com inimigos, aparece o botão <span class="pill pill-red">⚔</span> no cabeçalho do cômodo e o botão <span class="pill pill-red">⚔ Iniciar Combate</span> dentro do cômodo expandido. Clicar em qualquer um deles abre a <strong>Ficha de Combate</strong> — um modal com a ficha completa de cada criatura do cômodo e os controles de batalha.</p>
+
+  <h4>O que a ficha de combate mostra</h4>
+  <ul>
+    <li><strong>Ficha de Ameaça completa</strong> — tipo, NEX, elementos, VD, Fort/Ref/Von, atributos, resistências, ataques, habilidades e descrição</li>
+    <li><strong>Botão + Iniciativa</strong> — adiciona a criatura (com a quantidade definida no cômodo) à fila de iniciativa</li>
+    <li><strong>Badge ✓ Na ini</strong> — aparece quando a criatura já foi adicionada à iniciativa (evita duplicatas)</li>
+    <li><strong>⚔ Todos à Ini</strong> — adiciona todas as criaturas do cômodo de uma vez</li>
+  </ul>
+
+  <h4>Controle de combate inline</h4>
+  <p>Assim que uma criatura é adicionada à iniciativa, a ficha exibe o <strong>bloco de Controle de Combate</strong> — sem precisar fechar o modal nem trocar de aba:</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon">🩸</div>
+      <div class="feature-card-title">Barra de PV</div>
+      <div class="feature-card-desc">Barra colorida que vai de verde → amarelo → vermelho conforme o HP cai. Exibe PV atual / PV máximo e a iniciativa rolada.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">⚡</div>
+      <div class="feature-card-title">Campo de Dano/Cura</div>
+      <div class="feature-card-desc">Digite o valor e clique <strong>−Dano</strong> ou <strong>+Cura</strong>. Também funciona pressionando Enter no campo.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">💀</div>
+      <div class="feature-card-title">Morte Automática</div>
+      <div class="feature-card-desc">Quando o PV chega a 0, a criatura recebe a condição <strong>☠ morto</strong> automaticamente e um toast de notificação aparece.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon">🌀</div>
+      <div class="feature-card-title">Condições Rápidas</div>
+      <div class="feature-card-desc">Botões de condição diretamente na ficha: 😨 Abalado, 😱 Assustado, 🌀 Paranóico, 💤 Inconsciente.</div>
+    </div>
+  </div>
+
+  <h4>Múltiplas instâncias</h4>
+  <p>Se o cômodo tiver, por exemplo, <strong>×3 Cultistas</strong>, cada um aparece como <strong>#1, #2, #3</strong> com sua própria barra de PV e controles independentes — o mestre controla cada indivíduo separadamente.</p>
+
+  <h4>Controles do modal</h4>
+  <p>O cabeçalho da ficha de combate tem três botões:</p>
+  <ul>
+    <li><span class="pill pill-gold">🎲 Rolar</span> — rola iniciativa para todos (agentes + criaturas no tracker)</li>
+    <li><span class="pill pill-red">▶ Próximo</span> — avança para o próximo turno na ordem de iniciativa</li>
+    <li><span class="pill pill-red">⚔ Todos à Ini</span> — adiciona todas as criaturas do cômodo (só adiciona o que ainda falta, sem duplicar)</li>
+  </ul>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-body">
+      <div class="tip-title">Sincronização em tempo real</div>
+      <p>A ficha de combate e a aba de Iniciativa ficam sempre sincronizadas. Qualquer dano ou cura aplicado na ficha aparece imediatamente na aba de Iniciativa, e vice-versa — sem precisar fechar e reabrir.</p>
+    </div>
+  </div>
 
   <!-- TRACKER DE AGENTES -->
   <h3 id="mesa-agentes">Tracker de Agentes</h3>
@@ -928,24 +1062,38 @@ code {
   </div>
 
   <!-- INICIATIVA E COMBATE -->
-  <h3 id="mesa-iniciativa">Iniciativa e Combate</h3>
+  <h3 id="mesa-iniciativa">Iniciativa e Combate — Aba</h3>
 
-  <p>O tracker de iniciativa unifica <strong>agentes e criaturas</strong> na mesma fila, ordenada do maior para o menor resultado.</p>
+  <p>O tracker de iniciativa (PC: coluna esquerda · Mobile: aba ⚔ Combate) unifica <strong>agentes e criaturas</strong> na mesma fila, ordenada do maior para o menor resultado.</p>
 
-  <h4>Fluxo de combate</h4>
+  <h4>Fluxo de combate recomendado</h4>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Adicionar inimigos</strong>Clique em <strong>💀 +Inimigo</strong>. Selecione uma criatura do bestiário ou crie uma temporária. A criatura aparece com PV rastreável.</div></li>
-    <li><div class="step-num">2</div><div class="step-body"><strong>Rolar iniciativa</strong>Clique em <strong>🎲 Rolar Todos</strong> para rolar d20 + Agilidade para cada agente e d20 para as criaturas. Ou clique no botão 🎲 individual de cada combatente.</div></li>
-    <li><div class="step-num">3</div><div class="step-body"><strong>Iniciar os turnos</strong>Clique em <strong>▶ Próximo</strong> para avançar o turno. O combatente ativo fica destacado em vermelho. O número da rodada aparece acima da lista.</div></li>
-    <li><div class="step-num">4</div><div class="step-body"><strong>Gerenciar PV das criaturas</strong>Use os botões − e + ou edite o campo diretamente. A barra de vida muda de verde → amarelo → vermelho conforme o PV cai.</div></li>
-    <li><div class="step-num">5</div><div class="step-body"><strong>Encerrar combate</strong>Clique em <strong>✕ Limpar</strong> (PC) ou <strong>✕ Limpar</strong> (mobile) para zerar a iniciativa e remover as criaturas temporárias.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a ficha de combate do cômodo</strong>No cômodo com inimigos, clique em <span class="pill pill-red">⚔ Iniciar Combate</span>. A ficha de ameaça abre com todos os inimigos do local.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Adicionar à iniciativa</strong>Clique em <strong>+ Iniciativa</strong> por criatura ou <strong>⚔ Todos à Ini</strong> para adicionar tudo de uma vez. O badge muda para ✓ Na ini.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Rolar iniciativa</strong>Clique em <strong>🎲 Rolar</strong> no modal (ou 🎲 Rolar Todos na aba) para rolar d20 + AGI dos agentes e d20 para as criaturas.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Avançar os turnos</strong>Clique em <strong>▶ Próximo</strong>. O combatente ativo fica destacado em vermelho. O número da rodada aparece acima da lista.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>Aplicar dano e cura</strong>Na ficha de combate ou na aba de Iniciativa: digite o valor no campo e clique <strong>−Dano</strong> ou <strong>+Cura</strong>. Ao chegar a PV 0, a criatura morre automaticamente.</div></li>
+    <li><div class="step-num">6</div><div class="step-body"><strong>Encerrar combate</strong>Clique em <strong>✕ Limpar</strong> para zerar a iniciativa e remover todas as criaturas temporárias da sessão.</div></li>
   </ol>
+
+  <h4>Controles de PV na aba de Iniciativa</h4>
+  <p>Cada criatura na aba de Iniciativa exibe:</p>
+  <ul>
+    <li><strong>Barra de vida colorida</strong> — verde (>50%) → amarelo (>25%) → vermelho (≤25%)</li>
+    <li><strong>Campo de quantidade</strong> — digite o valor de dano ou cura</li>
+    <li><strong>Botões −Dano / +Cura</strong> — aplica o valor digitado ao PV da criatura</li>
+    <li><strong>Condições rápidas</strong> — toggle de 4 condições por criatura</li>
+    <li><strong>Botão ✕</strong> — remove a criatura individualmente da iniciativa</li>
+  </ul>
+
+  <h4>Morte automática</h4>
+  <p>Quando o PV de qualquer criatura chega a <strong>0</strong> (por dano ou aplicação direta), ela recebe automaticamente a condição <span class="pill pill-red">☠ morto</span>, sua linha fica com opacidade reduzida e uma notificação aparece na tela: <em>"☠ [Nome] foi derrotado!"</em>.</p>
 
   <h4>Bônus de Agilidade na iniciativa</h4>
   <p>O campo <strong>AGI</strong> de cada agente é somado ao d20 no momento de rolar. O botão 🎲 exibe o bônus visualmente: <code>🎲 +3</code> ou <code>🎲 -1</code>. Agentes com AGI 0 veem apenas <code>🎲</code>.</p>
 
-  <h4>Ficha de Defesa no combate</h4>
-  <p>Ao clicar em <strong>💀 +Inimigo</strong>, o picker de criaturas mostra <span class="pill pill-cyan">🛡 DEF</span>, <span class="pill pill-gold">⚖ Resistências</span> e <span class="pill pill-green">✦ Imunidades</span> diretamente — sem precisar abrir o bestiário.</p>
+  <h4>Picker de inimigos (💀 +Inimigo)</h4>
+  <p>Também é possível adicionar criaturas diretamente pela aba de Iniciativa clicando em <strong>💀 +Inimigo</strong>. O picker mostra <span class="pill pill-cyan">🛡 VD</span>, <span class="pill pill-gold">⚖ Resistências</span> e <span class="pill pill-green">✦ Imunidades</span> de cada criatura do bestiário — sem precisar abrir a ficha completa.</p>
 
   <!-- DADOS -->
   <h3 id="mesa-dados">Rolador de Dados</h3>
@@ -1069,7 +1217,7 @@ code {
     <li><div class="step-num">2</div><div class="step-body"><strong>Iniciar o cronômetro</strong>Botão ▶ na barra superior para registrar o tempo de sessão.</div></li>
     <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar os agentes</strong>+ Adicionar Agente → nome, ícone, PV/PE/SAN/NEX/AGI. Adicionar rituais com + Ritual.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Marcar a cena atual</strong>Botão 📍 ao lado da cena para mantê-la no topo e destacada.</div></li>
-    <li><div class="step-num">5</div><div class="step-body"><strong>No combate: adicionar inimigos e rolar iniciativa</strong>💀 +Inimigo → selecionar do bestiário → 🎲 Rolar Todos → ▶ Próximo para avançar turnos.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>No combate: abrir ficha do cômodo e iniciar</strong>Clicar no botão ⚔ no cômodo com inimigos → ⚔ Todos à Ini → 🎲 Rolar → ▶ Próximo para avançar turnos. Aplicar dano com o campo e botão −Dano na ficha ou na aba de Iniciativa.</div></li>
     <li><div class="step-num">6</div><div class="step-body"><strong>Marcar pistas encontradas</strong>Aba 🔍 Pistas → toque na pista para marcar como descoberta.</div></li>
     <li><div class="step-num">7</div><div class="step-body"><strong>Anotar improvisos</strong>Campo Notas Rápidas para nomes criados na hora, decisões dos jogadores, mudanças no roteiro.</div></li>
   </ol>
@@ -1094,14 +1242,19 @@ code {
   <table class="field-table">
     <thead><tr><th>Sigla / Termo</th><th>Significado</th><th>Onde aparece</th></tr></thead>
     <tbody>
-      <tr><td class="field-name">PV</td><td class="field-desc">Pontos de Vida — representa a saúde física do agente</td><td class="field-note">Tracker de agentes, criaturas no combate</td></tr>
+      <tr><td class="field-name">PV</td><td class="field-desc">Pontos de Vida — saúde física</td><td class="field-note">Tracker de agentes e criaturas no combate</td></tr>
       <tr><td class="field-name">PE</td><td class="field-desc">Pontos de Esforço — recurso gasto em rituais e habilidades</td><td class="field-note">Tracker de agentes, custo de rituais</td></tr>
-      <tr><td class="field-name">SAN</td><td class="field-desc">Sanidade — representa a estabilidade mental</td><td class="field-note">Tracker de agentes</td></tr>
-      <tr><td class="field-name">NEX</td><td class="field-desc">Nível de Exposição Paranormal — de 0% a 99%</td><td class="field-note">Config. da campanha, tracker individual por agente</td></tr>
-      <tr><td class="field-name">AGI</td><td class="field-desc">Bônus de Agilidade somado ao d20 na iniciativa</td><td class="field-note">Tracker de agentes, botão de rolar iniciativa</td></tr>
-      <tr><td class="field-name">DEF</td><td class="field-desc">Defesa — valor que reduz dano recebido pela criatura</td><td class="field-note">Ficha de criatura, picker de combate, cômodos</td></tr>
+      <tr><td class="field-name">SAN</td><td class="field-desc">Sanidade — estabilidade mental</td><td class="field-note">Tracker de agentes</td></tr>
+      <tr><td class="field-name">NEX</td><td class="field-desc">Nível de Exposição Paranormal — de 0% a 99%</td><td class="field-note">Campanha, agentes, ficha de criatura</td></tr>
+      <tr><td class="field-name">AGI</td><td class="field-desc">Agilidade — bônus somado ao d20 na iniciativa dos agentes</td><td class="field-note">Tracker de agentes, botão 🎲</td></tr>
+      <tr><td class="field-name">FOR / INT / PRE / VIG</td><td class="field-desc">Força, Intelecto, Presença, Vigor — atributos das criaturas</td><td class="field-note">Ficha de ameaça</td></tr>
+      <tr><td class="field-name">VD</td><td class="field-desc">Valor de Defesa — número que o ataque deve superar para acertar</td><td class="field-note">Ficha de criatura, picker de combate, cômodos</td></tr>
+      <tr><td class="field-name">PT</td><td class="field-desc">Presença Perturbadora — dano de SAN ao ver a criatura</td><td class="field-note">Ficha de ameaça, ficha de combate</td></tr>
+      <tr><td class="field-name">Fort / Ref / Von</td><td class="field-desc">Fortitude / Reflexos / Vontade — testes de resistência da criatura</td><td class="field-note">Ficha de ameaça, ficha de combate</td></tr>
       <tr><td class="field-name">Resistências</td><td class="field-desc">Tipos de dano reduzidos ou modificados</td><td class="field-note">Ficha de criatura, modo mesa</td></tr>
+      <tr><td class="field-name">Vulnerabilidades</td><td class="field-desc">Danos com efeito dobrado ou agravado</td><td class="field-note">Ficha de criatura, ficha de combate</td></tr>
       <tr><td class="field-name">Imunidades</td><td class="field-desc">O que não causa efeito na criatura</td><td class="field-note">Ficha de criatura, modo mesa</td></tr>
+      <tr><td class="field-name">Machucado</td><td class="field-desc">Valor de PV limiar — abaixo dele a criatura está machucada</td><td class="field-note">Ficha de ameaça</td></tr>
       <tr><td class="field-name">Outro Lado</td><td class="field-desc">Plano paranormal — versão sobrenatural de um local físico</td><td class="field-note">Campo "Versão Paranormal" nos locais de cena</td></tr>
     </tbody>
   </table>

@@ -461,7 +461,7 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .topbar-theme-btn span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid;transition:transform .15s,box-shadow .15s}
 .topbar-theme-btn:hover span{transform:scale(1.2)}
 .topbar-theme-btn.tt-active span{box-shadow:0 0 0 2px var(--accent);transform:scale(1.15)}
-@media(max-width:699px){.topbar-theme{display:none}}
+@media(max-width:699px){.topbar-theme{display:none}#topbar-manual{display:none!important}}
 
 /* scroll focused input into view */
 input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
@@ -506,6 +506,8 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
   <span id="bc-current" style="color:#7a7060;font-size:12px;letter-spacing:.06em;text-transform:uppercase;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
   <div style="flex:1"></div>
   <span id="topbar-count" style="color:var(--border-sub);font-size:11px"></span>
+  <!-- Manual button — PC only (hidden on mobile via CSS, available in drawer) -->
+  <a href="manual.html" target="_blank" title="Manual do Mestre" id="topbar-manual" style="display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;text-decoration:none;transition:all .15s;white-space:nowrap;flex-shrink:0" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">📖 Manual</a>
   <!-- Theme switcher — PC only -->
   <div class="topbar-theme" id="topbar-theme">
     <button onclick="setTheme('paranormal')" id="tt-paranormal" title="Paranormal" class="topbar-theme-btn">
@@ -571,6 +573,9 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     <span class="di-icon">⬆</span> Importar Campanhas
   </div>
   <input type="file" id="file-import-global" accept=".json" style="display:none" onchange="importJSON(this)"/>
+  <a href="manual.html" target="_blank" class="drawer-item" style="text-decoration:none;border-top:1px solid var(--border);color:var(--gold)">
+    <span class="di-icon">📖</span> Manual do Mestre
+  </a>
 </div>
 
 <!-- FAB -->
@@ -591,6 +596,9 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     </div>
   </div>
 </div>
+
+<!-- Ficha de Combate Modal -->
+<div id="modal-ficha" style="display:none;position:fixed;inset:0;background:#000000cc;z-index:400;align-items:center;justify-content:center;padding:12px"></div>
 
 <!-- Mesa Mode -->
 <div class="mesa-overlay" id="mesa-overlay" style="display:none">
@@ -844,7 +852,7 @@ function blankCamp() {
 }
 function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'', agilidade:0, rituaisList:[] }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
-function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', pvMax:30, defesa:0, resistencias:'', imunidades:'', ataque:'', habilidades:'', descricao:'' }; }
+function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', defesa:0, elementoPrincipal:'', elementosSecundarios:'', pt:0, nex:0, danoMental:'', percepcao:0, iniciativa:0, sentidoEspecial:'', fortitude:0, reflexos:0, vontade:0, pvMax:30, resistencias:'', vulnerabilidades:'', imunidades:'', machucado:'', agi:0, for_:0, int_:0, pre:0, vig:0, pericias:'', deslocamento:9, ataque:'', habilidades:'', descricao:'' }; }
 
 const CONDICOES = [
   {v:'abalado',    l:'Abalado',      c:'#b8860b', ic:'😨'},
@@ -1182,28 +1190,92 @@ function renderForm() {
 function renderCriaturaCard(cr, idx) {
   const bodyId = 'crbody-'+cr.id;
   const arrId  = 'crarr-'+cr.id;
+  const id = cr.id;
+  const secHdr = (t,c='#7c3aed') => `<div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:${c};font-weight:700;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid ${c}33">${t}</div>`;
+  const numFld = (label, field, val, hint='') => fieldHtml(label, `<input type="number" value="${val||0}" min="0" oninput="setCriaturaBaseField('${id}','${field}',this.value)" style="width:90px;text-align:center"/>`, hint);
+  const txtFld = (label, field, val, ph='', hint='') => fieldHtml(label, `<input value="${esc(val||'')}" oninput="setCriaturaBaseField('${id}','${field}',this.value)" placeholder="${ph}"/>`, hint);
+  const taFld  = (label, field, val, rows, ph='') => fieldHtml(label, `<textarea rows="${rows}" oninput="setCriaturaBaseField('${id}','${field}',this.value)" placeholder="${ph}">${esc(val||'')}</textarea>`);
   return `
-  <div id="crcard-${cr.id}" style="background:#0a0408;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;margin-bottom:8px;overflow:hidden">
+  <div id="crcard-${id}" style="background:#0a0408;border:1px solid #4c1d9544;border-left:3px solid #7c3aed;border-radius:3px;margin-bottom:8px;overflow:hidden">
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
       <span id="${arrId}" style="color:#7a7060;font-size:11px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
       <span style="font-size:14px;flex-shrink:0">💀</span>
       <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cr.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
       ${cr.tipo?`<span style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${esc(cr.tipo)}</span>`:''}
+      ${cr.nex?`<span style="font-size:10px;color:#b8860b;flex-shrink:0">NEX ${cr.nex}%</span>`:''}
       <span style="font-size:10px;color:#c0392b;font-family:'Share Tech Mono',monospace;flex-shrink:0">PV ${cr.pvMax||0}</span>
-      <button class="btn-del" onclick="event.stopPropagation();delCriaturaBase('${cr.id}')">✕</button>
+      <button class="btn-del" onclick="event.stopPropagation();delCriaturaBase('${id}')">✕</button>
     </div>
-    <div id="${bodyId}" style="display:none;padding:0 12px 12px;border-top:1px solid #1c1a16">
-      <div class="grid2" style="padding-top:10px">
-        ${fieldHtml('Nome','<input value="'+esc(cr.name)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'name\',this.value)" placeholder="Ex: Sombra Rastejante"/>')}
-        ${fieldHtml('Tipo / Origem','<input value="'+esc(cr.tipo)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'tipo\',this.value)" placeholder="Ex: Entidade, Cultista, Paranormal"/>')}
-        ${fieldHtml('PV Máximo','<input type="number" value="'+esc(cr.pvMax)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'pvMax\',this.value)" min="1" style="max-width:100px"/>')}
-        ${fieldHtml('Defesa','<input type="number" value="'+(cr.defesa||0)+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'defesa\',this.value)" min="0" style="max-width:100px" placeholder="0"/>','(reduz dano recebido)')}
-        <div class="span2">${fieldHtml('Resistências','<input value="'+esc(cr.resistencias||'')+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'resistencias\',this.value)" placeholder="Ex: Físico ½, Paranormal imune, Fogo vulnerável"/>')}</div>
-        <div class="span2">${fieldHtml('Imunidades','<input value="'+esc(cr.imunidades||'')+'" oninput="setCriaturaBaseField(\''+cr.id+'\',\'imunidades\',this.value)" placeholder="Ex: Imune a medo, veneno, sangramento"/>')}</div>
-        <div class="span2">${fieldHtml('Ataque / Dano','<textarea rows="3" oninput="setCriaturaBaseField(\''+cr.id+'\',\'ataque\',this.value)" placeholder="Ex:\nGarras 1d6\nMordida 2d4+2">'+esc(cr.ataque)+'</textarea>')}</div>
-        <div class="span2">${fieldHtml('Habilidades Especiais','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'habilidades\',this.value)" placeholder="Poderes, rituais, fraquezas...">'+esc(cr.habilidades)+'</textarea>')}</div>
-        <div class="span2">${fieldHtml('Descrição','<textarea rows="2" oninput="setCriaturaBaseField(\''+cr.id+'\',\'descricao\',this.value)" placeholder="Aparência, comportamento...">'+esc(cr.descricao)+'</textarea>')}</div>
+    <div id="${bodyId}" style="display:none;padding:0 12px 14px;border-top:1px solid #1c1a16">
+
+      ${secHdr('Identificação')}
+      <div class="grid2">
+        ${txtFld('Nome da Criatura','name',cr.name,'Ex: Sombra Rastejante')}
+        ${txtFld('Tipo / Origem','tipo',cr.tipo,'Ex: Entidade, Cultista, Paranormal')}
+        ${txtFld('Elemento Principal','elementoPrincipal',cr.elementoPrincipal,'Ex: Morte, Sangue, Caos')}
+        ${txtFld('Elementos Secundários','elementosSecundarios',cr.elementosSecundarios,'Ex: Trevas, Medo')}
       </div>
+
+      ${secHdr('Presença Perturbadora')}
+      <div style="display:grid;grid-template-columns:90px 90px 1fr;gap:16px">
+        ${numFld('PT','pt',cr.pt)}
+        ${numFld('NEX %','nex',cr.nex)}
+        ${txtFld('Dano Mental','danoMental',cr.danoMental,'Ex: 1d6 SAN')}
+      </div>
+
+      ${secHdr('Sentidos')}
+      <div style="display:grid;grid-template-columns:90px 90px 1fr;gap:16px">
+        ${numFld('Percepção','percepcao',cr.percepcao)}
+        ${numFld('Iniciativa','iniciativa',cr.iniciativa)}
+        ${txtFld('Sentido Especial','sentidoEspecial',cr.sentidoEspecial,'Ex: Visão na escuridão, olfato apurado')}
+      </div>
+
+      ${secHdr('Defesa')}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+        ${numFld('VD','defesa',cr.defesa,'Valor de Defesa')}
+        ${numFld('Fortitude','fortitude',cr.fortitude)}
+        ${numFld('Reflexos','reflexos',cr.reflexos)}
+        ${numFld('Vontade','vontade',cr.vontade)}
+      </div>
+
+      ${secHdr('Pontos de Vida','#c0392b')}
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:16px;margin-bottom:16px">
+        ${numFld('PV Máximo','pvMax',cr.pvMax||30)}
+        ${txtFld('Machucado','machucado',cr.machucado,'Condição ao atingir metade do PV')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        ${txtFld('Resistências','resistencias',cr.resistencias,'Ex: Físico ½, Paranormal imune')}
+        ${txtFld('Vulnerabilidades','vulnerabilidades',cr.vulnerabilidades,'Ex: Fogo x2, Luz x2')}
+        ${txtFld('Imunidades','imunidades',cr.imunidades,'Ex: Medo, Veneno, Sangramento')}
+      </div>
+
+      ${secHdr('Atributos')}
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+        ${numFld('AGI','agi',cr.agi)}
+        ${numFld('FOR','for_',cr.for_)}
+        ${numFld('INT','int_',cr.int_)}
+        ${numFld('PRE','pre',cr.pre)}
+        ${numFld('VIG','vig',cr.vig)}
+      </div>
+
+      ${secHdr('Perícias')}
+      <div class="grid2"><div class="span2">${taFld('Perícias','pericias',cr.pericias,2,'Ex: Atletismo +4, Furtividade +6, Percepção +8')}</div></div>
+
+      ${secHdr('Deslocamento')}
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="number" value="${cr.deslocamento||9}" min="0" oninput="setCriaturaBaseField('${id}','deslocamento',this.value)" style="width:90px;text-align:center"/>
+        <span style="font-size:12px;color:var(--text-muted)">metros</span>
+      </div>
+
+      ${secHdr('Ataques','#c0392b')}
+      <div class="grid2"><div class="span2">${taFld('Ataques','ataque',cr.ataque,4,'Teste | Dano | Crítico/Alcance/Especial\nEx: Garras (AGI+2) | 2d6+4 | Alcance: Curto\nMordida (FOR) | 3d8 | Causa Sangramento')}</div></div>
+
+      ${secHdr('Habilidades e Ações')}
+      <div class="grid2"><div class="span2">${taFld('Habilidades e Ações','habilidades',cr.habilidades,3,'Poderes especiais, rituais, ações de combate, reações...')}</div></div>
+
+      ${secHdr('Descrição')}
+      <div class="grid2"><div class="span2">${taFld('Descrição','descricao',cr.descricao,2,'Aparência, comportamento, origem...')}</div></div>
+
     </div>
   </div>`;
 }
@@ -1341,16 +1413,38 @@ function renderDetail() {
             <span style="font-size:10px;color:#c0392b;font-family:'Share Tech Mono',monospace;flex-shrink:0">PV ${cr.pvMax||0}</span>
           </div>
           <div id="${bid}" style="display:none;padding:0 14px 14px;border-top:1px solid #1c1a16">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px">
-              <div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:5px 10px;display:flex;align-items:center;gap:6px">
-                <span style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;font-weight:700">🛡 Defesa</span>
-                <span style="color:#ede8dc;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace">${cr.defesa||0}</span>
+            ${(cr.elementoPrincipal||cr.elementosSecundarios)?`<div style="margin-top:10px;margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap">
+              ${cr.elementoPrincipal?`<span style="background:#7c3aed22;border:1px solid #7c3aed44;border-radius:2px;padding:3px 8px;font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:.06em">⬟ ${esc(cr.elementoPrincipal)}</span>`:''}
+              ${cr.elementosSecundarios?`<span style="background:#4c1d9522;border:1px solid #4c1d9544;border-radius:2px;padding:3px 8px;font-size:10px;color:#8b5cf6;text-transform:uppercase;letter-spacing:.06em">${esc(cr.elementosSecundarios)}</span>`:''}
+            </div>`:''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;margin-bottom:6px">
+              <div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:4px 8px;display:flex;align-items:center;gap:5px">
+                <span style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;font-weight:700">🛡 VD</span>
+                <span style="color:#ede8dc;font-size:13px;font-weight:700;font-family:'Share Tech Mono',monospace">${cr.defesa||0}</span>
               </div>
-              ${cr.resistencias?`<div style="background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:5px 10px"><span style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;font-weight:700">⚖ Resistências · </span><span style="color:#ede8dc;font-size:12px">${esc(cr.resistencias)}</span></div>`:''}
-              ${cr.imunidades?`<div style="background:#27674918;border:1px solid #27674944;border-radius:2px;padding:5px 10px"><span style="font-size:9px;color:#4ade80;letter-spacing:.1em;text-transform:uppercase;font-weight:700">✦ Imunidades · </span><span style="color:#ede8dc;font-size:12px">${esc(cr.imunidades)}</span></div>`:''}
+              ${cr.fortitude||cr.reflexos||cr.vontade?`<div style="background:#0e749012;border:1px solid #0e749033;border-radius:2px;padding:4px 8px;font-size:10px;color:#67e8f9">
+                <span style="color:#7a7060">Fort</span> ${cr.fortitude||0} · <span style="color:#7a7060">Ref</span> ${cr.reflexos||0} · <span style="color:#7a7060">Von</span> ${cr.vontade||0}
+              </div>`:''}
+              ${cr.nex?`<div style="background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:4px 8px;font-size:10px"><span style="color:#b8860b;font-weight:700">NEX ${cr.nex}%</span></div>`:''}
+              ${cr.pt?`<div style="background:#7c3aed12;border:1px solid #7c3aed33;border-radius:2px;padding:4px 8px;font-size:10px"><span style="color:#a78bfa">PT ${cr.pt}</span></div>`:''}
+              ${cr.deslocamento?`<div style="background:#27674912;border:1px solid #27674933;border-radius:2px;padding:4px 8px;font-size:10px;color:#4ade80">🏃 ${cr.deslocamento}m</div>`:''}
             </div>
-            ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataque / Dano</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
-            ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades Especiais</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
+            ${cr.resistencias||cr.vulnerabilidades||cr.imunidades?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+              ${cr.resistencias?`<div style="background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:4px 8px"><span style="font-size:9px;color:#b8860b;font-weight:700">⚖ Resist · </span><span style="color:#ede8dc;font-size:11px">${esc(cr.resistencias)}</span></div>`:''}
+              ${cr.vulnerabilidades?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-radius:2px;padding:4px 8px"><span style="font-size:9px;color:#f87171;font-weight:700">⚠ Vuln · </span><span style="color:#ede8dc;font-size:11px">${esc(cr.vulnerabilidades)}</span></div>`:''}
+              ${cr.imunidades?`<div style="background:#27674918;border:1px solid #27674944;border-radius:2px;padding:4px 8px"><span style="font-size:9px;color:#4ade80;font-weight:700">✦ Imun · </span><span style="color:#ede8dc;font-size:11px">${esc(cr.imunidades)}</span></div>`:''}
+            </div>`:''}
+            ${(cr.agi||cr.for_||cr.int_||cr.pre||cr.vig)?`<div style="background:#141210;border:1px solid #2c282033;border-radius:2px;padding:5px 10px;margin-bottom:6px;display:flex;gap:12px;flex-wrap:wrap">
+              ${[['AGI',cr.agi],['FOR',cr.for_],['INT',cr.int_],['PRE',cr.pre],['VIG',cr.vig]].map(([l,v])=>`<span style="font-size:11px"><span style="color:#7a7060;font-size:9px;letter-spacing:.1em">${l} </span><span style="color:#ede8dc;font-weight:700">${v||0}</span></span>`).join('')}
+            </div>`:''}
+            ${cr.percepcao||cr.iniciativa||cr.sentidoEspecial?`<div style="color:#7a7060;font-size:11px;margin-bottom:6px">
+              ${cr.percepcao?`<span style="color:#d6d0c4">Percepção ${cr.percepcao}</span> · `:''}${cr.iniciativa?`<span style="color:#d6d0c4">Iniciativa ${cr.iniciativa}</span>`:''}${cr.sentidoEspecial?` · <span style="color:#a78bfa">${esc(cr.sentidoEspecial)}</span>`:''}
+            </div>`:''}
+            ${cr.danoMental?`<div style="color:#7a7060;font-size:11px;margin-bottom:6px">🧠 Dano Mental: <span style="color:#c4b5fd">${esc(cr.danoMental)}</span></div>`:''}
+            ${cr.pericias?`<div style="background:#0d0b10;border:1px solid #4c1d9533;border-radius:2px;padding:5px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">Perícias</div><p style="color:#c4b5fd;font-size:11px;line-height:1.5;margin:0">${nl(cr.pericias)}</p></div>`:''}
+            ${cr.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataques</div><p style="color:#e8d5d5;font-size:12px;line-height:1.6;margin:0;white-space:pre-line">${esc(cr.ataque)}</p></div>`:''}
+            ${cr.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades e Ações</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(cr.habilidades)}</p></div>`:''}
+            ${cr.machucado?`<div style="color:#7a7060;font-size:11px;margin-bottom:4px">🩸 Machucado: <span style="color:#f87171">${esc(cr.machucado)}</span></div>`:''}
             ${cr.descricao?`<p class="body-text" style="margin-top:6px">${nl(cr.descricao)}</p>`:''}
           </div>
         </div>`;
@@ -1633,11 +1727,14 @@ function renderMesa() {
         <div style="padding:6px 0;border-bottom:1px solid #1c1a16">
           <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(cr.name)}</div>
           ${cr.tipo?`<div style="color:#a78bfa;font-size:10px;text-transform:uppercase;letter-spacing:.06em">${esc(cr.tipo)}</div>`:''}
+          ${cr.elementoPrincipal?`<div style="color:#8b5cf6;font-size:10px;margin-top:1px">⬟ ${esc(cr.elementoPrincipal)}</div>`:''}
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">
             <span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${cr.pvMax||0}</span>
-            ${cr.defesa?`<span style="color:#67e8f9;font-size:10px">🛡 DEF ${cr.defesa}</span>`:''}
+            ${cr.defesa?`<span style="color:#67e8f9;font-size:10px">🛡 VD ${cr.defesa}</span>`:''}
+            ${cr.nex?`<span style="color:#b8860b;font-size:10px">NEX ${cr.nex}%</span>`:''}
           </div>
           ${cr.resistencias?`<div style="color:#b8860b;font-size:10px;margin-top:1px">⚖ ${esc(cr.resistencias)}</div>`:''}
+          ${cr.vulnerabilidades?`<div style="color:#f87171;font-size:10px;margin-top:1px">⚠ ${esc(cr.vulnerabilidades)}</div>`:''}
           ${cr.imunidades?`<div style="color:#4ade80;font-size:10px;margin-top:1px">✦ ${esc(cr.imunidades)}</div>`:''}
           ${cr.ataque?`<div style="color:#7a7060;font-size:10px;margin-top:1px">⚔ ${esc(cr.ataque.split('\n')[0])}</div>`:''}
         </div>`).join('')}
@@ -1732,13 +1829,20 @@ function renderMesa() {
                   ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${rdc};font-size:10px;text-transform:uppercase">${esc(r.danger)}</span>`:''}
                   ${entriesSel.length?`<span style="color:#a78bfa;font-size:10px">💀 ${totalInimigos}</span>`:''}
                   ${items.length?`<span style="color:#7a7060;font-size:10px">${items.length} elem.</span>`:''}
+                  ${entriesSel.length?`<button onclick="event.stopPropagation();abrirFichaCombate('${r.id}')" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:2px 7px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">⚔</button>`:''}
                 </div>
                 <div id="${roomid}" style="display:none;padding:0 10px 8px">
                   ${r.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:4px">${nl(r.description)}</p>`:''}
                   ${r.atmosphere?`<div style="color:#7a7060;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(r.atmosphere)}</div>`:''}
                   ${r.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d55;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px">${nl(r.secret)}</div></div>`:''}
                   ${r.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#e65c00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">⚡ Evento</div><div style="color:#fbbf7c;font-size:12px">${nl(r.evento)}</div></div>`:''}
-                  ${criaturasRoomHtml?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-bottom:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:4px">💀 Inimigos & NPCs</div>${criaturasRoomHtml}</div>`:''}
+                  ${criaturasRoomHtml?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-bottom:5px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                      <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;flex:1">💀 Inimigos & NPCs</div>
+                      <button onclick="abrirFichaCombate('${r.id}')" style="background:#c0392b;border:none;color:#fff;padding:4px 10px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;transition:opacity .15s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">⚔ Iniciar Combate</button>
+                    </div>
+                    ${criaturasRoomHtml}
+                  </div>`:''}
                   ${items.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#7a7060;font-weight:700;margin-bottom:4px">Objetos / Elementos</div>${items.map(it=>`<div style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #1c1a16">
                     <span style="font-size:12px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
                     <div style="flex:1;min-width:0">
@@ -2223,6 +2327,234 @@ function mesaAddCriatura(criaturaBaseId) {
   mesaFecharPickerCriatura();
 }
 
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ FICHA DE COMBATE — modal que exibe a ficha completa dos    │
+   │ inimigos de um cômodo com opção de iniciar combate         │
+   └─────────────────────────────────────────────────────────────┘ */
+let _mesaFichaEntries = [];
+let _fichaRoomName = '';
+function abrirFichaCombate(roomId) {
+  const c = camps.find(x=>x.id===viewingId);
+  if (!c) return;
+  let foundRoom = null;
+  outer: for (const sess of (c.sessions_data||[])) {
+    for (const sc of (sess.scenes||[])) {
+      for (const loc of (sc.locations||[])) {
+        const r = (loc.rooms||[]).find(x=>x.id===roomId);
+        if (r) { foundRoom=r; break outer; }
+      }
+    }
+  }
+  if (!foundRoom) return;
+  const rawEntries = foundRoom.criaturas||[];
+  const roomEntries = rawEntries.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+  const criaturasSalvas = c.criaturas||[];
+  const npcsSalvos = c.npcs||[];
+  _fichaRoomName = foundRoom.name||'Cômodo';
+  _mesaFichaEntries = roomEntries.map(entry=>{
+    const key=entry.key;
+    let obj=null,tipo='cr';
+    if(key.startsWith('cr:'))      {obj=criaturasSalvas.find(x=>x.id===key.slice(3));tipo='cr';}
+    else if(key.startsWith('npc:')){obj=npcsSalvos.find(x=>x.id===key.slice(4));tipo='npc';}
+    else                           {obj=criaturasSalvas.find(x=>x.id===key);tipo='cr';}
+    return obj?{...obj,_tipo:tipo,_qtd:entry.qtd||1}:null;
+  }).filter(Boolean);
+  if (!_mesaFichaEntries.length) return;
+  const modal = document.getElementById('modal-ficha');
+  modal.innerHTML = buildFichaModalHtml(_fichaRoomName, _mesaFichaEntries);
+  modal.style.display = 'flex';
+}
+function fecharFichaCombate() {
+  document.getElementById('modal-ficha').style.display='none';
+}
+function _refreshFichaModal() {
+  const modal = document.getElementById('modal-ficha');
+  if (!modal || modal.style.display==='none' || !_mesaFichaEntries.length) return;
+  const body = document.getElementById('modal-ficha-body');
+  const scrollTop = body ? body.scrollTop : 0;
+  modal.innerHTML = buildFichaModalHtml(_fichaRoomName, _mesaFichaEntries);
+  const newBody = document.getElementById('modal-ficha-body');
+  if (newBody) newBody.scrollTop = scrollTop;
+}
+function adicionarAoIniFromFicha(idx) {
+  const e = _mesaFichaEntries[idx];
+  if (!e||e._tipo!=='cr') return;
+  const existing = getCriaturas().filter(x=>x._baseId===e.id).length;
+  const toAdd = Math.max(0, (e._qtd||1) - existing);
+  if (toAdd===0) { showToast(e.name+' já está na iniciativa'); return; }
+  for(let i=0;i<toAdd;i++) mesaAddCriatura(e.id);
+  showToast((toAdd>1?toAdd+'× ':'')+e.name+' adicionado à iniciativa');
+  _refreshFichaModal();
+}
+function adicionarTodosAoIni() {
+  let total=0;
+  for(const e of _mesaFichaEntries) {
+    if(e._tipo!=='cr') continue;
+    const existing = getCriaturas().filter(x=>x._baseId===e.id).length;
+    const toAdd = Math.max(0, (e._qtd||1) - existing);
+    for(let i=0;i<toAdd;i++) mesaAddCriatura(e.id);
+    total+=toAdd;
+  }
+  if (total>0) showToast(total+' inimigo(s) adicionado(s) à iniciativa');
+  else showToast('Todos os inimigos já estão na iniciativa');
+  _refreshFichaModal();
+}
+function buildFichaModalHtml(roomName, entries) {
+  const hasCr = entries.some(e=>e._tipo==='cr');
+  return `
+    <div style="background:var(--bg-alt);border:1px solid #7f1d1d;border-radius:4px;width:100%;max-width:640px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid #2c2820;background:#0e0709;flex-shrink:0;flex-wrap:wrap">
+        <span style="font-size:14px">⚔</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9px;color:#c0392b;letter-spacing:.15em;text-transform:uppercase;font-weight:700">Combate</div>
+          <div style="font-size:13px;color:#ede8dc;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(roomName)}</div>
+        </div>
+        <button onclick="mesaRolarTodos();_refreshFichaModal()" style="background:none;border:1px solid #b8860b55;color:#b8860b;padding:5px 9px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'">🎲 Rolar</button>
+        <button onclick="mesaProximoTurno();_refreshFichaModal()" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:5px 9px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">▶ Próximo</button>
+        ${hasCr?`<button onclick="adicionarTodosAoIni()" style="background:#c0392b;border:none;color:#fff;padding:5px 9px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:opacity .15s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">⚔ Todos à Ini</button>`:''}
+        <button onclick="fecharFichaCombate()" style="background:none;border:1px solid #2c2820;color:#7a7060;width:30px;height:30px;border-radius:2px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s" onmouseenter="this.style.color='#ede8dc'" onmouseleave="this.style.color='#7a7060'">✕</button>
+      </div>
+      <div id="modal-ficha-body" style="overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px">
+        ${entries.map((e,i)=>buildFichaCard(e,i)).join('')}
+      </div>
+    </div>`;
+}
+function buildFichaCard(e, idx) {
+  const isCr = e._tipo==='cr';
+  if (!isCr) {
+    return `<div style="background:#0a0408;border:1px solid #b8860b44;border-left:3px solid #b8860b;border-radius:3px;padding:12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span>👤</span>
+        <span style="color:#ede8dc;font-size:15px;font-weight:700;flex:1">${esc(e.name)}</span>
+        ${e.role?`<span style="color:#b8860b;font-size:10px;text-transform:uppercase">${esc(e.role)}</span>`:''}
+        ${e._qtd>1?`<span style="color:#a78bfa;font-size:11px">×${e._qtd}</span>`:''}
+      </div>
+      ${e.description?`<p style="color:#9a9088;font-size:12px;line-height:1.5;margin:8px 0 0;font-style:italic">${nl(e.description)}</p>`:''}
+    </div>`;
+  }
+  // instâncias desta criatura no tracker de iniciativa
+  const iniInsts = getCriaturas().filter(x=>x._baseId===e.id);
+  const inIni = iniInsts.length>0;
+  // bloco de controle de combate (uma linha por instância)
+  const combatBlock = inIni ? `
+    <div style="background:#080406;border-bottom:1px solid #2c1018;padding:10px 14px">
+      <div style="font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:#c0392b;font-weight:700;margin-bottom:8px">⚔ Controle de Combate</div>
+      ${iniInsts.map((cr,ci)=>{
+        const pvPct=cr.pvMax>0?Math.round((cr.pv/cr.pvMax)*100):0;
+        const pvC=pvPct>50?'#276749':pvPct>25?'#b8860b':'#c0392b';
+        const isDead=(cr.conditions||[]).includes('morto');
+        const condTags=CONDICOES.slice(0,4).map(cd=>{
+          const on=(cr.conditions||[]).includes(cd.v);
+          return `<button onclick="mesaToggleCondicaoCriatura('${cr.id}','${cd.v}')" title="${cd.l}" style="background:${on?cd.c+'22':'none'};border:1px solid ${on?cd.c:cd.c+'33'};color:${on?cd.c:'#4a4440'};min-width:34px;min-height:34px;border-radius:2px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent">${cd.ic}</button>`;
+        }).join('');
+        return `<div style="margin-bottom:${ci<iniInsts.length-1?'10':'0'}px${isDead?';opacity:.45':''}">
+          ${iniInsts.length>1?`<div style="font-size:9px;color:#a78bfa;margin-bottom:4px;font-weight:700">#${ci+1}</div>`:''}
+          <div style="height:6px;background:#1c1a16;border-radius:3px;overflow:hidden;margin-bottom:5px">
+            <div style="height:100%;width:${pvPct}%;background:${pvC};border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+            <span style="color:${pvC};font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;min-width:26px;text-align:right;line-height:1">${cr.pv}</span>
+            <span style="color:#4a4440;font-size:10px">/</span>
+            <span style="color:#7a7060;font-size:11px;font-family:'Share Tech Mono',monospace">${cr.pvMax}</span>
+            ${cr._ini!=null?`<span style="color:#b8860b;font-size:10px;font-family:'Share Tech Mono',monospace;margin-left:2px">· Ini ${cr._ini}</span>`:''}
+            <span style="display:inline-block;width:1px;height:16px;background:#2c2820;flex-shrink:0;margin:0 3px"></span>
+            <input type="number" class="modal-dmg-inp" min="1" max="999" placeholder="qtd"
+              onkeydown="if(event.key==='Enter'&&+this.value>0)mesaAplicarDano('${cr.id}',+this.value)"
+              style="width:46px;text-align:center;background:#0c0b09;border:1px solid #2c2820;border-radius:2px;padding:3px 0;font-size:12px;color:#ede8dc;font-family:'Share Tech Mono',monospace"/>
+            <button onclick="mesaAplicarDano('${cr.id}',+(this.parentElement.querySelector('.modal-dmg-inp')||{value:0}).value)"
+              style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:3px 9px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s;min-height:34px"
+              onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">−Dano</button>
+            <button onclick="mesaAplicarCura('${cr.id}',+(this.parentElement.querySelector('.modal-dmg-inp')||{value:0}).value)"
+              style="background:#27674922;border:1px solid #27674944;color:#4ade80;padding:3px 9px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s;min-height:34px"
+              onmouseenter="this.style.background='#27674944'" onmouseleave="this.style.background='#27674922'">+Cura</button>
+            <div style="display:flex;gap:2px">${condTags}</div>
+            ${isDead?`<span style="font-size:9px;color:#c0392b;border:1px solid #c0392b44;padding:1px 5px;border-radius:2px">☠ morto</span>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+  const iniBtn = inIni
+    ? `<span style="background:#27674922;border:1px solid #27674944;border-radius:2px;padding:2px 8px;color:#4ade80;font-size:10px;font-weight:700;flex-shrink:0">✓ Na ini</span>`
+    : `<button onclick="adicionarAoIniFromFicha(${idx})" style="background:#c0392b;border:none;color:#fff;padding:5px 10px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:opacity .15s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">+ Iniciativa</button>`;
+  return `<div style="background:#0a0408;border:1px solid #4c1d9544;border-left:3px solid ${inIni?'#c0392b':'#7c3aed'};border-radius:3px;overflow:hidden">
+    <div style="padding:10px 14px;background:${inIni?'#0e0407':'#0e0409'};border-bottom:1px solid #1c1a16">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:15px">💀</span>
+        <span style="color:#ede8dc;font-size:16px;font-weight:700;flex:1">${esc(e.name)}</span>
+        ${e._qtd>1?`<span style="background:#7c3aed33;border:1px solid #7c3aed55;border-radius:2px;padding:1px 8px;color:#a78bfa;font-size:12px;font-weight:700">×${e._qtd}</span>`:''}
+        ${iniBtn}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">
+        ${e.tipo?`<span style="color:#a78bfa;font-size:10px;text-transform:uppercase;letter-spacing:.05em">${esc(e.tipo)}</span>`:''}
+        ${e.elementoPrincipal?`<span style="color:#8b5cf6;font-size:10px">⬟ ${esc(e.elementoPrincipal)}</span>`:''}
+        ${e.elementosSecundarios?`<span style="color:#6d5aac;font-size:10px">${esc(e.elementosSecundarios)}</span>`:''}
+      </div>
+    </div>
+    ${combatBlock}
+    <div style="padding:10px 14px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="background:#0e749018;border:1px solid #0e749044;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;font-weight:700">VD</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.defesa||0}</div>
+        </div>
+        <div style="background:#c0392b18;border:1px solid #c0392b44;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;font-weight:700">PV Máx</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.pvMax||0}</div>
+        </div>
+        ${e.iniciativa?`<div style="background:#b8860b18;border:1px solid #b8860b44;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;font-weight:700">Ini</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.iniciativa}</div>
+        </div>`:''}
+        ${e.nex?`<div style="background:#7c3aed18;border:1px solid #7c3aed44;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;font-weight:700">NEX</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.nex}%</div>
+        </div>`:''}
+        ${e.pt?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#f87171;letter-spacing:.1em;text-transform:uppercase;font-weight:700">PT</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.pt}</div>
+        </div>`:''}
+        ${e.deslocamento?`<div style="background:#27674918;border:1px solid #27674933;border-radius:2px;padding:5px 10px;text-align:center;min-width:52px">
+          <div style="font-size:8px;color:#4ade80;letter-spacing:.1em;text-transform:uppercase;font-weight:700">Mov</div>
+          <div style="color:#ede8dc;font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace;line-height:1.2">${e.deslocamento}m</div>
+        </div>`:''}
+      </div>
+      ${e.fortitude||e.reflexos||e.vontade?`<div style="display:flex;gap:5px;margin-bottom:8px">
+        <div style="flex:1;background:#0e749012;border:1px solid #0e749033;border-radius:2px;padding:4px 6px;text-align:center">
+          <div style="font-size:8px;color:#67e8f9;text-transform:uppercase;letter-spacing:.08em">Fort</div>
+          <div style="color:#ede8dc;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace">${e.fortitude||0}</div>
+        </div>
+        <div style="flex:1;background:#0e749012;border:1px solid #0e749033;border-radius:2px;padding:4px 6px;text-align:center">
+          <div style="font-size:8px;color:#67e8f9;text-transform:uppercase;letter-spacing:.08em">Ref</div>
+          <div style="color:#ede8dc;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace">${e.reflexos||0}</div>
+        </div>
+        <div style="flex:1;background:#0e749012;border:1px solid #0e749033;border-radius:2px;padding:4px 6px;text-align:center">
+          <div style="font-size:8px;color:#67e8f9;text-transform:uppercase;letter-spacing:.08em">Von</div>
+          <div style="color:#ede8dc;font-size:14px;font-weight:700;font-family:'Share Tech Mono',monospace">${e.vontade||0}</div>
+        </div>
+      </div>`:''}
+      ${e.resistencias||e.vulnerabilidades||e.imunidades?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        ${e.resistencias?`<div style="background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:2px 7px"><span style="font-size:9px;color:#b8860b;font-weight:700">⚖ </span><span style="color:#ede8dc;font-size:11px">${esc(e.resistencias)}</span></div>`:''}
+        ${e.vulnerabilidades?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-radius:2px;padding:2px 7px"><span style="font-size:9px;color:#f87171;font-weight:700">⚠ </span><span style="color:#ede8dc;font-size:11px">${esc(e.vulnerabilidades)}</span></div>`:''}
+        ${e.imunidades?`<div style="background:#27674918;border:1px solid #27674944;border-radius:2px;padding:2px 7px"><span style="font-size:9px;color:#4ade80;font-weight:700">✦ </span><span style="color:#ede8dc;font-size:11px">${esc(e.imunidades)}</span></div>`:''}
+      </div>`:''}
+      ${(e.agi||e.for_||e.int_||e.pre||e.vig)?`<div style="display:flex;gap:5px;margin-bottom:8px">
+        ${[['AGI',e.agi],['FOR',e.for_],['INT',e.int_],['PRE',e.pre],['VIG',e.vig]].map(([l,v])=>`<div style="flex:1;background:#141210;border:1px solid #2c282033;border-radius:2px;padding:3px 4px;text-align:center">
+          <div style="font-size:8px;color:#7a7060;text-transform:uppercase;letter-spacing:.1em">${l}</div>
+          <div style="color:#ede8dc;font-size:13px;font-weight:700;font-family:'Share Tech Mono',monospace">${v||0}</div>
+        </div>`).join('')}
+      </div>`:''}
+      ${e.percepcao||e.sentidoEspecial||e.danoMental?`<div style="color:#7a7060;font-size:11px;margin-bottom:7px;line-height:1.6">
+        ${e.percepcao?`Percepção <span style="color:#d6d0c4">${e.percepcao}</span>`:''}${e.sentidoEspecial?` · <span style="color:#a78bfa">${esc(e.sentidoEspecial)}</span>`:''}${e.danoMental?` · 🧠 <span style="color:#c4b5fd">${esc(e.danoMental)}</span>`:''}
+      </div>`:''}
+      ${e.pericias?`<div style="background:#0d0b10;border:1px solid #4c1d9533;border-radius:2px;padding:5px 9px;margin-bottom:7px"><div style="font-size:8px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Perícias</div><p style="color:#c4b5fd;font-size:11px;line-height:1.5;margin:0">${nl(e.pericias)}</p></div>`:''}
+      ${e.ataque?`<div style="background:#1a0a0a;border:1px solid #c0392b33;border-radius:2px;padding:7px 9px;margin-bottom:7px"><div style="font-size:8px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚔ Ataques</div><p style="color:#e8d5d5;font-size:12px;line-height:1.7;margin:0;white-space:pre-line">${esc(e.ataque)}</p></div>`:''}
+      ${e.habilidades?`<div style="background:#7c3aed18;border:1px solid #7c3aed33;border-radius:2px;padding:7px 9px;margin-bottom:7px"><div style="font-size:8px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Habilidades e Ações</div><p style="color:#c4b5fd;font-size:12px;line-height:1.6;margin:0">${nl(e.habilidades)}</p></div>`:''}
+      ${e.machucado?`<div style="color:#7a7060;font-size:11px;margin-bottom:5px">🩸 Machucado: <span style="color:#f87171">${esc(e.machucado)}</span></div>`:''}
+      ${e.descricao?`<p style="color:#9a9088;font-size:12px;line-height:1.5;margin:4px 0 0;font-style:italic">${nl(e.descricao)}</p>`:''}
+    </div>
+  </div>`;
+}
+
 function mesaAbrirPickerCriatura() {
   const c = camps.find(x=>x.id===viewingId);
   const salvas = c?.criaturas||[];
@@ -2271,21 +2603,51 @@ function mesaDelCriatura(id) {
   sess.criaturas = (sess.criaturas||[]).filter(x=>x.id!==id);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
 }
 function mesaSetCriatura(id, field, val) {
   const cr = getCriaturas().find(x=>x.id===id);
   if (!cr) return;
   if (['pv','pvMax'].includes(field)) { const n=parseInt(val); cr[field]=isNaN(n)?0:Math.max(0,n); }
   else cr[field] = val;
+  if (field==='pv' && cr.pv===0) _mesaMarcarMorto(cr);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
 }
 function mesaDeltaCriatura(id, delta) {
   const cr = getCriaturas().find(x=>x.id===id);
   if (!cr) return;
   cr.pv = Math.max(0, Math.min(cr.pvMax||0, (cr.pv||0)+delta));
+  if (cr.pv===0 && delta<0) _mesaMarcarMorto(cr);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
+}
+function mesaAplicarDano(id, dmg) {
+  const cr = getCriaturas().find(x=>x.id===id);
+  if (!cr || isNaN(dmg) || dmg<=0) return;
+  cr.pv = Math.max(0, (cr.pv||0) - dmg);
+  if (cr.pv===0) _mesaMarcarMorto(cr);
+  persist();
+  renderIniciativa();
+  _refreshFichaModal();
+}
+function mesaAplicarCura(id, cura) {
+  const cr = getCriaturas().find(x=>x.id===id);
+  if (!cr || isNaN(cura) || cura<=0) return;
+  cr.pv = Math.min(cr.pvMax||0, (cr.pv||0) + cura);
+  if (cr.pv>0) cr.conditions = (cr.conditions||[]).filter(c=>c!=='morto');
+  persist();
+  renderIniciativa();
+  _refreshFichaModal();
+}
+function _mesaMarcarMorto(cr) {
+  if (!(cr.conditions||[]).includes('morto')) {
+    if (!cr.conditions) cr.conditions=[];
+    cr.conditions.push('morto');
+    showToast('☠ '+cr.name+' foi derrotado!', 'err');
+  }
 }
 function mesaRolarIniciativaCriatura(id) {
   const cr = getCriaturas().find(x=>x.id===id);
@@ -2293,6 +2655,7 @@ function mesaRolarIniciativaCriatura(id) {
   cr._ini = Math.ceil(Math.random()*20);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
 }
 function mesaSetIniciativaCriatura(id, val) {
   const cr = getCriaturas().find(x=>x.id===id);
@@ -2301,6 +2664,7 @@ function mesaSetIniciativaCriatura(id, val) {
   cr._ini = isNaN(n) ? null : Math.max(1,n);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
 }
 function mesaToggleCondicaoCriatura(id, cond) {
   const cr = getCriaturas().find(x=>x.id===id);
@@ -2310,12 +2674,14 @@ function mesaToggleCondicaoCriatura(id, cond) {
   if (idx===-1) cr.conditions.push(cond); else cr.conditions.splice(idx,1);
   persist();
   renderIniciativa();
+  _refreshFichaModal();
 }
 
 function renderIniciativa() {
   const c = camps.find(x=>x.id===viewingId);
-  const el = mesaEl('iniciativa-body');
-  if (!el || !c) return;
+  if (!c) return;
+  const els = document.querySelectorAll('#iniciativa-body');
+  if (!els.length) return;
   const agentes = c.agentes || [];
   const criaturas = getCriaturas();
   // combatentes unificados: agentes (tipo 'ag') + criaturas (tipo 'cr')
@@ -2359,27 +2725,37 @@ function renderIniciativa() {
             ${condTags}
             ${isDead?`<span style="font-size:9px;color:#4a4440;border:1px solid #302c24;padding:1px 4px;border-radius:2px">☠ morto</span>`:''}
           </div>
-          ${!isAg?`<div style="display:flex;align-items:center;gap:4px;margin-top:4px">
-            <div style="flex:1;height:4px;background:#1c1a16;border-radius:2px;overflow:hidden">
-              <div style="height:100%;width:${pvPct}%;background:${pvC};border-radius:2px;transition:width .2s"></div>
+          ${!isAg?`<div style="margin-top:5px">
+            <div style="height:5px;background:#1c1a16;border-radius:2px;overflow:hidden;margin-bottom:5px">
+              <div style="height:100%;width:${pvPct}%;background:${pvC};border-radius:2px;transition:width .3s"></div>
             </div>
-            <button onclick="mesaDeltaCriatura('${x.id}',-1)" style="background:none;border:1px solid #c0392b44;color:#c0392b;width:20px;height:20px;border-radius:2px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent">−</button>
-            <input type="number" value="${x.pv}" onchange="mesaSetCriatura('${x.id}','pv',this.value)" style="width:32px;text-align:center;background:#0c0b09;border:1px solid #2c2820;border-radius:2px;padding:1px 0;font-size:11px;font-weight:700;color:${pvC};font-family:'Share Tech Mono',monospace"/>
-            <span style="color:#4a4440;font-size:10px">/</span>
-            <input type="number" value="${x.pvMax}" onchange="mesaSetCriatura('${x.id}','pvMax',this.value)" style="width:28px;text-align:center;background:transparent;border:none;border-bottom:1px solid #1c1a16;padding:1px 0;font-size:10px;color:#7a7060;font-family:'Share Tech Mono',monospace"/>
-            <button onclick="mesaDeltaCriatura('${x.id}',1)" style="background:none;border:1px solid #27674944;color:#4ade80;width:20px;height:20px;border-radius:2px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent">+</button>
-            <div style="display:flex;gap:2px;margin-left:4px">
-              ${CONDICOES.slice(0,4).map(cd=>{
-                const on=(x.conditions||[]).includes(cd.v);
-                return `<button onclick="mesaToggleCondicaoCriatura('${x.id}','${cd.v}')" title="${cd.l}" style="background:${on?cd.c+'22':'none'};border:1px solid ${on?cd.c:cd.c+'33'};color:${on?cd.c:'#4a4440'};width:20px;height:20px;border-radius:2px;font-size:10px;cursor:pointer;-webkit-tap-highlight-color:transparent">${cd.ic}</button>`;
-              }).join('')}
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+              <span style="color:${pvC};font-size:17px;font-weight:700;font-family:'Share Tech Mono',monospace;min-width:26px;text-align:right;line-height:1">${x.pv}</span>
+              <span style="color:#4a4440;font-size:10px">/</span>
+              <input type="number" value="${x.pvMax}" onchange="mesaSetCriatura('${x.id}','pvMax',this.value)" style="width:30px;text-align:center;background:transparent;border:none;border-bottom:1px solid #1c1a16;padding:1px 0;font-size:10px;color:#7a7060;font-family:'Share Tech Mono',monospace"/>
+              <span style="display:inline-block;width:1px;height:16px;background:#2c2820;flex-shrink:0;margin:0 1px"></span>
+              <input type="number" class="ini-dmg-inp" min="1" max="999" placeholder="qtd"
+                onkeydown="if(event.key==='Enter'&&+this.value>0)mesaAplicarDano('${x.id}',+this.value)"
+                style="width:44px;text-align:center;background:#0c0b09;border:1px solid #2c2820;border-radius:2px;padding:2px 0;font-size:12px;color:#ede8dc;font-family:'Share Tech Mono',monospace"/>
+              <button onclick="mesaAplicarDano('${x.id}',+(this.parentElement.querySelector('.ini-dmg-inp')||{value:0}).value)"
+                style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:3px 8px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s;white-space:nowrap;min-height:34px"
+                onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">−Dano</button>
+              <button onclick="mesaAplicarCura('${x.id}',+(this.parentElement.querySelector('.ini-dmg-inp')||{value:0}).value)"
+                style="background:#27674922;border:1px solid #27674944;color:#4ade80;padding:3px 8px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s;white-space:nowrap;min-height:34px"
+                onmouseenter="this.style.background='#27674944'" onmouseleave="this.style.background='#27674922'">+Cura</button>
+              <div style="display:flex;gap:2px;margin-left:2px">
+                ${CONDICOES.slice(0,4).map(cd=>{
+                  const on=(x.conditions||[]).includes(cd.v);
+                  return `<button onclick="mesaToggleCondicaoCriatura('${x.id}','${cd.v}')" title="${cd.l}" style="background:${on?cd.c+'22':'none'};border:1px solid ${on?cd.c:cd.c+'33'};color:${on?cd.c:'#4a4440'};min-width:32px;min-height:34px;border-radius:2px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent">${cd.ic}</button>`;
+                }).join('')}
+              </div>
+              <button onclick="mesaDelCriatura('${x.id}')" style="background:none;border:none;color:#302c24;font-size:14px;cursor:pointer;min-width:32px;min-height:34px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;margin-left:2px" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#302c24'">✕</button>
             </div>
-            <button onclick="mesaDelCriatura('${x.id}')" style="background:none;border:none;color:#302c24;font-size:14px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;margin-left:2px" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#302c24'">✕</button>
           </div>`:''}
         </div>
         ${isActive?`<span style="font-size:9px;padding:2px 7px;background:#c0392b22;border:1px solid #c0392b55;border-radius:2px;color:#c0392b;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">▶ Vez</span>`:''}
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-          ${x._ini==null?`<button onclick="${isAg?`mesaRolarIniciativa('${x.id}')`:`mesaRolarIniciativaCriatura('${x.id}')`}" style="background:none;border:1px solid #b8860b44;color:#b8860b;height:26px;padding:0 8px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'" title="${isAg?'d20 + Agilidade ('+((x.agilidade||0)>=0?'+':''+(x.agilidade||0))+')':'d20'}">🎲${isAg&&(x.agilidade||0)!==0?`<span style="font-size:9px;margin-left:2px">${(x.agilidade||0)>0?'+':''}${x.agilidade||0}</span>`:''}</button>`:''}
+          ${x._ini==null?`<button onclick="${isAg?`mesaRolarIniciativa('${x.id}')`:`mesaRolarIniciativaCriatura('${x.id}')`}" style="background:none;border:1px solid #b8860b44;color:#b8860b;min-height:34px;padding:0 10px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#b8860b18'" onmouseleave="this.style.background='none'" title="${isAg?'d20 + Agilidade ('+((x.agilidade||0)>=0?'+':''+(x.agilidade||0))+')':'d20'}">🎲${isAg&&(x.agilidade||0)!==0?`<span style="font-size:9px;margin-left:2px">${(x.agilidade||0)>0?'+':''}${x.agilidade||0}</span>`:''}</button>`:''}
           <input type="number" min="1" max="30" value="${x._ini??''}" placeholder="—"
             onchange="${isAg?`mesaSetIniciativa('${x.id}',this.value)`:`mesaSetIniciativaCriatura('${x.id}',this.value)`}"
             style="width:38px;text-align:center;background:#0c0b09;border:1px solid ${isActive?'#c0392b55':'#2c2820'};border-radius:2px;padding:2px 0;font-size:14px;font-weight:700;color:${isActive?'#c0392b':'#ede8dc'};font-family:'Share Tech Mono',monospace"/>
@@ -2388,12 +2764,11 @@ function renderIniciativa() {
     </div>`;
   }
 
-  if (todos.length === 0) {
-    el.innerHTML = `<div style="color:#7a7060;font-size:12px;text-align:center;padding:8px 0">Adicione agentes ou inimigos para usar a iniciativa.</div>`;
-  } else {
-    el.innerHTML = sorted.map((x,i) => iniRow(x,i)).join('');
-  }
-  // update all ini-rodada elements (PC + mobile may both exist)
+  const html = todos.length === 0
+    ? `<div style="color:#7a7060;font-size:12px;text-align:center;padding:8px 0">Adicione agentes ou inimigos para usar a iniciativa.</div>`
+    : sorted.map((x,i) => iniRow(x,i)).join('');
+  // update ALL iniciativa-body elements (PC + mobile may both exist)
+  els.forEach(e => { e.innerHTML = html; });
   document.querySelectorAll('#ini-rodada').forEach(rd => { rd.textContent = iniciativaRodada; });
 }
 
@@ -2765,7 +3140,8 @@ function delCriaturaBase(id) {
 function setCriaturaBaseField(id, field, val) {
   const cr = (formData.criaturas||[]).find(x=>x.id===id);
   if (!cr) return;
-  if (field==='pvMax') { const n=parseInt(val); cr[field]=isNaN(n)?0:Math.max(0,n); }
+  const numFields = ['pvMax','defesa','pt','nex','percepcao','iniciativa','fortitude','reflexos','vontade','agi','for_','int_','pre','vig','deslocamento'];
+  if (numFields.includes(field)) { const n=parseInt(val); cr[field]=isNaN(n)?0:Math.max(0,n); }
   else cr[field] = val;
 }
 
