@@ -176,8 +176,8 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;min-height:100vh;transition:background .3s,color .3s}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -220,7 +220,7 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .topbar{border-bottom:1px solid var(--border);padding:0 24px;background:var(--bg-alt);position:sticky;top:0;z-index:50;display:flex;align-items:center;height:54px;gap:14px}
 .logo-icon{width:28px;height:28px;border-radius:2px;background:var(--accent-lo);border:1px solid var(--accent-md);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .logo-text{font-family:'Playfair Display',Georgia,serif;font-size:16px;color:var(--text-head);font-weight:700;letter-spacing:.03em}
-.main{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+.main{max-width:920px;margin:0 auto;padding:32px 20px 80px;overflow-x:hidden}
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 4. COMPONENTES — pills, cards, forms, entry e view cards   │
@@ -239,7 +239,7 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase}
 
 /* ── FORM ── */
-.form-wrap{background:var(--bg-alt);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.form-wrap{background:var(--bg-alt);border:1px solid var(--border);border-radius:3px;overflow:hidden;max-width:100%}
 .form-header{padding:20px 24px;border-bottom:1px solid var(--border-sub);background:var(--form-head-grad);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .form-tabs{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid var(--border-sub);flex-wrap:wrap}
 .form-body{padding:24px;max-height:62vh;overflow-y:auto}
@@ -249,13 +249,26 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid2 .span2{grid-column:1/-1}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}.grid2 .span2{grid-column:1}}
+/* grids de criatura responsivos */
+.cr-grid-2num{display:grid;grid-template-columns:90px 90px 1fr;gap:16px}
+.cr-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cr-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.cr-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.cr-grid-num1{display:grid;grid-template-columns:100px 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:600px){
+  .cr-grid-2num{grid-template-columns:1fr 1fr}
+  .cr-grid-4{grid-template-columns:1fr 1fr}
+  .cr-grid-3{grid-template-columns:1fr}
+  .cr-grid-5{grid-template-columns:1fr 1fr}
+  .cr-grid-num1{grid-template-columns:1fr}
+}
 
 /* ── ENTRY CARD ── */
 .entry-card{border:1px solid var(--border);border-radius:3px;background:var(--bg-alt);margin-bottom:8px;overflow:hidden;transition:border-color .2s}
 .entry-card:hover{border-color:var(--gold)}
 .entry-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .entry-arrow{color:var(--text-muted);font-size:11px;transition:transform .2s;flex-shrink:0;display:inline-block}
-.entry-body{padding:14px;border-top:1px solid var(--border-sub)}
+.entry-body{padding:14px;border-top:1px solid var(--border-sub);overflow-x:hidden}
 
 /* ── VIEW CARDS ── */
 .npc-card{background:var(--bg-alt);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:3px;padding:16px;margin-bottom:10px}
@@ -436,10 +449,10 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
   .stats-bar{gap:12px}
   .stat-num{font-size:16px}
   .stat-label{font-size:9px}
-  .main{padding:16px 12px 100px}
-  .topbar{padding:0 12px;gap:10px}
-  .form-body{padding:14px;max-height:none;overflow-y:visible}
-  .form-header{padding:14px 16px}
+  .main{padding:16px 10px 100px}
+  .topbar{padding:0 10px;gap:8px;overflow:hidden}
+  .form-body{padding:12px;max-height:none;overflow-y:visible;overflow-x:hidden}
+  .form-header{padding:12px 14px}
   .mesa-top{padding:8px 12px;gap:6px}
   .mesa-body{padding:0}
   .form-wrap{border-radius:3px}
@@ -451,8 +464,11 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
   .field-label{font-size:11px;margin-bottom:6px}
   .sess-card{padding:14px}
   .npc-card,.loc-card,.item-card{padding:14px}
-  .entry-head{padding:14px}
+  .entry-head{padding:12px}
   .modal-box{padding:20px}
+  /* garantias anti-overflow no editor */
+  .entry-card,.form-wrap,.entry-body{max-width:100%}
+  [id^="scrow-"],[id^="scloc-"],[id^="scroom-"],[id^="crcard-"]{max-width:100%}
 }
 
 /* ── Topbar (PC only) ── */
@@ -1192,7 +1208,7 @@ function renderCriaturaCard(cr, idx) {
   const arrId  = 'crarr-'+cr.id;
   const id = cr.id;
   const secHdr = (t,c='#7c3aed') => `<div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:${c};font-weight:700;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid ${c}33">${t}</div>`;
-  const numFld = (label, field, val, hint='') => fieldHtml(label, `<input type="number" value="${val||0}" min="0" oninput="setCriaturaBaseField('${id}','${field}',this.value)" style="width:90px;text-align:center"/>`, hint);
+  const numFld = (label, field, val, hint='') => fieldHtml(label, `<input type="number" value="${val||0}" min="0" oninput="setCriaturaBaseField('${id}','${field}',this.value)" style="text-align:center"/>`, hint);
   const txtFld = (label, field, val, ph='', hint='') => fieldHtml(label, `<input value="${esc(val||'')}" oninput="setCriaturaBaseField('${id}','${field}',this.value)" placeholder="${ph}"/>`, hint);
   const taFld  = (label, field, val, rows, ph='') => fieldHtml(label, `<textarea rows="${rows}" oninput="setCriaturaBaseField('${id}','${field}',this.value)" placeholder="${ph}">${esc(val||'')}</textarea>`);
   return `
@@ -1217,21 +1233,21 @@ function renderCriaturaCard(cr, idx) {
       </div>
 
       ${secHdr('Presença Perturbadora')}
-      <div style="display:grid;grid-template-columns:90px 90px 1fr;gap:16px">
+      <div class="cr-grid-2num">
         ${numFld('PT','pt',cr.pt)}
         ${numFld('NEX %','nex',cr.nex)}
         ${txtFld('Dano Mental','danoMental',cr.danoMental,'Ex: 1d6 SAN')}
       </div>
 
       ${secHdr('Sentidos')}
-      <div style="display:grid;grid-template-columns:90px 90px 1fr;gap:16px">
+      <div class="cr-grid-2num">
         ${numFld('Percepção','percepcao',cr.percepcao)}
         ${numFld('Iniciativa','iniciativa',cr.iniciativa)}
         ${txtFld('Sentido Especial','sentidoEspecial',cr.sentidoEspecial,'Ex: Visão na escuridão, olfato apurado')}
       </div>
 
       ${secHdr('Defesa')}
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div class="cr-grid-4">
         ${numFld('VD','defesa',cr.defesa,'Valor de Defesa')}
         ${numFld('Fortitude','fortitude',cr.fortitude)}
         ${numFld('Reflexos','reflexos',cr.reflexos)}
@@ -1239,18 +1255,18 @@ function renderCriaturaCard(cr, idx) {
       </div>
 
       ${secHdr('Pontos de Vida','#c0392b')}
-      <div style="display:grid;grid-template-columns:100px 1fr;gap:16px;margin-bottom:16px">
+      <div class="cr-grid-num1">
         ${numFld('PV Máximo','pvMax',cr.pvMax||30)}
         ${txtFld('Machucado','machucado',cr.machucado,'Condição ao atingir metade do PV')}
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div class="cr-grid-3">
         ${txtFld('Resistências','resistencias',cr.resistencias,'Ex: Físico ½, Paranormal imune')}
         ${txtFld('Vulnerabilidades','vulnerabilidades',cr.vulnerabilidades,'Ex: Fogo x2, Luz x2')}
         ${txtFld('Imunidades','imunidades',cr.imunidades,'Ex: Medo, Veneno, Sangramento')}
       </div>
 
       ${secHdr('Atributos')}
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+      <div class="cr-grid-5">
         ${numFld('AGI','agi',cr.agi)}
         ${numFld('FOR','for_',cr.for_)}
         ${numFld('INT','int_',cr.int_)}
@@ -1262,9 +1278,9 @@ function renderCriaturaCard(cr, idx) {
       <div class="grid2"><div class="span2">${taFld('Perícias','pericias',cr.pericias,2,'Ex: Atletismo +4, Furtividade +6, Percepção +8')}</div></div>
 
       ${secHdr('Deslocamento')}
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="number" value="${cr.deslocamento||9}" min="0" oninput="setCriaturaBaseField('${id}','deslocamento',this.value)" style="width:90px;text-align:center"/>
-        <span style="font-size:12px;color:var(--text-muted)">metros</span>
+      <div style="display:flex;align-items:center;gap:10px;max-width:200px">
+        <input type="number" value="${cr.deslocamento||9}" min="0" oninput="setCriaturaBaseField('${id}','deslocamento',this.value)" style="text-align:center"/>
+        <span style="font-size:12px;color:var(--text-muted);white-space:nowrap">metros</span>
       </div>
 
       ${secHdr('Ataques','#c0392b')}
@@ -3195,7 +3211,7 @@ function renderSceneRow(sessId, sc, idx) {
         <input value="${esc(sc.name)}" oninput="setSceneField('${sessId}','${sc.id}','name',this.value)"
           placeholder="Nome da cena..." style="flex:1;min-width:120px"/>
         <select onchange="setSceneField('${sessId}','${sc.id}','type',this.value);refreshSceneRow('${sessId}','${sc.id}')"
-          style="width:130px;flex-shrink:0;font-size:11px;padding:5px 6px">
+          style="min-width:100px;flex:1;font-size:11px;padding:5px 6px">
           ${SCENE_TYPES.map(t=>`<option value="${t}"${t===sc.type?' selected':''}>${SCENE_ICONS[t]} ${t}</option>`).join('')}
         </select>
       </div>
@@ -3234,9 +3250,9 @@ function renderSceneLocCard(sessId, scId, loc, li) {
         <input value="${esc(loc.name)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','name',this.value)"
           placeholder="Nome do local..." style="flex:1;min-width:100px;font-size:13px;padding:7px 10px"/>
         <input value="${esc(loc.type)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','type',this.value)"
-          placeholder="Tipo (ex: Urbano)" style="width:120px;flex-shrink:0;font-size:12px;padding:6px 8px"/>
+          placeholder="Tipo (ex: Urbano)" style="flex:1;min-width:90px;font-size:12px;padding:6px 8px"/>
         <select onchange="setSceneLocField('${sessId}','${scId}','${loc.id}','danger',this.value)"
-          style="width:100px;flex-shrink:0;font-size:11px;padding:5px 6px">
+          style="min-width:90px;flex:1;font-size:11px;padding:5px 6px">
           ${['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===loc.danger?' selected':''}>${d}</option>`).join('')}
         </select>
       </div>
@@ -3318,7 +3334,7 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
         <input value="${esc(r.name)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','name',this.value)"
           placeholder="Nome do cômodo..." style="flex:1;min-width:90px;font-size:13px;padding:6px 9px"/>
         <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','danger',this.value);refreshSceneRoom('${r.id}',this.value)"
-          style="width:90px;flex-shrink:0;font-size:11px;padding:4px 5px">
+          style="flex:1;min-width:80px;font-size:11px;padding:4px 5px">
           ${ROOM_DANGER.map(d=>`<option${d===r.danger?' selected':''}>${d}</option>`).join('')}
         </select>
       </div>
