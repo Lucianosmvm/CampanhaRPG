@@ -616,6 +616,24 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
 <!-- Ficha de Combate Modal -->
 <div id="modal-ficha" style="display:none;position:fixed;inset:0;background:#000000cc;z-index:400;align-items:center;justify-content:center;padding:12px"></div>
 
+<!-- Gerador de NPC Modal -->
+<div id="modal-npc-gen" style="display:none;position:fixed;inset:0;background:#000000dd;z-index:450;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto" onclick="if(event.target===this)fecharNpcGen()">
+  <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:4px;width:100%;max-width:520px;margin:auto;box-shadow:0 20px 60px #00000088">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border-dim)">
+      <div style="font-family:'Playfair Display',Georgia,serif;font-size:17px;color:var(--text-head);font-weight:700">🎭 Gerador de NPC</div>
+      <button onclick="fecharNpcGen()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;-webkit-tap-highlight-color:transparent">✕</button>
+    </div>
+    <div style="padding:20px">
+      <div id="npc-gen-resultado" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="gerarNpc()" style="flex:1;min-width:120px;background:var(--accent);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.08em;padding:12px 16px;border-radius:2px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;text-transform:uppercase" onmouseenter="this.style.background='var(--accent-h)'" onmouseleave="this.style.background='var(--accent)'">🎲 Gerar Novo</button>
+        <button onclick="npcGenCopiar()" id="btn-npc-copiar" style="flex:1;min-width:120px;background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:12px;padding:12px 16px;border-radius:2px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;text-transform:uppercase" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">📋 Copiar</button>
+        <button onclick="npcGenSalvarCampanha()" id="btn-npc-salvar" style="flex:1;min-width:120px;background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:12px;padding:12px 16px;border-radius:2px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;text-transform:uppercase" onmouseenter="this.style.borderColor='var(--green-text)';this.style.color='var(--green-text)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">💾 Salvar na Campanha</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Mesa Mode -->
 <div class="mesa-overlay" id="mesa-overlay" style="display:none">
   <div class="mesa-top" id="mesa-top"></div>
@@ -1910,6 +1928,12 @@ function renderMesa() {
         oninput="mesaSaveQuicknotes(this.value)">${esc(quicknotes)}</textarea>
     </div>
 
+    <!-- Gerador de NPC -->
+    <div class="mesa-card" style="border-color:#7c3aed44">
+      <div class="mesa-card-title">🎭 NPC Rápido</div>
+      <button onclick="abrirNpcGen()" style="width:100%;background:none;border:1px dashed #7c3aed55;color:#a78bfa;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;padding:12px;border-radius:2px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;text-transform:uppercase" onmouseenter="this.style.background='#7c3aed18';this.style.borderStyle='solid'" onmouseleave="this.style.background='none';this.style.borderStyle='dashed'">🎲 Gerar NPC Improviso</button>
+    </div>
+
     <!-- Rolador de Dados -->
     <div class="mesa-card" style="border-color:#b8860b44">
       <div class="mesa-card-title">🎲 Rolador de Dados</div>
@@ -2092,6 +2116,13 @@ function renderMesa() {
         <div id="dice-result" style="font-size:56px;font-weight:900;font-family:'Share Tech Mono',monospace;color:#ede8dc;min-width:70px;text-align:center;line-height:1">—</div>
       </div>
       <div id="dice-log" style="display:flex;flex-wrap:wrap;gap:7px;min-height:18px;font-family:'Share Tech Mono',monospace;font-size:13px"></div>
+    </div>`;
+
+  // ── NPC Gerador card (mobile — append to dados pane) ──
+  if (pDados) pDados.innerHTML += `
+    <div class="mesa-card" style="border-color:#7c3aed44">
+      <div class="mesa-card-title">🎭 NPC Rápido</div>
+      <button onclick="abrirNpcGen()" style="width:100%;background:none;border:1px dashed #7c3aed55;color:#a78bfa;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;letter-spacing:.06em;padding:16px;border-radius:2px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;text-transform:uppercase;min-height:56px" onmouseenter="this.style.background='#7c3aed18'" onmouseleave="this.style.background='none'">🎲 Gerar NPC Improviso</button>
     </div>`;
 
   // 🔍 PISTAS + Notas Rápidas
@@ -3995,7 +4026,174 @@ function updateDrawerItems() {
 }
 
 /* ┌─────────────────────────────────────────────────────────────┐
-   │ 24. INIT — bootstrap da aplicação                          │
+   │ 24. GERADOR DE NPC — improviso de mesa                     │
+   └─────────────────────────────────────────────────────────────┘ */
+const _NPC_NOMES_M = ['André','Bruno','Carlos','Diego','Eduardo','Fábio','Gabriel','Henrique','Igor','João','Leandro','Marcos','Nelson','Otávio','Paulo','Rafael','Samuel','Thiago','Victor','William','Alexandre','Benedito','Claudio','Danilo','Ezequiel'];
+const _NPC_NOMES_F = ['Ana','Beatriz','Carla','Daniela','Elisa','Fernanda','Gabriela','Helena','Isabela','Juliana','Larissa','Mariana','Natália','Olívia','Patrícia','Renata','Sabrina','Tatiana','Vanessa','Yasmin','Aline','Brenda','Camila','Débora','Eduarda'];
+const _NPC_SOBRENOMES = ['Silva','Santos','Oliveira','Souza','Lima','Pereira','Costa','Carvalho','Ferreira','Rodrigues','Almeida','Nascimento','Gomes','Martins','Araújo','Melo','Barbosa','Ribeiro','Cardoso','Mendes','Tavares','Moreira','Nunes','Correia','Freitas'];
+const _NPC_PROFISSOES = [
+  {p:'Médico Legista',ic:'🩺'},{p:'Jornalista Investigativo',ic:'📰'},{p:'Detetive Particular',ic:'🕵️'},
+  {p:'Professor Universitário',ic:'📚'},{p:'Padre / Pastor',ic:'⛪'},{p:'Psiquiatra',ic:'🧠'},
+  {p:'Policial Militar',ic:'👮'},{p:'Farmacêutico',ic:'💊'},{p:'Arqueólogo',ic:'🗺️'},
+  {p:'Coveiro',ic:'⚰️'},{p:'Bibliotecário',ic:'📖'},{p:'Curandeiro / Benzedeiro',ic:'🌿'},
+  {p:'Mecânico',ic:'🔧'},{p:'Taxista',ic:'🚕'},{p:'Enfermeiro',ic:'💉'},
+  {p:'Vidente / Cartomante',ic:'🔮'},{p:'Fotógrafo',ic:'📷'},{p:'Advogado',ic:'⚖️'},
+  {p:'Eletricista',ic:'⚡'},{p:'Açougueiro',ic:'🔪'},{p:'Segurança Particular',ic:'🛡️'},
+  {p:'Traficante Reformado',ic:'💰'},{p:'Ex-militar',ic:'🎖️'},{p:'Padre Exorcista',ic:'✝️'},
+  {p:'Pesquisador do Paranormal',ic:'👁️'},{p:'Tatuador',ic:'🖋️'},{p:'Músico de Bar',ic:'🎸'},
+  {p:'Vendedor de Ervas',ic:'🌱'},{p:'Policial Corrupto',ic:'🚔'},{p:'Dono de Pensão',ic:'🏚️'}
+];
+const _NPC_TRACOS = [
+  'fala pouco mas observa tudo','mente com facilidade e sorriso no rosto','tem um tique nervoso ao mentir',
+  'desconfia de estranhos desde o início','carrega um objeto pessoal com obsessão',
+  'nunca olha nos olhos de ninguém','usa humor para esconder o medo',
+  'sempre cita passagens bíblicas fora de contexto','fuma compulsivamente quando estressado',
+  'repete a última frase de quem fala','tem pesadelos recorrentes que não conta a ninguém',
+  'coleciona recortes de jornal sobre o caso','cheira a álcool mesmo sem estar bêbado',
+  'escreve tudo em cadernetas que guarda no bolso','reage com agressividade quando pressionado',
+  'tem uma cicatriz que esconde e nega se perguntar','muda de assunto quando mencionam a família',
+  'sorri de forma inapropriada em situações tensas','fala de si mesmo na terceira pessoa quando nervoso',
+  'carrega um amuleto e toca nele constantemente','conhece detalhes que não deveria saber',
+  'é excessivamente prestativo — suspeito demais','dorme apenas 2–3h por noite há meses',
+  'apaga partes da memória e justifica como "estresse"','reage com pavor ao ver sangue'
+];
+const _NPC_SEGREDOS = [
+  'está sendo chantageado por alguém ligado ao Outro Lado',
+  'participou de um ritual anos atrás e nunca se recuperou',
+  'perdeu um familiar para o paranormal e busca vingança',
+  'é agente infiltrado de uma organização desconhecida',
+  'sabe onde está a relíquia que os agentes procuram',
+  'está possuído parcialmente e não sabe',
+  'vendeu informações dos agentes para o antagonista',
+  'é familiar do antagonista — não sabe de onde vem o mal',
+  'sobreviveu a um ataque de criatura e esconde as marcas',
+  'possui um artefato paranormal que teme revelar',
+  'gravou tudo que os agentes disseram sem que vissem',
+  'testemunhou o crime mas mentiu para a polícia com medo',
+  'é médium não treinado e recebe visões que o aterrorizam',
+  'deve uma favela ao antagonista e está pagando a dívida',
+  'seu nome verdadeiro está em uma lista de sacrifício',
+  'foi o único sobrevivente de um incidente encoberto pelo governo',
+  'tem acesso ao local onde tudo começou e não contou ainda',
+  'trabalha para o antagonista mas está arrependido',
+  'perdeu a sanidade parcialmente — suas "memórias" são falsas',
+  'possui documentos que provam uma conspiração e os esconde'
+];
+const _NPC_PARANORMAL = [
+  {desc:'Nenhuma conexão aparente',ic:'⚪'},{desc:'Nenhuma conexão aparente',ic:'⚪'},
+  {desc:'Nenhuma conexão aparente',ic:'⚪'},{desc:'Nenhuma conexão aparente',ic:'⚪'},
+  {desc:'Sente presença de entidades — mas acha que é loucura',ic:'🌀'},
+  {desc:'Teve um sonho profético que o trouxe até aqui',ic:'💤'},
+  {desc:'Sobreviveu a um evento inexplicável há anos',ic:'👁️'},
+  {desc:'Tem afinidade instintiva com rituais — sem saber por quê',ic:'🕯️'},
+  {desc:'Vê sombras que os outros não veem',ic:'🌑'},
+  {desc:'Objetos se movem perto dele quando fica nervoso',ic:'🔮'},
+  {desc:'Sangra sem ferimento quando dorme próximo de artefatos',ic:'🩸'},
+  {desc:'Animais ficam inquietos perto dele',ic:'🐺'}
+];
+const _NPC_ATITUDES = ['Cooperativo com ressalvas','Hostil desde o início','Assustado — quer sumir','Curioso e perguntador demais','Evasivo — nunca responde direto','Desconfiado mas desesperado por ajuda','Aparentemente neutro — esconde algo','Excessivamente amigável — suspeito'];
+const _NPC_REACOES_SAN = ['Ignora completamente — já viu coisas piores','Fica pálido mas se controla','Entra em colapso e precisa ser acalmado','Foge sem olhar para trás','Nega o que viu — racionaliza de todo jeito','Grava tudo ou anota em um caderno com pavor'];
+
+let _npcGenAtual = null;
+
+function _npcRand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function gerarNpc() {
+  const fem = Math.random() < .5;
+  const nome = _npcRand(fem ? _NPC_NOMES_F : _NPC_NOMES_M) + ' ' + _npcRand(_NPC_SOBRENOMES);
+  const prof = _npcRand(_NPC_PROFISSOES);
+  const trac1 = _npcRand(_NPC_TRACOS);
+  let trac2 = _npcRand(_NPC_TRACOS);
+  while (trac2 === trac1) trac2 = _npcRand(_NPC_TRACOS);
+  const seg  = _npcRand(_NPC_SEGREDOS);
+  const par  = _npcRand(_NPC_PARANORMAL);
+  const ati  = _npcRand(_NPC_ATITUDES);
+  const san  = _npcRand(_NPC_REACOES_SAN);
+  const idade = 25 + Math.floor(Math.random() * 45);
+
+  _npcGenAtual = { nome, prof: prof.p, profIc: prof.ic, trac1, trac2, seg, par: par.desc, parIc: par.ic, ati, san, idade };
+  _renderNpcGenResultado();
+}
+
+function _renderNpcGenResultado() {
+  const el = document.getElementById('npc-gen-resultado');
+  if (!el || !_npcGenAtual) return;
+  const n = _npcGenAtual;
+  el.innerHTML = `
+    <div style="background:var(--bg-deep);border:1px solid var(--border-dim);border-radius:3px;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--border-dim);padding-bottom:10px">
+        <div style="font-size:28px;line-height:1;flex-shrink:0">${n.profIc}</div>
+        <div style="flex:1">
+          <div style="font-family:'Playfair Display',Georgia,serif;font-size:18px;color:var(--text-head);font-weight:700;line-height:1.2">${esc(n.nome)}</div>
+          <div style="color:var(--text-muted);font-size:12px;margin-top:3px;letter-spacing:.04em">${esc(n.prof)} · ${n.idade} anos</div>
+        </div>
+      </div>
+      <div style="display:grid;gap:8px">
+        <div style="background:var(--bg-card);border-left:2px solid #7c3aed;padding:8px 10px;border-radius:0 2px 2px 0">
+          <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:4px">Traços</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.55">• ${esc(n.trac1)}<br>• ${esc(n.trac2)}</div>
+        </div>
+        <div style="background:var(--bg-card);border-left:2px solid var(--accent);padding:8px 10px;border-radius:0 2px 2px 0">
+          <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px">Segredo</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.55">${esc(n.seg)}</div>
+        </div>
+        <div style="background:var(--bg-card);border-left:2px solid var(--gold);padding:8px 10px;border-radius:0 2px 2px 0">
+          <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px">Atitude com os Agentes</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.55">${esc(n.ati)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--bg-card);border-left:2px solid ${n.parIc==='⚪'?'var(--border)':'#0e7490'};padding:8px 10px;border-radius:0 2px 2px 0">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:${n.parIc==='⚪'?'var(--text-muted)':'#67e8f9'};font-weight:700;margin-bottom:4px">${n.parIc} Paranormal</div>
+            <div style="font-size:11px;color:var(--text);line-height:1.5">${esc(n.par)}</div>
+          </div>
+          <div style="background:var(--bg-card);border-left:2px solid var(--purple);padding:8px 10px;border-radius:0 2px 2px 0">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#c4b5fd;font-weight:700;margin-bottom:4px">😨 Reação ao Horror</div>
+            <div style="font-size:11px;color:var(--text);line-height:1.5">${esc(n.san)}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function abrirNpcGen() {
+  const modal = document.getElementById('modal-npc-gen');
+  modal.style.display = 'flex';
+  if (!_npcGenAtual) gerarNpc();
+  else _renderNpcGenResultado();
+}
+
+function fecharNpcGen() {
+  document.getElementById('modal-npc-gen').style.display = 'none';
+}
+
+function npcGenCopiar() {
+  if (!_npcGenAtual) return;
+  const n = _npcGenAtual;
+  const txt = `NPC: ${n.nome}\nProfissão: ${n.prof} (${n.idade} anos)\nTraços: ${n.trac1} / ${n.trac2}\nSegredo: ${n.seg}\nAtitude: ${n.ati}\nParanormal: ${n.par}\nReação ao horror: ${n.san}`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('NPC copiado!')).catch(()=>showToast('Erro ao copiar','err'));
+}
+
+function npcGenSalvarCampanha() {
+  if (!_npcGenAtual) return;
+  const n = _npcGenAtual;
+  const c = camps.find(x => x.id === viewingId);
+  if (!c) { showToast('Abra uma campanha primeiro','err'); return; }
+  c.npcs = c.npcs || [];
+  c.npcs.push({
+    id: uid(),
+    name: n.nome,
+    role: n.prof,
+    description: `${n.idade} anos. ${n.trac1}. ${n.trac2}.`,
+    secret: n.seg,
+    rituals: `Atitude: ${n.ati} | Paranormal: ${n.par}`,
+    sanity: `Reação ao horror: ${n.san}`
+  });
+  persist();
+  showToast(`${n.nome} salvo como NPC da campanha!`);
+}
+
+/* ┌─────────────────────────────────────────────────────────────┐
+   │ 25. INIT — bootstrap da aplicação                          │
    └─────────────────────────────────────────────────────────────┘ */
 render();
 </script>
