@@ -11,6 +11,9 @@
 <meta name="apple-mobile-web-app-title" content="MestreRPG"/>
 <meta name="theme-color" content="#0c0b09"/>
 <link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
@@ -881,7 +884,7 @@ function blankCamp() {
 }
 function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'', agilidade:0, rituaisList:[] }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
-function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', defesa:0, elementoPrincipal:'', elementosSecundarios:'', pt:0, nex:0, danoMental:'', percepcao:0, iniciativa:0, sentidoEspecial:'', fortitude:0, reflexos:0, vontade:0, pvMax:30, resistencias:'', vulnerabilidades:'', imunidades:'', machucado:'', agi:0, for_:0, int_:0, pre:0, vig:0, pericias:'', deslocamento:9, ataque:'', habilidades:'', descricao:'' }; }
+function blankCriaturaBase() { return { id:uid(), name:'', tipo:'', defesa:0, elementos:'', nex:0, danoMental:'', iniciativa:0, fortitude:0, reflexos:0, vontade:0, pvMax:30, resimunidades:'', agi:0, for_:0, int_:0, pre:0, vig:0, deslocamento:9, ataque:'', habilidades:'', descricao:'' }; }
 
 const CONDICOES = [
   {v:'abalado',    l:'Abalado',      c:'#b8860b', ic:'😨'},
@@ -1241,42 +1244,25 @@ function renderCriaturaCard(cr, idx) {
       <div class="grid2">
         ${txtFld('Nome da Criatura','name',cr.name,'Ex: Sombra Rastejante')}
         ${txtFld('Tipo / Origem','tipo',cr.tipo,'Ex: Entidade, Cultista, Paranormal')}
-        ${txtFld('Elemento Principal','elementoPrincipal',cr.elementoPrincipal,'Ex: Morte, Sangue, Caos')}
-        ${txtFld('Elementos Secundários','elementosSecundarios',cr.elementosSecundarios,'Ex: Trevas, Medo')}
+        <div class="span2">${txtFld('Elementos','elementos',cr.elementos,'Ex: Morte, Sangue, Trevas, Medo')}</div>
       </div>
 
-      ${secHdr('Presença Perturbadora')}
-      <div class="cr-grid-2num">
-        ${numFld('PT','pt',cr.pt)}
-        ${numFld('NEX %','nex',cr.nex)}
-        ${txtFld('Dano Mental','danoMental',cr.danoMental,'Ex: 1d6 SAN')}
-      </div>
-
-      ${secHdr('Sentidos')}
-      <div class="cr-grid-2num">
-        ${numFld('Percepção','percepcao',cr.percepcao)}
-        ${numFld('Iniciativa','iniciativa',cr.iniciativa)}
-        ${txtFld('Sentido Especial','sentidoEspecial',cr.sentidoEspecial,'Ex: Visão na escuridão, olfato apurado')}
-      </div>
-
-      ${secHdr('Defesa')}
+      ${secHdr('Combate')}
       <div class="cr-grid-4">
+        ${numFld('NEX %','nex',cr.nex)}
+        ${numFld('Iniciativa','iniciativa',cr.iniciativa)}
+        ${numFld('PV Máximo','pvMax',cr.pvMax||30)}
         ${numFld('VD','defesa',cr.defesa,'Valor de Defesa')}
+      </div>
+      <div class="cr-grid-4">
         ${numFld('Fortitude','fortitude',cr.fortitude)}
         ${numFld('Reflexos','reflexos',cr.reflexos)}
         ${numFld('Vontade','vontade',cr.vontade)}
+        ${txtFld('Dano Mental','danoMental',cr.danoMental,'Ex: 1d6 SAN')}
       </div>
 
-      ${secHdr('Pontos de Vida','#c0392b')}
-      <div class="cr-grid-num1">
-        ${numFld('PV Máximo','pvMax',cr.pvMax||30)}
-        ${txtFld('Machucado','machucado',cr.machucado,'Condição ao atingir metade do PV')}
-      </div>
-      <div class="cr-grid-3">
-        ${txtFld('Resistências','resistencias',cr.resistencias,'Ex: Físico ½, Paranormal imune')}
-        ${txtFld('Vulnerabilidades','vulnerabilidades',cr.vulnerabilidades,'Ex: Fogo x2, Luz x2')}
-        ${txtFld('Imunidades','imunidades',cr.imunidades,'Ex: Medo, Veneno, Sangramento')}
-      </div>
+      ${secHdr('Resistências / Imunidades')}
+      <div class="grid2"><div class="span2">${taFld('Resistências / Vulnerabilidades / Imunidades','resimunidades',cr.resimunidades,2,'Ex: Físico ½ | Fogo x2 | Imune a Medo e Veneno')}</div></div>
 
       ${secHdr('Atributos')}
       <div class="cr-grid-5">
@@ -1286,9 +1272,6 @@ function renderCriaturaCard(cr, idx) {
         ${numFld('PRE','pre',cr.pre)}
         ${numFld('VIG','vig',cr.vig)}
       </div>
-
-      ${secHdr('Perícias')}
-      <div class="grid2"><div class="span2">${taFld('Perícias','pericias',cr.pericias,2,'Ex: Atletismo +4, Furtividade +6, Percepção +8')}</div></div>
 
       ${secHdr('Deslocamento')}
       <div style="display:flex;align-items:center;gap:10px;max-width:200px">
@@ -1300,7 +1283,7 @@ function renderCriaturaCard(cr, idx) {
       <div class="grid2"><div class="span2">${taFld('Ataques','ataque',cr.ataque,4,'Teste | Dano | Crítico/Alcance/Especial\nEx: Garras (AGI+2) | 2d6+4 | Alcance: Curto\nMordida (FOR) | 3d8 | Causa Sangramento')}</div></div>
 
       ${secHdr('Habilidades e Ações')}
-      <div class="grid2"><div class="span2">${taFld('Habilidades e Ações','habilidades',cr.habilidades,3,'Poderes especiais, rituais, ações de combate, reações...')}</div></div>
+      <div class="grid2"><div class="span2">${taFld('Habilidades e Ações','habilidades',cr.habilidades,3,'Poderes especiais, rituais, ações, reações, perícias notáveis, sentidos especiais...')}</div></div>
 
       ${secHdr('Descrição')}
       <div class="grid2"><div class="span2">${taFld('Descrição','descricao',cr.descricao,2,'Aparência, comportamento, origem...')}</div></div>
@@ -3176,7 +3159,7 @@ function delCriaturaBase(id) {
 function setCriaturaBaseField(id, field, val) {
   const cr = (formData.criaturas||[]).find(x=>x.id===id);
   if (!cr) return;
-  const numFields = ['pvMax','defesa','pt','nex','percepcao','iniciativa','fortitude','reflexos','vontade','agi','for_','int_','pre','vig','deslocamento'];
+  const numFields = ['pvMax','defesa','nex','iniciativa','fortitude','reflexos','vontade','agi','for_','int_','pre','vig','deslocamento'];
   if (numFields.includes(field)) { const n=parseInt(val); cr[field]=isNaN(n)?0:Math.max(0,n); }
   else cr[field] = val;
 }
