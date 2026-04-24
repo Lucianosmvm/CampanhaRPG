@@ -178,6 +178,72 @@
   --toast-border:#3d1a1e;
 }
 
+/* ── Diurno (claro — overrides de elementos hardcoded) ── */
+[data-theme="diurno"] .effect-box{background:#ede9fe;border-color:#c4b5fd55}
+/* Cards de criatura / mesa com fundo escuro hardcoded */
+[data-theme="diurno"] [style*="background:#0a0408"],
+[data-theme="diurno"] [style*="background:#0c0309"],
+[data-theme="diurno"] [style*="background:#0d0b10"],
+[data-theme="diurno"] [style*="background:#0c0b09"],
+[data-theme="diurno"] [style*="background:#090807"],
+[data-theme="diurno"] [style*="background:#0f0e0c"],
+[data-theme="diurno"] [style*="background:#0a0908"],
+[data-theme="diurno"] [style*="background:#080706"],
+[data-theme="diurno"] [style*="background:#111009"],
+[data-theme="diurno"] [style*="background:#141210"]{background:#f5f3ff!important;color:#2d2a26!important}
+[data-theme="diurno"] [style*="color:#c4b5fd"]{color:#5b21b6!important}
+[data-theme="diurno"] [style*="color:#a78bfa"]{color:#6d28d9!important}
+[data-theme="diurno"] [style*="color:#ede8dc"]{color:#1a1816!important}
+[data-theme="diurno"] [style*="color:#d6d0c4"]{color:#2d2a26!important}
+[data-theme="diurno"] [style*="color:#d6c0b8"]{color:#2d2a26!important}
+[data-theme="diurno"] select option{background:#ffffff;color:#2d2a26}
+
+/* ── Diurno (claro — estilo moderno) ── */
+[data-theme="diurno"]{
+  --bg:        #f0eeea;
+  --bg-alt:    #ffffff;
+  --bg-deep:   #e8e5e0;
+  --bg-card:   #ffffff;
+  --bg-input:  #f5f4f1;
+  --bg-drawer: #ffffff;
+  --bg-mesa-l: #f5f4f1;
+  --bg-mesa-r: #f0eeea;
+  --bg-mesa-top:#ffffff;
+  --bg-tabbar: #ffffff;
+  --border:    #e0ddd8;
+  --border-sub:#d4d0ca;
+  --border-dim:#ebe8e3;
+  --border-deep:#f0eeea;
+  --text:      #2d2a26;
+  --text-head: #1a1816;
+  --text-muted:#8a8278;
+  --text-dim:  #b0aba2;
+  --text-tab:  #b0aba2;
+  --accent:    #7c3aed;
+  --accent-h:  #6d28d9;
+  --accent-d:  #5b21b6;
+  --accent-bg: #ede9fe;
+  --accent-lo: rgba(124,58,237,.08);
+  --accent-md: rgba(124,58,237,.18);
+  --accent-ic: rgba(124,58,237,.08);
+  --accent-ic2:rgba(124,58,237,.18);
+  --gold:      #b45309;
+  --gold-lo:   rgba(180,83,9,.06);
+  --gold-md:   rgba(180,83,9,.15);
+  --green:     #059669;
+  --green-lo:  rgba(5,150,105,.07);
+  --green-text:#065f46;
+  --purple:    #7c3aed;
+  --shadow-modal:#00000055;
+  --shadow-drawer:#00000022;
+  --shadow-fab:rgba(124,58,237,.25);
+  --scrollbar-thumb:#d4d0ca;
+  --hero-grad: linear-gradient(135deg,#ffffff,rgba(124,58,237,.04));
+  --form-head-grad: linear-gradient(135deg,#f8f7f5,rgba(124,58,237,.04));
+  --toast-bg:  #ffffff;
+  --toast-border:#e0ddd8;
+}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden}
@@ -538,6 +604,9 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     <button onclick="setTheme('vermelho')" id="tt-vermelho" title="Vermelho" class="topbar-theme-btn">
       <span style="background:#0e0809;border-color:#3d1a1e"></span>
     </button>
+    <button onclick="setTheme('diurno')" id="tt-diurno" title="Diurno" class="topbar-theme-btn">
+      <span style="background:#f0eeea;border-color:#d4d0ca"></span>
+    </button>
   </div>
 </div>
 
@@ -549,8 +618,8 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
   <div class="drawer-head">
     <div class="logo-icon">☠</div>
     <div>
-      <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#ede8dc;font-weight:700">MestreRPG</div>
-      <div style="font-size:10px;color:#7a7060;letter-spacing:.08em">Organize suas aventuras</div>
+      <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;color:var(--text-head);font-weight:700">MestreRPG</div>
+      <div style="font-size:10px;color:var(--text-muted);letter-spacing:.08em">Organize suas aventuras</div>
     </div>
   </div>
   <div class="drawer-item" onclick="closeDrawer();goList()">
@@ -578,6 +647,9 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     </button>
     <button class="theme-btn" id="theme-btn-vermelho" onclick="setTheme('vermelho')">
       <span class="theme-swatch" style="background:#0e0809;border-color:#3d1a1e"></span> Vermelho
+    </button>
+    <button class="theme-btn" id="theme-btn-diurno" onclick="setTheme('diurno')">
+      <span class="theme-swatch" style="background:#f0eeea;border-color:#d4d0ca"></span> Diurno
     </button>
   </div>
   <div class="drawer-item" onclick="closeDrawer();doBackup()" style="border-top:1px solid var(--border)">
@@ -709,11 +781,14 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
    │ 1. TEMA                                                     │
    └─────────────────────────────────────────────────────────────┘ */
 const THEME_KEY = 'op_theme';
-const THEMES = ['paranormal','manuscrito','vermelho'];
+const THEMES = ['paranormal','manuscrito','vermelho','diurno'];
 
 function applyTheme(t) {
   if (!THEMES.includes(t)) t = 'paranormal';
   document.documentElement.setAttribute('data-theme', t);
+  const themeColors = {paranormal:'#0c0b09',manuscrito:'#2a2318',vermelho:'#0e0809',diurno:'#f0eeea'};
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.setAttribute('content', themeColors[t] || '#0c0b09');
   THEMES.forEach(th => {
     const btn = document.getElementById('theme-btn-'+th);
     if (btn) btn.classList.toggle('active-theme', th === t);
@@ -724,7 +799,7 @@ function applyTheme(t) {
 function setTheme(t) {
   localStorage.setItem(THEME_KEY, t);
   applyTheme(t);
-  showToast('Tema ' + {paranormal:'Paranormal',manuscrito:'Manuscrito',vermelho:'Vermelho'}[t] + ' aplicado');
+  showToast('Tema ' + {paranormal:'Paranormal',manuscrito:'Manuscrito',vermelho:'Vermelho',diurno:'Diurno'}[t] + ' aplicado');
 }
 // apply saved theme immediately on load
 applyTheme(localStorage.getItem(THEME_KEY) || 'paranormal');
