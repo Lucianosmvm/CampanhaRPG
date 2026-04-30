@@ -3280,8 +3280,10 @@ function renderSceneRow(sessId, sc, idx) {
     <div style="display:flex;gap:8px;align-items:center;padding:10px 12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
       <span id="${arrId}" style="color:#7a7060;font-size:11px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
       <span style="font-size:10px;font-weight:700;color:${col};flex-shrink:0;font-family:'Share Tech Mono',monospace">C${String(idx+1).padStart(2,'0')}</span>
-      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
-      <span style="display:inline-block;padding:1px 7px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;flex-shrink:0">${SCENE_ICONS[sc.type]||'🎬'} ${sc.type}</span>
+      <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:2px">
+        <span style="color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+        <span style="display:inline-block;align-self:flex-start;padding:1px 5px;border-radius:2px;font-size:9px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase">${SCENE_ICONS[sc.type]||'🎬'} ${sc.type}</span>
+      </div>
       <button class="btn-del" onclick="event.stopPropagation();delScene('${sessId}','${sc.id}')">✕</button>
     </div>
     <div id="${bodyId}" style="display:none;padding:0 12px 10px;border-top:1px solid #1c1a16">
