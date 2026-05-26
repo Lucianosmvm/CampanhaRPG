@@ -591,7 +591,7 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
   <div class="logo-icon">☠</div>
   <span class="logo-text" style="cursor:pointer" id="logo-btn">MestreRPG</span>
   <span id="bc-sep" style="color:#302c24;display:none">›</span>
-  <span id="bc-current" style="color:#7a7060;font-size:12px;letter-spacing:.06em;text-transform:uppercase;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
+  <span id="bc-current" style="color:#7a7060;font-size:12px;letter-spacing:.03em;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
   <div style="flex:1"></div>
   <span id="topbar-count" style="color:var(--border-sub);font-size:11px"></span>
   <!-- Google Drive sync indicator — PC only -->
@@ -636,6 +636,9 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
   </div>
   <div class="drawer-item" id="drawer-create" onclick="closeDrawer();goCreate()">
     <span class="di-icon">＋</span> Nova Campanha
+  </div>
+  <div id="drawer-mesa" style="display:none;padding:12px 16px;border-bottom:1px solid var(--border-dim)">
+    <button id="drawer-mesa-btn" style="width:100%;background:#c0392b;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;padding:14px 16px;border-radius:2px;cursor:pointer;letter-spacing:.04em;text-align:left;-webkit-tap-highlight-color:transparent" onclick="closeDrawer();_drawerOpenMesa()">▶ Iniciar Mesa</button>
   </div>
   <div class="drawer-item" id="drawer-edit" style="display:none" onclick="closeDrawer();goEdit()">
     <span class="di-icon">✏️</span> Editar Campanha
@@ -1497,10 +1500,11 @@ function renderDetail() {
         <div class="section-divider">Sessões</div>
         ${c.sessions_data.length===0?'<span class="muted" style="font-size:12px">Nenhuma sessão</span>':
           c.sessions_data.map(s=>`
-          <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #302c24">
-            <span style="width:6px;height:6px;border-radius:50%;background:${SESS_COLORS[s.status]||'#302c24'};flex-shrink:0;display:inline-block"></span>
+          <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #302c24${s.status==='Em Andamento'?';background:#c0392b08;margin:0 -8px;padding-left:8px;padding-right:8px;border-left:2px solid #c0392b':''}">
+            <span style="width:6px;height:6px;border-radius:50%;background:${SESS_COLORS[s.status]||'#302c24'};flex-shrink:0;display:inline-block${s.status==='Em Andamento'?';box-shadow:0 0 6px #c0392b':''}"></span>
             <span style="color:#c0392b;font-size:12px;font-weight:700;flex-shrink:0">${String(s.number).padStart(2,'0')}</span>
             <span style="color:${s.title?'#ede8dc':'#7a7060'};font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:${s.title?'normal':'italic'}">${esc(s.title)||'Sem título'}</span>
+            ${s.status==='Em Andamento'?'<span style="font-size:10px;color:#c0392b;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">● AO VIVO</span>':''}
             ${sessPill(s.status)}
             <button class="btn-green" onclick="openMesa('${s.id}')">▶ Mesa</button>
           </div>`).join('')}
@@ -1600,12 +1604,13 @@ function renderDetail() {
 
   if (activeDetailTab === 'sessions') body = c.sessions_data.length===0?'<div class="empty-state">Nenhuma sessão cadastrada</div>':
     c.sessions_data.map(s=>`
-    <div class="sess-card">
+    <div class="sess-card" style="${s.status==='Em Andamento'?'border-left:3px solid #c0392b;background:#c0392b06':''}">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
         <div class="session-num">${String(s.number).padStart(2,'0')}</div>
         <div style="flex:1"><div class="serif ink" style="font-size:18px;font-weight:700">${esc(s.title)||'<em style="color:#7a7060">Sem título</em>'}</div></div>
+        ${s.status==='Em Andamento'?'<span style="font-size:10px;color:#c0392b;letter-spacing:.08em;text-transform:uppercase;font-weight:700;animation:fadeIn .5s">● EM ANDAMENTO</span>':''}
         ${sessPill(s.status)}
-        <button class="btn-green" onclick="openMesa('${s.id}')">▶ Modo Mesa</button>
+        <button class="btn-green" onclick="openMesa('${s.id}')">${s.status==='Em Andamento'?'▶ Continuar Mesa':'▶ Modo Mesa'}</button>
       </div>
       ${s.opening?`<div style="background:#c0392b10;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:2px;padding:10px 14px;margin-bottom:12px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🎬 Abertura — leia em voz alta</div><p style="color:#d6c0b8;font-size:13px;line-height:1.7;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p></div>`:''}
       <div class="grid2">
@@ -1700,10 +1705,18 @@ function renderDetail() {
             <h1 class="serif ink" style="font-size:clamp(20px,4vw,32px);font-weight:900;line-height:1.15;margin-bottom:12px">${esc(c.title)||'Sem título'}</h1>
             ${c.synopsis?`<p style="color:#d6d0c4;font-size:14px;line-height:1.7;max-width:620px;font-family:Georgia,serif;font-style:italic">${esc(c.synopsis)}</p>`:''}
           </div>
-          <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap" class="hero-actions">
-            <button class="btn-ghost" onclick="goList()">← Voltar</button>
-            <button class="btn-ghost" onclick="exportPDF()">📄 PDF</button>
-            <button class="btn-primary" onclick="goEdit()">✏️ Editar</button>
+          <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:flex-end" class="hero-actions">
+            ${(()=>{
+              const sessAtiva = c.sessions_data.find(s=>s.status==='Em Andamento') || c.sessions_data.find(s=>s.status!=='Jogada') || c.sessions_data[0];
+              if (!sessAtiva) return '';
+              const label = sessAtiva.status==='Em Andamento' ? `▶ Continuar — Sessão ${String(sessAtiva.number).padStart(2,'0')}` : `▶ Iniciar Mesa — Sessão ${String(sessAtiva.number).padStart(2,'0')}`;
+              return `<button style="background:#c0392b;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:10px 20px;border-radius:2px;cursor:pointer;letter-spacing:.04em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='#a93226'" onmouseout="this.style.background='#c0392b'" onclick="openMesa('${sessAtiva.id}')">${label}</button>`;
+            })()}
+            <div style="display:flex;gap:8px">
+              <button class="btn-ghost" onclick="goList()">← Voltar</button>
+              <button class="btn-ghost" onclick="exportPDF()">📄 PDF</button>
+              <button class="btn-primary" onclick="goEdit()">✏️ Editar</button>
+            </div>
           </div>
         </div>
         <div class="stats-bar">
@@ -4102,15 +4115,40 @@ function closeDrawer() {
   document.getElementById('drawer-overlay').classList.remove('open');
 }
 function updateDrawerItems() {
-  const editEl = document.getElementById('drawer-edit');
-  const pdfEl  = document.getElementById('drawer-pdf');
-  const fab    = document.getElementById('fab-btn');
-  if (editEl) editEl.style.display = (view==='detail') ? 'flex' : 'none';
-  if (pdfEl)  pdfEl.style.display  = (view==='detail') ? 'flex' : 'none';
+  const editEl  = document.getElementById('drawer-edit');
+  const pdfEl   = document.getElementById('drawer-pdf');
+  const mesaEl  = document.getElementById('drawer-mesa');
+  const mesaBtn = document.getElementById('drawer-mesa-btn');
+  const fab     = document.getElementById('fab-btn');
+  const isDetail = view === 'detail';
+  if (editEl) editEl.style.display = isDetail ? 'flex' : 'none';
+  if (pdfEl)  pdfEl.style.display  = isDetail ? 'flex' : 'none';
+  if (mesaEl && mesaBtn) {
+    if (isDetail) {
+      const c = camps.find(x => x.id === viewingId);
+      const sessAtiva = c && ((c.sessions_data||[]).find(s=>s.status==='Em Andamento') || (c.sessions_data||[]).find(s=>s.status!=='Jogada') || (c.sessions_data||[])[0]);
+      if (sessAtiva) {
+        mesaEl.style.display = 'block';
+        const label = sessAtiva.status === 'Em Andamento'
+          ? `▶ Continuar — Sessão ${String(sessAtiva.number).padStart(2,'0')}`
+          : `▶ Iniciar Mesa — Sessão ${String(sessAtiva.number).padStart(2,'0')}`;
+        mesaBtn.textContent = label;
+        mesaBtn._sessId = sessAtiva.id;
+      } else {
+        mesaEl.style.display = 'none';
+      }
+    } else {
+      mesaEl.style.display = 'none';
+    }
+  }
   // hide FAB when in form view
   if (fab) fab.style.display = (view==='form') ? 'none' : '';
-  // hide FAB when already in list with empty state
   if (fab && view==='list') fab.style.display = '';
+}
+
+function _drawerOpenMesa() {
+  const btn = document.getElementById('drawer-mesa-btn');
+  if (btn && btn._sessId) openMesa(btn._sessId);
 }
 
 /* ┌─────────────────────────────────────────────────────────────┐
