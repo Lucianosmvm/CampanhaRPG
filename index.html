@@ -999,7 +999,7 @@ function blankCamp() {
   return { id:uid(), title:'', synopsis:'', sessions:1, status:'Em Andamento', nex:'5%',
     createdAt:new Date().toISOString(),
     antagonist:{name:'',nature:'',motivation:'',power:''},
-    criaturas:[], npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
+    timeline:[], criaturas:[], npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
 }
 function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'', agilidade:0, rituaisList:[] }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
@@ -1070,7 +1070,8 @@ function blankScene(n)    { return { id:uid(), number:n, name:'', type:'Investig
 function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', paranormal:'', danger:'Baixo', rooms:[] }; }
 function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', evento:'', items:[], criaturas:[] }; }
 function blankSceneItem() { return { id:uid(), name:'', cat:'objeto', desc:'', secret:'' }; }
-function blankClue()      { return { id:uid(), text:'', found:false, foundSessId:null, type:'Física' }; }
+function blankClue()      { return { id:uid(), text:'', found:false, foundSessId:null, type:'Física', onde:'', como:'', revela:'', levaPara:'' }; }
+function blankTimeline()  { return { id:uid(), when:'', event:'' }; }
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 4. CONSTANTES — enums, cores e ícones de domínio           │
@@ -1083,6 +1084,42 @@ const SCENE_ICONS  = {'Investigação':'🔍','Combate':'⚔️','Roleplay':'�
 // Pistas
 const CLUE_TYPES  = ['Física','Testemunhal','Ocultista','Documental','Tecnológica'];
 const CLUE_COLORS = {'Física':'#b8860b','Testemunhal':'#276749','Ocultista':'#7c3aed','Documental':'#0e7490','Tecnológica':'#6b7280'};
+
+// Linha editável de pista (form de edição) — usada em renderForm e addClue
+function clueRowHtml(sessId, cl) {
+  const inp = (ph,field)=>`<input value="${esc(cl[field]||'')}" placeholder="${ph}" onchange="setClueField('${sessId}','${cl.id}','${field}',this.value)" style="width:100%;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:12px;padding:7px 10px;border-radius:2px;outline:none"/>`;
+  return `
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding:10px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="clue-row-${cl.id}">
+    <div style="display:flex;gap:8px;align-items:center">
+      <select onchange="setClueField('${sessId}','${cl.id}','type',this.value)" style="flex:1;font-size:12px;padding:6px 8px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px;outline:none">
+        ${CLUE_TYPES.map(t=>`<option${t===(cl.type||'Física')?' selected':''}>${t}</option>`).join('')}
+      </select>
+      <button class="btn-del" onclick="delClue('${sessId}','${cl.id}')">✕</button>
+    </div>
+    <textarea rows="2" style="resize:vertical;min-height:48px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;width:100%" placeholder="Nome / descrição da pista..." onchange="setClue('${sessId}','${cl.id}',this.value)">${esc(cl.text)}</textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${inp('📍 Onde é encontrada','onde')}
+      ${inp('🎲 Como (ex: Investigação DT 15)','como')}
+      ${inp('💡 O que revela','revela')}
+      ${inp('➡️ Leva para (próxima pista)','levaPara')}
+    </div>
+  </div>`;
+}
+// Metadados de pista (visualização) — onde/como/revela/levaPara
+function clueMetaHtml(cl) {
+  const row=(ic,label,val)=> val?`<div style="font-size:11px;line-height:1.5"><span style="color:#7a7060">${ic} ${label}:</span> <span style="color:#bdb4a2">${esc(val)}</span></div>`:'';
+  const m = row('📍','Onde',cl.onde)+row('🎲','Como',cl.como)+row('💡','Revela',cl.revela)+row('➡️','Leva para',cl.levaPara);
+  return m?`<div style="margin-top:5px;display:flex;flex-direction:column;gap:2px">${m}</div>`:'';
+}
+// Linha editável de evento da linha do tempo
+function timelineRowHtml(t) {
+  return `
+  <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;padding:10px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="tl-row-${t.id}">
+    <input value="${esc(t.when||'')}" placeholder="Quando (ex: 2019)" onchange="setTimelineField('${t.id}','when',this.value)" style="width:130px;flex-shrink:0;background:#0c0b09;border:1px solid #2c2820;color:#67e8f9;font-family:'Share Tech Mono',monospace;font-size:13px;padding:8px 10px;border-radius:2px;outline:none"/>
+    <textarea rows="2" placeholder="O que aconteceu..." onchange="setTimelineField('${t.id}','event',this.value)" style="flex:1;resize:vertical;min-height:40px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:13px;padding:8px 10px;border-radius:2px;outline:none">${esc(t.event||'')}</textarea>
+    <button class="btn-del" onclick="delTimeline('${t.id}')">✕</button>
+  </div>`;
+}
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 6. UI HELPERS — pills e fieldHtml                          │
@@ -1211,6 +1248,7 @@ function renderForm() {
   const tabs = [
     {k:'info',    l:'📋 Info'},
     {k:'antagonist',l:'☠ Antagonista'},
+    {k:'timeline',l:`⏳ Linha do Tempo (${(d.timeline||[]).length})`},
     {k:'npcs',    l:`👤 NPCs (${d.npcs.length})`},
     {k:'items',   l:`🗡 Itens (${d.items.length})`},
     {k:'sessions',l:`📅 Sessões (${d.sessions})`},
@@ -1242,6 +1280,12 @@ function renderForm() {
       <div id="criaturas-list">${(d.criaturas||[]).map((cr,i)=>renderCriaturaCard(cr,i)).join('')}</div>
       <button class="btn-add" style="border-color:#7c3aed55;color:#a78bfa" onclick="addCriaturaBase()">+ Adicionar Criatura</button>
     </div>`;
+
+  if (activeFormTab === 'timeline') body = `
+    <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#0e7490;font-weight:700;margin-bottom:6px">⏳ Linha do Tempo</div>
+    <p style="color:#4a4440;font-size:11px;margin-bottom:14px">Eventos que aconteceram ANTES da chegada dos agentes. Mantém a consistência da campanha e evita furos de roteiro.</p>
+    <div id="timeline-list">${(d.timeline||[]).map(t=>timelineRowHtml(t)).join('')}</div>
+    <button class="btn-add" style="border-color:#0e749055;color:#67e8f9" onclick="addTimeline()">+ Adicionar Evento</button>`;
 
   if (activeFormTab === 'npcs') body = `
     <div id="npcs-list">${d.npcs.map((n,i)=>renderEntryCard('npc',n,i)).join('')}</div>
@@ -1281,16 +1325,7 @@ function renderForm() {
           <div class="span2">
             <div class="field-label">🔍 Pistas / Evidências</div>
             <div id="clues-${s.id}">
-              ${(s.clues||[]).map(cl=>`
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding:10px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="clue-row-${cl.id}">
-                  <div style="display:flex;gap:8px;align-items:center">
-                    <select onchange="setClueField('${s.id}','${cl.id}','type',this.value)" style="flex:1;font-size:12px;padding:6px 8px">
-                      ${CLUE_TYPES.map(t=>`<option${t===(cl.type||'Física')?' selected':''}>${t}</option>`).join('')}
-                    </select>
-                    <button class="btn-del" onclick="delClue('${s.id}','${cl.id}')">✕</button>
-                  </div>
-                  <textarea rows="2" style="resize:vertical;min-height:48px" placeholder="Descreva a pista..." onchange="setClue('${s.id}','${cl.id}',this.value)">${esc(cl.text)}</textarea>
-                </div>`).join('')}
+              ${(s.clues||[]).map(cl=>clueRowHtml(s.id,cl)).join('')}
             </div>
             <button class="btn-add" style="margin-top:4px" onclick="addClue('${s.id}')">+ Adicionar Pista</button>
           </div>
@@ -1488,6 +1523,7 @@ function renderDetail() {
   const tabs = [
     {k:'overview',  l:'Visão Geral'},
     {k:'antagonist',l:'☠ Antagonista'},
+    {k:'timeline',  l:`⏳ Linha do Tempo (${(c.timeline||[]).length})`},
     {k:'npcs',      l:`NPCs (${c.npcs.length})`},
     {k:'items',     l:`Itens (${c.items.length})`},
     {k:'sessions',  l:`Sessões (${c.sessions})`},
@@ -1517,6 +1553,19 @@ function renderDetail() {
           c.npcs.map(n=>`<div style="padding:7px 0;border-bottom:1px solid #302c24"><div style="color:#ede8dc;font-size:13px">${esc(n.name)||'<em style="color:#9a8e7a">Sem nome</em>'}</div>${n.role?`<div class="muted" style="font-size:11px">${esc(n.role)}</div>`:''}</div>`).join('')}
       </div>
     </div>`;
+
+  if (activeDetailTab === 'timeline') {
+    const tl = c.timeline||[];
+    body = tl.length===0 ? '<div class="empty-state">Nenhum evento na linha do tempo. Edite a campanha para adicionar.</div>' : `
+      <div style="position:relative;padding-left:8px">
+        ${tl.map(t=>`
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:0 0 18px;position:relative">
+          <div style="flex-shrink:0;width:120px;text-align:right;color:#67e8f9;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding-top:1px">${esc(t.when)||'—'}</div>
+          <div style="flex-shrink:0;width:12px;height:12px;border-radius:50%;background:#0e7490;border:2px solid #67e8f9;margin-top:3px;box-shadow:0 0 6px #0e749088"></div>
+          <div style="flex:1;min-width:0;color:#d6d0c4;font-size:13px;line-height:1.6;font-family:Georgia,serif">${nl(t.event)||'<em style="color:#9a8e7a">Sem descrição</em>'}</div>
+        </div>`).join('')}
+      </div>`;
+  }
 
   if (activeDetailTab === 'antagonist') {
     const a = c.antagonist;
@@ -1680,7 +1729,10 @@ function renderDetail() {
           ${s.clues.map(cl=>{const cc=CLUE_COLORS[cl.type||'Física']||'#b8860b';return`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #1c1a16">
             <span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:12px;flex-shrink:0;margin-top:2px">${cl.found?'✓':'○'}</span>
             <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-top:2px">${esc(cl.type||'Física')}</span>
-            <span style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)}</span>
+            <div style="flex:1;min-width:0">
+              <span style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)}</span>
+              ${clueMetaHtml(cl)}
+            </div>
           </div>`}).join('')}
         </div>`:''}
       ${s.hook?`<div style="margin-top:12px;padding:10px 14px;background:#0e749015;border:1px solid #0e749033;border-radius:2px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:12px;line-height:1.6;margin:0">${nl(s.hook)}</p></div>`:''}
@@ -1819,6 +1871,7 @@ function renderMesa() {
           ${foundSessLabel}
         </div>
         <div style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;line-height:1.5;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)||'<em style="color:#9a8e7a">Sem texto</em>'}</div>
+        ${clueMetaHtml(cl)}
       </div>
     </div>`;
   }).join('');
@@ -3737,16 +3790,7 @@ function addClue(sessId) {
   s.clues.push(blankClue());
   const container = document.getElementById('clues-'+sessId);
   if (container) {
-    container.innerHTML = s.clues.map(cl=>`
-      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding:10px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="clue-row-${cl.id}">
-        <div style="display:flex;gap:8px;align-items:center">
-          <select onchange="setClueField('${sessId}','${cl.id}','type',this.value)" style="flex:1;font-size:12px;padding:6px 8px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px;outline:none">
-            ${CLUE_TYPES.map(t=>`<option${t===(cl.type||'Física')?' selected':''}>${t}</option>`).join('')}
-          </select>
-          <button class="btn-del" onclick="delClue('${sessId}','${cl.id}')">✕</button>
-        </div>
-        <textarea rows="2" style="resize:vertical;min-height:48px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;width:100%" placeholder="Descreva a pista..." onchange="setClue('${sessId}','${cl.id}',this.value)">${esc(cl.text)}</textarea>
-      </div>`).join('');
+    container.innerHTML = s.clues.map(cl=>clueRowHtml(sessId,cl)).join('');
   }
 }
 function setClue(sessId, clueId, val) {
@@ -3765,6 +3809,22 @@ function delClue(sessId, clueId) {
   s.clues = s.clues.filter(x=>x.id!==clueId);
   const row = document.getElementById('clue-row-'+clueId);
   if (row) row.remove();
+}
+// ── Linha do Tempo ───────────────────────────────────────────
+function addTimeline() {
+  if (!formData.timeline) formData.timeline = [];
+  formData.timeline.push(blankTimeline());
+  const c = document.getElementById('timeline-list');
+  if (c) c.innerHTML = formData.timeline.map(t=>timelineRowHtml(t)).join('');
+}
+function setTimelineField(id, field, val) {
+  const t = (formData.timeline||[]).find(x=>x.id===id);
+  if (t) t[field] = val;
+}
+function delTimeline(id) {
+  formData.timeline = (formData.timeline||[]).filter(x=>x.id!==id);
+  const r = document.getElementById('tl-row-'+id);
+  if (r) r.remove();
 }
 function syncSessionsData(n) {
   const cur = formData.sessions_data || [];
@@ -3888,6 +3948,16 @@ ${c.items.map(i=>`<div style="background:#141210;border:1px solid #7c3aed33;bord
   ${i.effect?`<div style="background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:7px 10px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px">⚡ Efeito</div><div style="color:#c4b5fd;font-size:12px;line-height:1.6">${nl(i.effect)}</div></div>`:''}
 </div>`).join('')}` : '';
 
+  const timeline = (c.timeline||[]).length ? `
+${sc('Linha do Tempo','#0e7490')}
+<div style="background:#141210;border:1px solid #0e749033;border-radius:3px;padding:16px 18px">
+  ${(c.timeline||[]).map(t=>`<div style="display:flex;gap:14px;align-items:flex-start;padding:0 0 14px;page-break-inside:avoid">
+    <div style="flex-shrink:0;width:110px;text-align:right;color:#0e7490;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700">${esc(t.when)||'—'}</div>
+    <div style="flex-shrink:0;width:10px;height:10px;border-radius:50%;background:#0e7490;margin-top:3px"></div>
+    <div style="flex:1;color:#c0b8b0;font-size:13px;line-height:1.6;font-family:Georgia,serif">${nl(t.event)}</div>
+  </div>`).join('')}
+</div>` : '';
+
   const notes = c.notes ? `
 ${sc('Notas Gerais','#7a7060')}
 <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px"><div style="color:#c0b8b0;font-size:13px;line-height:1.8;font-family:Georgia,serif;white-space:pre-wrap">${esc(c.notes)}</div></div>` : '';
@@ -3949,7 +4019,7 @@ ${cover}
     </tr>`).join('')}
   </table>` : ''}
 
-  ${anta}${npcs}${items}
+  ${timeline}${anta}${npcs}${items}
 
   ${c.sessions_data.length ? `
   ${sc('Sessões','#c0392b')}
@@ -4064,7 +4134,10 @@ ${cover}
             return `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1c1a16;align-items:flex-start">
               <span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:13px;flex-shrink:0;margin-top:1px">${cl.found?'✓':'○'}</span>
               <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;flex-shrink:0;margin-top:2px">${esc(cl.type||'Física')}</span>
-              <span style="color:${cl.found?'#7a7060':'#c8c0b8'};font-size:13px;line-height:1.5;text-decoration:${cl.found?'line-through':'none'};margin-left:2px">${esc(cl.text)}</span>
+              <div style="flex:1;min-width:0;margin-left:2px">
+                <span style="color:${cl.found?'#7a7060':'#c8c0b8'};font-size:13px;line-height:1.5;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)}</span>
+                ${clueMetaHtml(cl)}
+              </div>
             </div>`;
           }).join('')}
         </div>` : ''}
