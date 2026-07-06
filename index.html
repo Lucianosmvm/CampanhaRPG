@@ -446,6 +446,14 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .mesa-card{background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:16px}
 .mesa-card-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .mesa-card-title::after{content:'';flex:1;height:1px;background:var(--border-sub)}
+.cena-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid var(--border-sub);scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.cena-tabs::-webkit-scrollbar{height:5px}
+.cena-tabs::-webkit-scrollbar-thumb{background:#302c24;border-radius:3px}
+.cena-tab{display:flex;align-items:center;gap:6px;flex-shrink:0;max-width:200px;padding:7px 12px;border:1px solid #302c24;border-radius:3px 3px 0 0;background:#0a0908;font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;min-height:38px}
+.cena-tab.active{font-weight:700}
+.cena-tab:hover{border-color:#4a4440}
+.cena-tab-content{animation:fadeInTab .18s ease}
+@keyframes fadeInTab{from{opacity:.4}to{opacity:1}}
 .mesa-pista{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pista-check{width:28px;height:28px;border:2px solid var(--border-sub);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;margin-top:1px}
 .pista-check.done{background:var(--green);border-color:var(--green);color:#fff}
@@ -862,7 +870,8 @@ let activeDetailTab = 'overview';
 
 // Mesa Mode
 let mesaSessionId = null;
-let mesaCenaAtivaId = null; // cena marcada como atual
+let mesaCenaAtivaId = null; // cena marcada como atual (onde o grupo está)
+let mesaCenaTabId = null;   // aba de cena aberta no Modo Mesa
 let mesaBusca = '';         // filtro de pesquisa em tempo real
 
 // Timer de sessão (módulo 17)
@@ -1793,6 +1802,10 @@ function bindDetail() {}
 function openMesa(sessId) {
   mesaSessionId = sessId;
   iniciativaRodada = 1;
+  const _c = camps.find(x=>x.id===viewingId);
+  const _s = _c?.sessions_data.find(x=>x.id===sessId);
+  mesaCenaAtivaId = _s?.cenaAtivaId || null;
+  mesaCenaTabId = mesaCenaAtivaId || (_s?.scenes||[])[0]?.id || null;
   renderMesa();
   document.getElementById('mesa-overlay').style.display='flex';
   initMesaSwipe();
@@ -1812,6 +1825,8 @@ function mesaNavSession(dir) {
   const next = c.sessions_data[idx+dir];
   if (!next) return;
   mesaSessionId = next.id;
+  mesaCenaAtivaId = next.cenaAtivaId || null;
+  mesaCenaTabId = mesaCenaAtivaId || (next.scenes||[])[0]?.id || null;
   renderMesa();
 }
 function renderMesa() {
@@ -1949,18 +1964,32 @@ function renderMesa() {
 
   // ── helper: cenas HTML (shared between columns)
   function buildCenasHtml(pfx='') {
-    if (!(s.scenes||[]).length) return '';
-    // sort: active scene first, rest in original order
-    let scenes = [...(s.scenes||[])];
-    if (mesaCenaAtivaId) {
-      const ativaIdx = scenes.findIndex(x=>x.id===mesaCenaAtivaId);
-      if (ativaIdx > 0) { const [a] = scenes.splice(ativaIdx,1); scenes.unshift(a); }
-    }
-    return scenes.map((sc,i)=>{
+    const scenes = s.scenes||[];
+    if (!scenes.length) return '';
+    // aba ativa: tab válida, senão cena marcada, senão primeira
+    const activeTab = scenes.find(x=>x.id===mesaCenaTabId) ? mesaCenaTabId
+                    : (scenes.find(x=>x.id===mesaCenaAtivaId) ? mesaCenaAtivaId : scenes[0].id);
+
+    // ── barra de abas (uma por cena)
+    const tabsHtml = scenes.map((sc,i)=>{
       const col=SCENE_COLORS[sc.type]||'#b8860b';
       const ic=SCENE_ICONS[sc.type]||'🎬';
-      const scid=pfx+'msc-'+sc.id;
-      const isAtiva = sc.id === mesaCenaAtivaId;
+      const isTab = sc.id===activeTab;
+      const isAtiva = sc.id===mesaCenaAtivaId;
+      return `<button class="cena-tab${isTab?' active':''}" onclick="mesaSelectCenaTab('${sc.id}')"
+        style="border-color:${isTab?col:'#302c24'};color:${isTab?'#ede8dc':'#9a8e7a'};background:${isTab?col+'22':'#0a0908'}">
+        <span style="color:${col};font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ic} ${esc(sc.name)||'Sem nome'}</span>
+        ${isAtiva?`<span style="color:#c0392b;font-size:12px;flex-shrink:0" title="Cena atual do grupo">●</span>`:''}
+      </button>`;
+    }).join('');
+
+    // ── conteúdo: apenas a cena da aba ativa
+    const sc = scenes.find(x=>x.id===activeTab) || scenes[0];
+    {
+      const col=SCENE_COLORS[sc.type]||'#b8860b';
+      const ic=SCENE_ICONS[sc.type]||'🎬';
+      const isAtiva = sc.id===mesaCenaAtivaId;
       const locs=sc.locations||[];
       const mesaLocsHtml=locs.map(loc=>{
         const rooms=loc.rooms||[];
@@ -2051,28 +2080,20 @@ function renderMesa() {
           </div>
         </div>`;
       }).join('');
-      const buscaTxt = [sc.name,sc.type,sc.description,...locs.map(l=>l.name+' '+l.description)].join(' ').toLowerCase();
-      return `<div class="mesa-cena-row" data-scid="${sc.id}" data-col="${col}" data-busca="${buscaTxt.replace(/"/g,'')}"
-        style="border-bottom:1px solid #302c24;padding:8px 0;background:${isAtiva?'#7f1d1d12':'transparent'};border-left:${isAtiva?`3px solid ${col}`:'3px solid transparent'};padding-left:${isAtiva?'8px':'0'};transition:all .2s;border-radius:${isAtiva?'2px':'0'}">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="cursor:pointer;flex:1;display:flex;align-items:center;gap:8px;min-width:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${scid}')">
-            <span id="arr-${scid}" style="color:#9a8e7a;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
-            <span style="font-size:10px;font-weight:700;color:${col};font-family:'Share Tech Mono',monospace;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
-            <span style="flex:1;color:#ede8dc;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'Sem nome'}</span>
-            ${isAtiva?`<span class="cena-ativa-badge" style="font-size:9px;padding:1px 6px;border-radius:2px;background:#c0392b33;border:1px solid #c0392b66;color:#c0392b;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">● Atual</span>`:''}
-            <span style="display:inline-block;padding:1px 7px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">${ic} ${esc(sc.type)}</span>
-          </div>
-          <button onclick="mesaMarcarCena('${sc.id}')" title="${isAtiva?'Desmarcar cena':'Marcar como cena atual'}"
-            style="background:${isAtiva?'#c0392b22':'none'};border:1px solid ${isAtiva?'#c0392b55':'#302c24'};color:${isAtiva?'#c0392b':'#4a4440'};width:26px;height:26px;border-radius:2px;font-size:12px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:all .15s"
-            onmouseenter="this.style.borderColor='#c0392b55';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='${isAtiva?'#c0392b55':'#302c24'}';this.style.color='${isAtiva?'#c0392b':'#4a4440'}'">📍</button>
+
+      const contentHtml = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #302c24">
+          <span style="display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase;letter-spacing:.06em">${ic} ${esc(sc.type)}</span>
+          <span style="flex:1"></span>
+          <button onclick="mesaMarcarCena('${sc.id}')" title="${isAtiva?'Desmarcar cena atual':'Marcar como cena atual do grupo'}"
+            style="display:flex;align-items:center;gap:5px;background:${isAtiva?'#c0392b22':'none'};border:1px solid ${isAtiva?'#c0392b55':'#302c24'};color:${isAtiva?'#c0392b':'#7a7060'};padding:4px 10px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;text-transform:uppercase;letter-spacing:.05em;-webkit-tap-highlight-color:transparent;transition:all .15s;flex-shrink:0"
+            onmouseenter="this.style.borderColor='#c0392b55';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='${isAtiva?'#c0392b55':'#302c24'}';this.style.color='${isAtiva?'#c0392b':'#7a7060'}'">📍 ${isAtiva?'Cena Atual':'Marcar Atual'}</button>
         </div>
-        <div id="${scid}" style="display:${isAtiva?'block':'none'};padding-top:6px;padding-left:4px">
-          ${isAtiva?`<span id="arr-${scid}-marker" style="display:none"></span>`:''}
-          ${sc.description?`<p class="body-text" style="margin:0 0 4px;font-size:12px">${nl(sc.description)}</p>`:''}
-          ${mesaLocsHtml}
-        </div>
-      </div>`;
-    }).join('');
+        ${sc.description?`<p class="body-text" style="margin:0 0 6px;font-size:12px">${nl(sc.description)}</p>`:''}
+        ${mesaLocsHtml||'<div style="color:#9a8e7a;font-size:12px;padding:8px 0">Nenhum local cadastrado nesta cena</div>'}`;
+
+      return `<div class="cena-tabs">${tabsHtml}</div><div class="cena-tab-content">${contentHtml}</div>`;
+    }
   }
 
   // ── COLUNA ESQUERDA — controles do mestre
@@ -2153,12 +2174,12 @@ function renderMesa() {
         onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
     </div>
 
-    ${s.opening?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
+    ${s.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
       <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
     </div>`:''}
 
-    ${s.synopsis?`<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
+    ${s.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
       <div class="mesa-card-title">Sinopse</div>
       <p class="body-text" style="margin:0;font-style:italic">${nl(s.synopsis)}</p>
     </div>`:''}
@@ -2168,7 +2189,7 @@ function renderMesa() {
       ${s.objectives?`<div class="mesa-card"><div class="mesa-card-title">🎯 Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
 
       ${(s.scenes||[]).length?`
-        <div class="mesa-card" style="grid-column:1/-1">
+        <div class="mesa-card mesa-card-cenas" style="grid-column:1/-1">
           <div class="mesa-card-title">🎬 Cenas da Sessão</div>
           ${buildCenasHtml()}
         </div>`:''}
@@ -2204,11 +2225,11 @@ function renderMesa() {
         style="width:100%;background:#090807;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;border-radius:3px;outline:none;box-sizing:border-box;-webkit-appearance:none;transition:border-color .2s"
         onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
     </div>
-    ${s.opening?`<div style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
+    ${s.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
       <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
     </div>`:''}
-    ${s.synopsis?`<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:12px 14px;margin-bottom:14px">
+    ${s.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:12px 14px;margin-bottom:14px">
       <div class="mesa-card-title">Sinopse</div>
       <p class="body-text" style="margin:0;font-style:italic;font-size:13px">${nl(s.synopsis)}</p>
     </div>`:''}
@@ -2217,7 +2238,7 @@ function renderMesa() {
       <p class="body-text" style="margin:0;font-size:13px">${nl(s.objectives)}</p>
     </div>`:''}
     <div class="mesa-busca-container">
-    ${(s.scenes||[]).length?`<div class="mesa-card" style="margin-bottom:12px">
+    ${(s.scenes||[]).length?`<div class="mesa-card mesa-card-cenas" style="margin-bottom:12px">
       <div class="mesa-card-title">🎬 Cenas da Sessão</div>
       ${buildCenasHtml('mob-')}
     </div>`:''}
@@ -2336,23 +2357,17 @@ function mesaEl(id) {
 // ── Toggle expandable sections in Mesa ────────────────────────
 function mesaMarcarCena(scId) {
   mesaCenaAtivaId = mesaCenaAtivaId === scId ? null : scId;
-  // re-render just the cenas section without full renderMesa
-  const containers = document.querySelectorAll('.mesa-cenas-list');
-  containers.forEach(c => {
-    c.querySelectorAll('.mesa-cena-row').forEach(row => {
-      const id = row.dataset.scid;
-      const isAtiva = id === mesaCenaAtivaId;
-      row.style.borderLeftColor = isAtiva ? '#c0392b' : row.dataset.col;
-      row.style.background = isAtiva ? '#7f1d1d18' : 'transparent';
-      const badge = row.querySelector('.cena-ativa-badge');
-      if (badge) badge.style.display = isAtiva ? 'inline-block' : 'none';
-    });
-    // move active to top
-    if (mesaCenaAtivaId) {
-      const ativa = c.querySelector(`[data-scid="${mesaCenaAtivaId}"]`);
-      if (ativa) c.prepend(ativa);
-    }
-  });
+  // persiste a cena atual na sessão
+  const c = camps.find(x=>x.id===viewingId);
+  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
+  if (s) { s.cenaAtivaId = mesaCenaAtivaId; persist(); }
+  if (mesaCenaAtivaId) mesaCenaTabId = mesaCenaAtivaId; // ao marcar, abre a aba dela
+  renderMesa();
+}
+// ── Abas de cena: troca a cena visível no Modo Mesa
+function mesaSelectCenaTab(scId) {
+  mesaCenaTabId = scId;
+  renderMesa();
 }
 function mesaBuscarFiltro(val) {
   mesaBusca = val.toLowerCase().trim();
