@@ -353,7 +353,6 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .secret-box{background:var(--accent-ic);border:1px solid var(--accent-ic2);border-radius:2px;padding:8px 12px;margin-top:8px}
 .effect-box{background:#1e1b4b;border:1px solid #4c1d9544;border-radius:2px;padding:8px 12px;margin-top:8px}
 .note-box{margin-top:12px;padding:10px 14px;background:var(--gold-lo);border:1px solid var(--gold-md);border-radius:2px}
-.session-num{width:42px;height:42px;border-radius:2px;background:var(--accent-lo);border:1px solid var(--accent-md);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:15px;font-weight:700;flex-shrink:0}
 .section-divider{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .section-divider::after{content:'';flex:1;height:1px;background:var(--border-sub)}
 .empty-state{text-align:center;padding:40px 0;color:var(--text-muted);font-size:13px;border:1px dashed var(--border-sub);border-radius:3px}
@@ -492,17 +491,6 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .btn-tab{white-space:nowrap;padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-radius:2px;flex-shrink:0}
 .btn-tab:hover{border-color:var(--gold);color:var(--gold)}
 .btn-tab.active{border-color:var(--accent);color:var(--accent);background:var(--accent-ic)}
-
-/* ── MESA SWIPE ── */
-.mesa-swipe-wrap{position:relative;overflow:hidden;touch-action:pan-y}
-.mesa-swipe-hint{position:absolute;top:50%;transform:translateY(-50%);background:var(--bg-alt);border:1px solid var(--border);border-radius:2px;padding:4px 10px;font-size:11px;color:var(--text-muted);pointer-events:none;opacity:0;transition:opacity .2s;z-index:10}
-.mesa-swipe-hint.left{left:8px}
-.mesa-swipe-hint.right{right:8px}
-.mesa-swipe-hint.show{opacity:1}
-.mesa-sess-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg-mesa-top);border-bottom:1px solid var(--border-dim);flex-shrink:0}
-.mesa-nav-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:2px;font-size:12px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .15s}
-.mesa-nav-btn:hover:not(:disabled){border-color:var(--text-head);color:var(--text-head)}
-.mesa-nav-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 10. TEMAS UI — seletores de tema (drawer + topbar)        │
@@ -812,10 +800,10 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
    ║  13. MESA: COMBATE — iniciativa, criaturas                   ║
    ║  14. MESA: DADOS   — rolador de dados, histórico             ║
    ║  15. MESA: PISTAS  — clues toggle                           ║
-   ║  16. MESA: UI      — toggle, swipe, busca, tab bar           ║
+   ║  16. MESA: UI      — toggle, busca, tab bar                  ║
    ║  17. TIMER         — cronômetro de sessão                    ║
    ║  18. NAVIGATION    — goList, goCreate, goDetail...           ║
-   ║  19. FORM OPS      — saveForm, saveFormState, syncSessions   ║
+   ║  19. FORM OPS      — saveForm, saveFormState                 ║
    ║  20. ENTRY OPS     — addEntry, delEntry, scene/clue ops      ║
    ║  21. MODAL/DELETE  — askDelete, confirmDelete                ║
    ║  22. IMPORT/EXPORT — JSON, PDF                               ║
@@ -869,7 +857,6 @@ let activeFormTab = 'info';
 let activeDetailTab = 'overview';
 
 // Mesa Mode
-let mesaSessionId = null;
 let mesaCenaAtivaId = null; // cena marcada como atual (onde o grupo está)
 let mesaCenaTabId = null;   // aba de cena aberta no Modo Mesa
 let mesaBusca = '';         // filtro de pesquisa em tempo real
@@ -1005,10 +992,11 @@ function updateBackupBadge() {
    │ 5. MODELOS DE DADOS — factories blank*()                    │
    └─────────────────────────────────────────────────────────────┘ */
 function blankCamp() {
-  return { id:uid(), title:'', synopsis:'', sessions:1, status:'Em Andamento', nex:'5%',
+  return { id:uid(), title:'', synopsis:'', status:'Em Andamento', nex:'5%',
     createdAt:new Date().toISOString(),
     antagonist:{name:'',nature:'',motivation:'',power:''},
-    timeline:[], criaturas:[], npcs:[], locations:[], items:[], sessions_data:[], notes:'', agentes:[] };
+    timeline:[], criaturas:[], npcs:[], locations:[], items:[], notes:'', agentes:[],
+    scenes:[], opening:'', objectives:'', rewards:'', hook:'', quicknotes:'', clues:[], linkedNpcs:[] };
 }
 function blankAgente()    { return { id:uid(), name:'', icon:'❤️', san:20, sanMax:20, pv:20, pvMax:20, pe:10, peMax:10, nex:5, conditions:[], rituais:'', agilidade:0, rituaisList:[] }; }
 function blankCriatura()  { return { id:uid(), name:'Criatura', pv:30, pvMax:30, _ini:null, conditions:[] }; }
@@ -1073,13 +1061,11 @@ function blankNPC()       { return { id:uid(), name:'', role:'', description:'',
 function blankLoc()       { return { id:uid(), name:'', type:'', description:'', danger:'Baixo' }; }
 function blankItem()      { return { id:uid(), name:'', type:'', description:'', effect:'' }; }
 
-// Sessão e subelementos
-function blankSess(n)     { return { id:uid(), number:n, title:'', opening:'', synopsis:'', objectives:'', scenes:[], rewards:'', hook:'', notes:'', quicknotes:'', status:'Pendente', clues:[], linkedNpcs:[] }; }
+// Cena e subelementos
 function blankScene(n)    { return { id:uid(), number:n, name:'', type:'Investigação', description:'', locations:[] }; }
-function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', paranormal:'', danger:'Baixo', rooms:[] }; }
-function blankSceneRoom() { return { id:uid(), name:'', type:'outro', description:'', atmosphere:'', danger:'Sem Perigo', secret:'', evento:'', items:[], criaturas:[] }; }
+function blankSceneLoc()  { return { id:uid(), name:'', type:'', description:'', atmosphere:'', paranormal:'', danger:'Baixo', secret:'', evento:'', items:[], criaturas:[] }; }
 function blankSceneItem() { return { id:uid(), name:'', cat:'objeto', desc:'', secret:'' }; }
-function blankClue()      { return { id:uid(), text:'', found:false, foundSessId:null, type:'Física', onde:'', como:'', revela:'', levaPara:'' }; }
+function blankClue()      { return { id:uid(), text:'', found:false, type:'Física', onde:'', como:'', revela:'', levaPara:'' }; }
 function blankTimeline()  { return { id:uid(), when:'', event:'' }; }
 
 /* ┌─────────────────────────────────────────────────────────────┐
@@ -1095,17 +1081,17 @@ const CLUE_TYPES  = ['Física','Testemunhal','Ocultista','Documental','Tecnológ
 const CLUE_COLORS = {'Física':'#b8860b','Testemunhal':'#276749','Ocultista':'#7c3aed','Documental':'#0e7490','Tecnológica':'#6b7280'};
 
 // Linha editável de pista (form de edição) — usada em renderForm e addClue
-function clueRowHtml(sessId, cl) {
-  const inp = (ph,field)=>`<input value="${esc(cl[field]||'')}" placeholder="${ph}" onchange="setClueField('${sessId}','${cl.id}','${field}',this.value)" style="width:100%;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:12px;padding:7px 10px;border-radius:2px;outline:none"/>`;
+function clueRowHtml(cl) {
+  const inp = (ph,field)=>`<input value="${esc(cl[field]||'')}" placeholder="${ph}" onchange="setClueField('${cl.id}','${field}',this.value)" style="width:100%;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:12px;padding:7px 10px;border-radius:2px;outline:none"/>`;
   return `
   <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding:10px;background:#0a0908;border:1px solid #2c2820;border-radius:2px" id="clue-row-${cl.id}">
     <div style="display:flex;gap:8px;align-items:center">
-      <select onchange="setClueField('${sessId}','${cl.id}','type',this.value)" style="flex:1;font-size:12px;padding:6px 8px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px;outline:none">
+      <select onchange="setClueField('${cl.id}','type',this.value)" style="flex:1;font-size:12px;padding:6px 8px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px;outline:none">
         ${CLUE_TYPES.map(t=>`<option${t===(cl.type||'Física')?' selected':''}>${t}</option>`).join('')}
       </select>
-      <button class="btn-del" onclick="delClue('${sessId}','${cl.id}')">✕</button>
+      <button class="btn-del" onclick="delClue('${cl.id}')">✕</button>
     </div>
-    <textarea rows="2" style="resize:vertical;min-height:48px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;width:100%" placeholder="Nome / descrição da pista..." onchange="setClue('${sessId}','${cl.id}',this.value)">${esc(cl.text)}</textarea>
+    <textarea rows="2" style="resize:vertical;min-height:48px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;width:100%" placeholder="Nome / descrição da pista..." onchange="setClue('${cl.id}',this.value)">${esc(cl.text)}</textarea>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       ${inp('📍 Onde é encontrada','onde')}
       ${inp('🎲 Como (ex: Investigação DT 15)','como')}
@@ -1135,7 +1121,6 @@ function timelineRowHtml(t) {
    └─────────────────────────────────────────────────────────────┘ */
 const STATUS_COLORS = {'Em Andamento':'#276749','Concluída':'#b8860b','Pausada':'#7a7060','Planejada':'#c0392b'};
 const DANGER_COLORS = {'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
-const SESS_COLORS   = {'Pendente':'#7a7060','Jogada':'#276749','Pulada':'#b8860b'};
 
 function statusPill(s) {
   const c = STATUS_COLORS[s]||'#7a7060';
@@ -1144,10 +1129,6 @@ function statusPill(s) {
 function dangerPill(d) {
   const c = DANGER_COLORS[d]||'#7a7060';
   return `<span class="pill" style="background:${c}22;border:1px solid ${c}55;color:${c}">${esc(d)}</span>`;
-}
-function sessPill(s) {
-  const c = SESS_COLORS[s]||'#7a7060';
-  return `<span class="pill" style="background:${c}22;border:1px solid ${c}55;color:${c}">${esc(s)}</span>`;
 }
 function accentColor(status) { return STATUS_COLORS[status]||'#276749'; }
 function fieldHtml(label, inputHtml, hint='') {
@@ -1197,7 +1178,6 @@ function renderList() {
     </div>`;
 
   const rows = camps.map(c => {
-    const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
     return `
     <div class="campaign-row" onclick="goDetail('${c.id}')">
       <div class="accent-bar" style="background:${accentColor(c.status)}"></div>
@@ -1209,7 +1189,7 @@ function renderList() {
         </div>
         ${c.synopsis?`<p class="muted" style="font-size:12px;line-height:1.5;margin:0 0 8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(c.synopsis)}</p>`:''}
         <div style="display:flex;gap:14px;flex-wrap:wrap">
-          ${[`${c.sessions} sessão${c.sessions!==1?'s':''}`,`${(c.npcs||[]).length} NPC${(c.npcs||[]).length!==1?'s':''}`,`${(c.items||[]).length} item${(c.items||[]).length!==1?'s':''}`,`${jogadas} jogada${jogadas!==1?'s':''}`].map(l=>`<span style="font-size:11px;color:#302c24">${l}</span>`).join('')}
+          ${[`${(c.scenes||[]).length} cena${(c.scenes||[]).length!==1?'s':''}`,`${(c.npcs||[]).length} NPC${(c.npcs||[]).length!==1?'s':''}`,`${(c.items||[]).length} item${(c.items||[]).length!==1?'s':''}`].map(l=>`<span style="font-size:11px;color:#302c24">${l}</span>`).join('')}
         </div>
       </div>
       <button class="btn-del" onclick="event.stopPropagation();askDelete('${c.id}')">✕</button>
@@ -1260,7 +1240,7 @@ function renderForm() {
     {k:'timeline',l:`⏳ Linha do Tempo (${(d.timeline||[]).length})`},
     {k:'npcs',    l:`👤 NPCs (${d.npcs.length})`},
     {k:'items',   l:`🗡 Itens (${d.items.length})`},
-    {k:'sessions',l:`📅 Sessões (${d.sessions})`},
+    {k:'scenes',  l:`🎬 Cenas (${(d.scenes||[]).length})`},
     {k:'notes',   l:'📝 Notas'},
   ];
 
@@ -1268,11 +1248,10 @@ function renderForm() {
 
   if (activeFormTab === 'info') body = `
     <div class="grid2">
-      <div class="span2">${fieldHtml('Título da Campanha','<input id="f-title" value="'+esc(d.title)+'" placeholder="Ex: O Silêncio da Carne" style="font-size:16px"/>')}</div>
-      ${fieldHtml('Número de Sessões','<input id="f-sessions" type="number" min="1" max="20" value="'+d.sessions+'"/>')}
+      <div class="span2">${fieldHtml('Título da Campanha','<input id="f-title" value="'+esc(d.title)+'" placeholder="Ex: O Despertar — Parte 1" style="font-size:16px"/>')}</div>
       ${fieldHtml('Status','<select id="f-status">'+['Em Andamento','Planejada','Pausada','Concluída'].map(s=>`<option${s===d.status?' selected':''}>${s}</option>`).join('')+'</select>')}
       ${fieldHtml('NEX dos Agentes','<select id="f-nex">'+['0%','5%','10%','15%','20%','25%','30%','35%','40%','45%','50%','55%','60%','65%','70%','75%','80%','85%','90%','95%','99%'].map(n=>`<option${n===d.nex?' selected':''}>${n}</option>`).join('')+'</select>','(Nível de Exposição ao Paranormal)')}
-      <div class="span2">${fieldHtml('Sinopse / Premissa','<textarea id="f-synopsis" rows="5" placeholder="Descreva o arco central, o mistério principal...">'+esc(d.synopsis)+'</textarea>')}</div>
+      <div class="span2">${fieldHtml('Sinopse desta Sessão','<textarea id="f-synopsis" rows="5" placeholder="O que acontece nesta sessão? Qual o mistério/gancho central?">'+esc(d.synopsis)+'</textarea>')}</div>
     </div>`;
 
   if (activeFormTab === 'antagonist') body = `
@@ -1304,64 +1283,48 @@ function renderForm() {
     <div id="items-list">${d.items.map((item,i)=>renderEntryCard('item',item,i)).join('')}</div>
     <button class="btn-add" onclick="addEntry('items')">+ Adicionar Item</button>`;
 
-  if (activeFormTab === 'sessions') body = d.sessions_data.map((s,i)=>`
-    <div class="entry-card" id="sess-card-${s.id}">
-      <div class="entry-head" onclick="toggleEntry('sess-body-${s.id}','sess-arrow-${s.id}')">
-        <span class="entry-arrow" id="sess-arrow-${s.id}" style="transform:${i===0?'rotate(90deg)':'rotate(0deg)'}">▶</span>
-        <div style="flex:1;min-width:0">
-          <div style="color:#ede8dc;font-size:13px">Sessão ${s.number}${s.title?' — '+esc(s.title):''}</div>
-          ${s.synopsis?`<div style="color:#9a8e7a;font-size:11px;margin-top:2px">${esc(s.synopsis.slice(0,55))}${s.synopsis.length>55?'...':''}</div>`:''}
-        </div>
-        ${sessPill(s.status)}
+  if (activeFormTab === 'scenes') body = `
+    <div class="grid2" style="margin-bottom:20px">
+      <div class="span2">${fieldHtml('Abertura da Sessão','<textarea id="f-opening" rows="2" placeholder="Como a sessão começa? Qual a cena de abertura? (leia em voz alta)">'+esc(d.opening||'')+'</textarea>')}</div>
+      ${fieldHtml('Objetivos dos Agentes','<textarea id="f-objectives" rows="3" placeholder="O que devem descobrir?">'+esc(d.objectives)+'</textarea>')}
+      ${fieldHtml('Recompensas / Consequências','<textarea id="f-rewards" rows="3" placeholder="XP, itens, mudanças no mundo...">'+esc(d.rewards)+'</textarea>')}
+      <div class="span2">${fieldHtml('Gancho para Próxima Sessão','<textarea id="f-hook" rows="2" placeholder="Como termina? O que deixa os jogadores curiosos?">'+esc(d.hook||'')+'</textarea>')}</div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="field-label" style="margin-bottom:8px">🎬 Cenas</div>
+      <div id="scenes-list">
+        ${(d.scenes||[]).map((sc,si)=>renderSceneRow(sc,si)).join('')}
       </div>
-      <div class="entry-body" id="sess-body-${s.id}" style="display:${i===0?'block':'none'}">
-        <div class="grid2">
-          ${fieldHtml('Título','<input onchange="setSessField(\''+s.id+'\',\'title\',this.value)" value="'+esc(s.title)+'" placeholder="Ex: A Noite do Coletor"/>')}
-          ${fieldHtml('Status','<select onchange="setSessField(\''+s.id+'\',\'status\',this.value)">'+['Pendente','Jogada','Pulada'].map(st=>`<option${st===s.status?' selected':''}>${st}</option>`).join('')+'</select>')}
-          <div class="span2">${fieldHtml('Abertura da Sessão','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'opening\',this.value)" placeholder="Como a sessão começa? Qual a cena de abertura? (leia em voz alta)">'+esc(s.opening||'')+'</textarea>')}</div>
-          <div class="span2">${fieldHtml('Sinopse','<textarea rows="3" onchange="setSessField(\''+s.id+'\',\'synopsis\',this.value)" placeholder="O que acontece nessa sessão?">'+esc(s.synopsis)+'</textarea>')}</div>
-          ${fieldHtml('Objetivos dos Agentes','<textarea rows="3" onchange="setSessField(\''+s.id+'\',\'objectives\',this.value)" placeholder="O que devem descobrir?">'+esc(s.objectives)+'</textarea>')}
-          <div class="span2">
-            <div class="field-label" style="margin-bottom:8px">🎬 Cenas da Sessão</div>
-            <div id="scenes-${s.id}">
-              ${(s.scenes||[]).map((sc,si)=>renderSceneRow(s.id,sc,si)).join('')}
-            </div>
-            <button class="btn-add" style="margin-top:4px" onclick="addScene('${s.id}')">+ Adicionar Cena</button>
-          </div>
-          ${fieldHtml('Recompensas / Consequências','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'rewards\',this.value)" placeholder="XP, itens, mudanças no mundo...">'+esc(s.rewards)+'</textarea>')}
-          ${fieldHtml('Gancho para Próxima Sessão','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'hook\',this.value)" placeholder="Como termina? O que deixa os jogadores curiosos?">'+esc(s.hook||'')+'</textarea>')}
-          ${fieldHtml('Notas do Mestre','<textarea rows="2" onchange="setSessField(\''+s.id+'\',\'notes\',this.value)" placeholder="Observações internas, segredos...">'+esc(s.notes)+'</textarea>')}
-          <div class="span2">
-            <div class="field-label">🔍 Pistas / Evidências</div>
-            <div id="clues-${s.id}">
-              ${(s.clues||[]).map(cl=>clueRowHtml(s.id,cl)).join('')}
-            </div>
-            <button class="btn-add" style="margin-top:4px" onclick="addClue('${s.id}')">+ Adicionar Pista</button>
-          </div>
+      <button class="btn-add" style="margin-top:4px" onclick="addScene()">+ Adicionar Cena</button>
+    </div>
+    <div class="span2" style="margin-bottom:20px">
+      <div class="field-label">🔍 Pistas / Evidências</div>
+      <div id="clues-list">
+        ${(d.clues||[]).map(cl=>clueRowHtml(cl)).join('')}
+      </div>
+      <button class="btn-add" style="margin-top:4px" onclick="addClue()">+ Adicionar Pista</button>
+    </div>
 
-          <!-- NPCS DA SESSÃO -->
-          <div class="span2">
-            <div class="field-label" style="margin-bottom:8px">👤 NPCs desta Sessão</div>
-            <p style="color:#4a4440;font-size:11px;margin-bottom:10px">Marque os NPCs que aparecem nesta sessão — aparecem primeiro no Modo Mesa.</p>
-            ${d.npcs.length===0
-              ? `<div style="color:#4a4440;font-size:12px;padding:8px;border:1px dashed #302c24;border-radius:2px">Nenhum NPC cadastrado. Adicione NPCs na aba 👤 NPCs.</div>`
-              : d.npcs.map(n=>{
-                  const linked = (s.linkedNpcs||[]).includes(n.id);
-                  return `<div id="npc-link-row-${s.id}-${n.id}" onclick="toggleLinkedRow('npc','${s.id}','${n.id}')"
-                    style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:2px;cursor:pointer;margin-bottom:4px;background:${linked?'#c0392b12':'#0a0908'};border:1px solid ${linked?'#c0392b44':'#2c2820'};transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none">
-                    <div style="width:16px;height:16px;border-radius:3px;border:2px solid ${linked?'#c0392b':'#4a4440'};background:${linked?'#c0392b':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s">
-                      ${linked?'<span style="color:#fff;font-size:11px;line-height:1">✓</span>':''}
-                    </div>
-                    <div style="flex:1;min-width:0">
-                      <div style="color:#ede8dc;font-size:13px">${esc(n.name||'Sem nome')}</div>
-                      ${n.role?`<div style="color:#b8860b;font-size:11px">${esc(n.role)}</div>`:''}
-                    </div>
-                  </div>`;
-                }).join('')}
-          </div>
-        </div>
-      </div>
-    </div>`).join('');
+    <!-- NPCS DA SESSÃO -->
+    <div class="span2">
+      <div class="field-label" style="margin-bottom:8px">👤 NPCs desta Sessão</div>
+      <p style="color:#4a4440;font-size:11px;margin-bottom:10px">Marque os NPCs que aparecem nesta sessão — aparecem primeiro no Modo Mesa.</p>
+      ${d.npcs.length===0
+        ? `<div style="color:#4a4440;font-size:12px;padding:8px;border:1px dashed #302c24;border-radius:2px">Nenhum NPC cadastrado. Adicione NPCs na aba 👤 NPCs.</div>`
+        : d.npcs.map(n=>{
+            const linked = (d.linkedNpcs||[]).includes(n.id);
+            return `<div id="npc-link-row-${n.id}" onclick="toggleLinkedRow('npc','${n.id}')"
+              style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:2px;cursor:pointer;margin-bottom:4px;background:${linked?'#c0392b12':'#0a0908'};border:1px solid ${linked?'#c0392b44':'#2c2820'};transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none">
+              <div style="width:16px;height:16px;border-radius:3px;border:2px solid ${linked?'#c0392b':'#4a4440'};background:${linked?'#c0392b':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s">
+                ${linked?'<span style="color:#fff;font-size:11px;line-height:1">✓</span>':''}
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="color:#ede8dc;font-size:13px">${esc(n.name||'Sem nome')}</div>
+                ${n.role?`<div style="color:#b8860b;font-size:11px">${esc(n.role)}</div>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+    </div>`;
 
   if (activeFormTab === 'notes') body = fieldHtml('Notas Gerais','<textarea id="f-notes" rows="18" placeholder="Anotações livres...">'+esc(d.notes)+'</textarea>');
 
@@ -1528,14 +1491,13 @@ function renderDetail() {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return '';
 
-  const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
   const tabs = [
     {k:'overview',  l:'Visão Geral'},
     {k:'antagonist',l:'☠ Antagonista'},
     {k:'timeline',  l:`⏳ Linha do Tempo (${(c.timeline||[]).length})`},
     {k:'npcs',      l:`NPCs (${c.npcs.length})`},
     {k:'items',     l:`Itens (${c.items.length})`},
-    {k:'sessions',  l:`Sessões (${c.sessions})`},
+    {k:'scenes',    l:`🎬 Cenas (${(c.scenes||[]).length})`},
     {k:'notes',     l:'Notas'},
   ];
 
@@ -1544,17 +1506,16 @@ function renderDetail() {
   if (activeDetailTab === 'overview') body = `
     <div class="grid2">
       <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px">
-        <div class="section-divider">Sessões</div>
-        ${c.sessions_data.length===0?'<span class="muted" style="font-size:12px">Nenhuma sessão</span>':
-          c.sessions_data.map(s=>`
-          <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #302c24${s.status==='Em Andamento'?';background:#c0392b08;margin:0 -8px;padding-left:8px;padding-right:8px;border-left:2px solid #c0392b':''}">
-            <span style="width:6px;height:6px;border-radius:50%;background:${SESS_COLORS[s.status]||'#302c24'};flex-shrink:0;display:inline-block${s.status==='Em Andamento'?';box-shadow:0 0 6px #c0392b':''}"></span>
-            <span style="color:#c0392b;font-size:12px;font-weight:700;flex-shrink:0">${String(s.number).padStart(2,'0')}</span>
-            <span style="color:${s.title?'#ede8dc':'#7a7060'};font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:${s.title?'normal':'italic'}">${esc(s.title)||'Sem título'}</span>
-            ${s.status==='Em Andamento'?'<span style="font-size:10px;color:#c0392b;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">● AO VIVO</span>':''}
-            ${sessPill(s.status)}
-            <button class="btn-green" onclick="openMesa('${s.id}')">▶ Mesa</button>
-          </div>`).join('')}
+        <div class="section-divider">Cenas</div>
+        ${(c.scenes||[]).length===0?'<span class="muted" style="font-size:12px">Nenhuma cena</span>':
+          c.scenes.map((sc,i)=>{
+            const col = SCENE_COLORS[sc.type]||'#b8860b';
+            return `
+          <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #302c24">
+            <span style="font-size:10px;font-weight:700;color:${col};font-family:'Share Tech Mono',monospace;flex-shrink:0">C${String(i+1).padStart(2,'0')}</span>
+            <span style="color:${sc.name?'#ede8dc':'#7a7060'};font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:${sc.name?'normal':'italic'}">${esc(sc.name)||'Sem nome'}</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase">${SCENE_ICONS[sc.type]||'🎬'} ${sc.type}</span>
+          </div>`;}).join('')}
       </div>
       <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:16px">
         <div class="section-divider">NPCs</div>
@@ -1662,63 +1623,42 @@ function renderDetail() {
       ${n.secret?`<div class="secret-box"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🔒 Segredo</div><p style="color:#c0a0a0;font-size:12px;line-height:1.6;margin:0">${nl(n.secret)}</p></div>`:''}
     </div>`).join('');
 
-  if (activeDetailTab === 'sessions') body = c.sessions_data.length===0?'<div class="empty-state">Nenhuma sessão cadastrada</div>':
-    c.sessions_data.map(s=>`
-    <div class="sess-card" style="${s.status==='Em Andamento'?'border-left:3px solid #c0392b;background:#c0392b06':''}">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
-        <div class="session-num">${String(s.number).padStart(2,'0')}</div>
-        <div style="flex:1"><div class="serif ink" style="font-size:18px;font-weight:700">${esc(s.title)||'<em style="color:#9a8e7a">Sem título</em>'}</div></div>
-        ${s.status==='Em Andamento'?'<span style="font-size:10px;color:#c0392b;letter-spacing:.08em;text-transform:uppercase;font-weight:700;animation:fadeIn .5s">● EM ANDAMENTO</span>':''}
-        ${sessPill(s.status)}
-        <button class="btn-green" onclick="openMesa('${s.id}')">${s.status==='Em Andamento'?'▶ Continuar Mesa':'▶ Modo Mesa'}</button>
-      </div>
-      ${s.opening?`<div style="background:#c0392b10;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:2px;padding:10px 14px;margin-bottom:12px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🎬 Abertura — leia em voz alta</div><p style="color:#eedada;font-size:13px;line-height:1.7;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p></div>`:''}
+  if (activeDetailTab === 'scenes') body = `
+    <div class="sess-card">
+      ${c.opening?`<div style="background:#c0392b10;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:2px;padding:10px 14px;margin-bottom:12px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🎬 Abertura — leia em voz alta</div><p style="color:#eedada;font-size:13px;line-height:1.7;font-family:Georgia,serif;font-style:italic;margin:0">${nl(c.opening)}</p></div>`:''}
       <div class="grid2">
-        ${s.synopsis?`<div><div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Sinopse</div><p class="body-text" style="margin:0">${nl(s.synopsis)}</p></div>`:''}
-        ${s.objectives?`<div><div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
-        ${s.rewards?`<div><div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Recompensas</div><p class="body-text" style="margin:0">${nl(s.rewards)}</p></div>`:''}
+        ${c.objectives?`<div><div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Objetivos</div><p class="body-text" style="margin:0">${nl(c.objectives)}</p></div>`:''}
+        ${c.rewards?`<div><div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:700">Recompensas</div><p class="body-text" style="margin:0">${nl(c.rewards)}</p></div>`:''}
       </div>
-      ${(s.scenes||[]).length?`
+      ${(c.scenes||[]).length===0?'<div class="empty-state">Nenhuma cena cadastrada</div>':`
         <div style="margin-top:14px">
-          <div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;font-weight:700">🎬 Cenas da Sessão</div>
-          ${(s.scenes||[]).map((sc,i)=>{
+          ${c.scenes.map((sc,i)=>{
             const col=SCENE_COLORS[sc.type]||'#b8860b';
             const ic=SCENE_ICONS[sc.type]||'🎬';
             const locs=sc.locations||[];
             const locsDetailHtml=locs.map(loc=>{
-              const rooms=loc.rooms||[];
-              const dc2=DANGER_COLORS[loc.danger]||'#7a7060';
+              const items=loc.items||[];
+              const dc2=LOC_DANGER_C[loc.danger]||'#7a7060';
               return `<div style="background:#0f0e0c;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;padding:10px 12px;margin-top:8px">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:${loc.description||rooms.length?'6px':'0'}">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:${loc.description||items.length?'6px':'0'}">
                   <span style="color:#b8860b;font-size:12px">📍</span>
                   <span style="color:#ede8dc;font-size:13px;font-weight:700;flex:1">${esc(loc.name)||'<em style="color:#9a8e7a">Sem nome</em>'}</span>
                   ${loc.type?`<span style="color:#9a8e7a;font-size:11px">${esc(loc.type)}</span>`:''}
-                  <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>
+                  ${loc.danger&&loc.danger!=='Sem Perigo'?`<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>`:''}
                 </div>
                 ${loc.description?`<p class="body-text" style="margin:0 0 6px;font-size:12px">${nl(loc.description)}</p>`:''}
+                ${loc.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(loc.atmosphere)}</div>`:''}
                 ${loc.paranormal?`<div style="background:#7c3aed12;border:1px solid #7c3aed44;border-left:2px solid #7c3aed;border-radius:2px;padding:5px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:2px">👁 Outro Lado</div><div style="color:#c4b5fd;font-size:12px;line-height:1.5">${nl(loc.paranormal)}</div></div>`:''}
-                ${rooms.map(r=>{
-                  const rdc=ROOM_DANGER_C[r.danger]||'#7a7060';
-                  const items=r.items||[];
-                  return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;padding:8px 10px;margin-bottom:4px">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.description||r.atmosphere||r.secret||items.length?'5px':'0'}">
-                      <span style="font-size:13px">${ROOM_IC[r.type]||'📍'}</span>
-                      <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name)||'Sem nome'}</span>
-                      ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${rdc};font-size:10px;text-transform:uppercase">${esc(r.danger)}</span>`:''}
-                    </div>
-                    ${r.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin:0 0 4px">${nl(r.description)}</p>`:''}
-                    ${r.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(r.atmosphere)}</div>`:''}
-                    ${r.secret?`<div style="color:#c0a0a0;font-size:11px;margin-bottom:4px">🔒 ${esc(r.secret)}</div>`:''}
-                    ${items.map(it=>`<div style="display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-top:1px solid #1c1a16">
-                      <span style="font-size:11px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
-                      <div style="flex:1;min-width:0">
-                        <div style="color:#ede8dc;font-size:11px;font-weight:700">${esc(it.name)}</div>
-                        ${it.desc?`<div style="color:#9a9088;font-size:11px">${esc(it.desc)}</div>`:''}
-                        ${it.secret?`<div style="color:#c0392b;font-size:10px">🔒 ${esc(it.secret)}</div>`:''}
-                      </div>
-                    </div>`).join('')}
-                  </div>`;
-                }).join('')}
+                ${loc.secret?`<div style="color:#c0a0a0;font-size:11px;margin-bottom:4px">🔒 ${esc(loc.secret)}</div>`:''}
+                ${loc.evento?`<div style="color:#fbbf7c;font-size:11px;margin-bottom:4px">⚡ ${esc(loc.evento)}</div>`:''}
+                ${items.map(it=>`<div style="display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-top:1px solid #1c1a16">
+                  <span style="font-size:11px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="color:#ede8dc;font-size:11px;font-weight:700">${esc(it.name)}</div>
+                    ${it.desc?`<div style="color:#9a9088;font-size:11px">${esc(it.desc)}</div>`:''}
+                    ${it.secret?`<div style="color:#c0392b;font-size:10px">🔒 ${esc(it.secret)}</div>`:''}
+                  </div>
+                </div>`).join('')}
               </div>`;
             }).join('');
             return `<div style="background:#141210;border:1px solid #2c2820;border-left:3px solid ${col};border-radius:2px;padding:12px 14px;margin-bottom:8px">
@@ -1731,11 +1671,11 @@ function renderDetail() {
               ${locs.length?`<div style="margin-top:4px">${locsDetailHtml}</div>`:''}
             </div>`;
           }).join('')}
-        </div>`:''}
-      ${s.clues?.length?`
+        </div>`}
+      ${c.clues?.length?`
         <div style="margin-top:14px">
           <div style="font-size:10px;color:#9a8e7a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:700">🔍 Pistas</div>
-          ${s.clues.map(cl=>{const cc=CLUE_COLORS[cl.type||'Física']||'#b8860b';return`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #1c1a16">
+          ${c.clues.map(cl=>{const cc=CLUE_COLORS[cl.type||'Física']||'#b8860b';return`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #1c1a16">
             <span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:12px;flex-shrink:0;margin-top:2px">${cl.found?'✓':'○'}</span>
             <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-top:2px">${esc(cl.type||'Física')}</span>
             <div style="flex:1;min-width:0">
@@ -1744,9 +1684,8 @@ function renderDetail() {
             </div>
           </div>`}).join('')}
         </div>`:''}
-      ${s.hook?`<div style="margin-top:12px;padding:10px 14px;background:#0e749015;border:1px solid #0e749033;border-radius:2px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:12px;line-height:1.6;margin:0">${nl(s.hook)}</p></div>`:''}
-      ${s.notes?`<div class="note-box"><div style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:12px;line-height:1.6;margin:0">${nl(s.notes)}</p></div>`:''}
-    </div>`).join('');
+      ${c.hook?`<div style="margin-top:12px;padding:10px 14px;background:#0e749015;border:1px solid #0e749033;border-radius:2px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:12px;line-height:1.6;margin:0">${nl(c.hook)}</p></div>`:''}
+    </div>`;
 
   if (activeDetailTab === 'notes') body = `
     <div style="background:#141210;border:1px solid #2c2820;border-radius:3px;padding:20px">
@@ -1763,17 +1702,15 @@ function renderDetail() {
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
               ${statusPill(c.status)}
               <span class="muted" style="font-size:11px">NEX ${c.nex||'5%'}</span>
-              <span class="muted" style="font-size:11px">${c.sessions} sessão${c.sessions!==1?'s':''}</span>
+              <span class="muted" style="font-size:11px">${(c.scenes||[]).length} cena${(c.scenes||[]).length!==1?'s':''}</span>
             </div>
             <h1 class="serif ink" style="font-size:clamp(20px,4vw,32px);font-weight:900;line-height:1.15;margin-bottom:12px">${esc(c.title)||'Sem título'}</h1>
             ${c.synopsis?`<p style="color:#e8e2d6;font-size:14px;line-height:1.7;max-width:620px;font-family:Georgia,serif;font-style:italic">${esc(c.synopsis)}</p>`:''}
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:flex-end" class="hero-actions">
             ${(()=>{
-              const sessAtiva = c.sessions_data.find(s=>s.status==='Em Andamento') || c.sessions_data.find(s=>s.status!=='Jogada') || c.sessions_data[0];
-              if (!sessAtiva) return '';
-              const label = sessAtiva.status==='Em Andamento' ? `▶ Continuar — Sessão ${String(sessAtiva.number).padStart(2,'0')}` : `▶ Iniciar Mesa — Sessão ${String(sessAtiva.number).padStart(2,'0')}`;
-              return `<button style="background:#c0392b;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:10px 20px;border-radius:2px;cursor:pointer;letter-spacing:.04em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='#a93226'" onmouseout="this.style.background='#c0392b'" onclick="openMesa('${sessAtiva.id}')">${label}</button>`;
+              const label = c.status==='Em Andamento' ? '▶ Continuar Mesa' : '▶ Iniciar Mesa';
+              return `<button style="background:#c0392b;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:10px 20px;border-radius:2px;cursor:pointer;letter-spacing:.04em;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='#a93226'" onmouseout="this.style.background='#c0392b'" onclick="openMesa()">${label}</button>`;
             })()}
             <div style="display:flex;gap:8px">
               <button class="btn-ghost" onclick="goList()">← Voltar</button>
@@ -1783,7 +1720,7 @@ function renderDetail() {
           </div>
         </div>
         <div class="stats-bar">
-          ${[['NPCs',c.npcs.length],['Itens',c.items.length],['Sessões',c.sessions],['Jogadas',jogadas]].map(([l,v])=>`
+          ${[['NPCs',c.npcs.length],['Itens',c.items.length],['Cenas',(c.scenes||[]).length]].map(([l,v])=>`
           <div style="text-align:center"><div class="stat-num">${v}</div><div class="stat-label">${l}</div></div>`).join('')}
         </div>
       </div>
@@ -1799,49 +1736,29 @@ function bindDetail() {}
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 11. MESA: CORE — abertura, fechamento e render principal   │
    └─────────────────────────────────────────────────────────────┘ */
-function openMesa(sessId) {
-  mesaSessionId = sessId;
+function openMesa() {
   iniciativaRodada = 1;
   const _c = camps.find(x=>x.id===viewingId);
-  const _s = _c?.sessions_data.find(x=>x.id===sessId);
-  mesaCenaAtivaId = _s?.cenaAtivaId || null;
-  mesaCenaTabId = mesaCenaAtivaId || (_s?.scenes||[])[0]?.id || null;
+  mesaCenaAtivaId = _c?.cenaAtivaId || null;
+  mesaCenaTabId = mesaCenaAtivaId || (_c?.scenes||[])[0]?.id || null;
   renderMesa();
   document.getElementById('mesa-overlay').style.display='flex';
-  initMesaSwipe();
 }
 function closeMesa() {
   timerReset();
   document.getElementById('mesa-overlay').style.display='none';
-  mesaSessionId = null;
   mesaCenaAtivaId = null;
   mesaBusca = '';
   render();
 }
-function mesaNavSession(dir) {
-  const c = camps.find(x=>x.id===viewingId);
-  if (!c) return;
-  const idx = c.sessions_data.findIndex(x=>x.id===mesaSessionId);
-  const next = c.sessions_data[idx+dir];
-  if (!next) return;
-  mesaSessionId = next.id;
-  mesaCenaAtivaId = next.cenaAtivaId || null;
-  mesaCenaTabId = mesaCenaAtivaId || (next.scenes||[])[0]?.id || null;
-  renderMesa();
-}
 function renderMesa() {
   const c = camps.find(x=>x.id===viewingId);
-  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!c||!s) return;
-  const idx = c.sessions_data.findIndex(x=>x.id===mesaSessionId);
-  const hasPrev = idx > 0;
-  const hasNext = idx < c.sessions_data.length-1;
+  if (!c) return;
 
   document.getElementById('mesa-top').innerHTML = `
-    <div class="session-num">${String(s.number).padStart(2,'0')}</div>
     <div style="flex:1;min-width:0">
-      <div style="font-size:10px;color:#9a8e7a;letter-spacing:.15em;text-transform:uppercase">Modo Mesa · ${esc(c.title)}</div>
-      <div class="serif ink" style="font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.title)||'Sessão '+s.number}</div>
+      <div style="font-size:10px;color:#9a8e7a;letter-spacing:.15em;text-transform:uppercase">Modo Mesa</div>
+      <div class="serif ink" style="font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)||'Sem título'}</div>
     </div>
     <!-- TIMER -->
     <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#090807;border:1px solid #1c1a16;border-radius:3px;flex-shrink:0">
@@ -1850,40 +1767,20 @@ function renderMesa() {
       <button onclick="timerReset()" title="Zerar cronômetro" style="background:none;border:1px solid #2c2820;color:#4a4440;width:28px;height:28px;border-radius:2px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .15s" onmouseenter="this.style.borderColor='#c0392b';this.style.color='#c0392b'" onmouseleave="this.style.borderColor='#2c2820';this.style.color='#4a4440'">↺</button>
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      ${['Pendente','Jogada','Pulada'].map(st=>`
-        <button class="sess-status-btn" style="color:${s.status===st?'#ede8dc':'#7a7060'};border-color:${s.status===st?'#c0392b':'#302c24'};background:${s.status===st?'#c0392b22':'none'}"
+      ${['Em Andamento','Planejada','Pausada','Concluída'].map(st=>`
+        <button class="sess-status-btn" style="color:${c.status===st?'#ede8dc':'#7a7060'};border-color:${c.status===st?'#c0392b':'#302c24'};background:${c.status===st?'#c0392b22':'none'}"
           onclick="mesaSetStatus('${st}')">${st}</button>`).join('')}
       <button class="btn-ghost" onclick="closeMesa()">✕ Fechar</button>
     </div>`;
 
-  // Session nav bar
-  let navBar = document.getElementById('mesa-sess-nav');
-  if (!navBar) {
-    navBar = document.createElement('div');
-    navBar.id = 'mesa-sess-nav';
-    navBar.className = 'mesa-sess-nav';
-    document.getElementById('mesa-top').after(navBar);
-  }
-  navBar.innerHTML = `
-    <button class="mesa-nav-btn" onclick="mesaNavSession(-1)" ${hasPrev?'':'disabled'}>◀ Anterior</button>
-    <span style="color:#9a8e7a;font-size:11px;letter-spacing:.08em">${idx+1} / ${c.sessions_data.length}</span>
-    <button class="mesa-nav-btn" onclick="mesaNavSession(1)" ${hasNext?'':'disabled'}>Próxima ▶</button>`;
-
-  const cluesHtml = (s.clues||[]).map(cl=>{
+  const cluesHtml = (c.clues||[]).map(cl=>{
     const cc = CLUE_COLORS[cl.type||'Física']||'#b8860b';
-    // descobre o número da sessão em que foi encontrada (se diferente desta)
-    let foundSessLabel = '';
-    if (cl.found && cl.foundSessId && cl.foundSessId !== s.id) {
-      const foundSess = c.sessions_data.find(x=>x.id===cl.foundSessId);
-      if (foundSess) foundSessLabel = `<span style="font-size:9px;color:#276749;background:#27674922;border:1px solid #27674944;border-radius:2px;padding:1px 5px;margin-left:4px">✓ Sessão ${foundSess.number}</span>`;
-    }
     return `
     <div class="mesa-pista" onclick="mesaToggleClue('${cl.id}')" data-busca="${(cl.text||'').toLowerCase().replace(/"/g,'')} ${(cl.type||'').toLowerCase()}">
       <div class="pista-check ${cl.found?'done':''}">${cl.found?'✓':''}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:2px">
           <span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:${cc}22;border:1px solid ${cc}44;color:${cc};text-transform:uppercase;letter-spacing:.06em">${esc(cl.type||'Física')}</span>
-          ${foundSessLabel}
         </div>
         <div style="color:${cl.found?'#7a7060':'#d6d0c4'};font-size:13px;line-height:1.5;text-decoration:${cl.found?'line-through':'none'}">${esc(cl.text)||'<em style="color:#9a8e7a">Sem texto</em>'}</div>
         ${clueMetaHtml(cl)}
@@ -1892,8 +1789,8 @@ function renderMesa() {
   }).join('');
 
   // Use linked NPCs if set, otherwise show all
-  const linkedNpcs = (s.linkedNpcs||[]).length > 0
-    ? c.npcs.filter(n=>(s.linkedNpcs||[]).includes(n.id))
+  const linkedNpcs = (c.linkedNpcs||[]).length > 0
+    ? c.npcs.filter(n=>(c.linkedNpcs||[]).includes(n.id))
     : c.npcs;
 
   function buildNpcsHtml(pfx='') {
@@ -1960,11 +1857,11 @@ function renderMesa() {
       </div>
     </div>`).join('') : '';
 
-  const quicknotes = s.quicknotes||'';
+  const quicknotes = c.quicknotes||'';
 
   // ── helper: cenas HTML (shared between columns)
   function buildCenasHtml(pfx='') {
-    const scenes = s.scenes||[];
+    const scenes = c.scenes||[];
     if (!scenes.length) return '';
     // aba ativa: tab válida, senão cena marcada, senão primeira
     const activeTab = scenes.find(x=>x.id===mesaCenaTabId) ? mesaCenaTabId
@@ -1992,91 +1889,75 @@ function renderMesa() {
       const isAtiva = sc.id===mesaCenaAtivaId;
       const locs=sc.locations||[];
       const mesaLocsHtml=locs.map(loc=>{
-        const rooms=loc.rooms||[];
-        const dc2=DANGER_COLORS[loc.danger]||'#7a7060';
+        const dc2=LOC_DANGER_C[loc.danger]||'#7a7060';
+        const items=loc.items||[];
         const locid=pfx+'msl-'+loc.id;
-        return `<div style="background:#0a0908;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;margin-top:6px">
+        // criaturas e NPCs do local
+        const criaturasSalvas=c.criaturas||[];
+        const npcsSalvos=c.npcs||[];
+        const rawEntries=loc.criaturas||[];
+        const locEntries=rawEntries.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+        const entriesSel=locEntries.map(entry=>{
+          const key=entry.key;
+          let obj=null,tipo='cr';
+          if(key.startsWith('cr:'))      {obj=criaturasSalvas.find(x=>x.id===key.slice(3));tipo='cr';}
+          else if(key.startsWith('npc:')){obj=npcsSalvos.find(x=>x.id===key.slice(4));tipo='npc';}
+          else                           {obj=criaturasSalvas.find(x=>x.id===key);tipo='cr';}
+          return obj?{...obj,_tipo:tipo,_qtd:entry.qtd||1}:null;
+        }).filter(Boolean);
+        const criaturasLocHtml=entriesSel.map(e=>{
+          const isCr=e._tipo==='cr';
+          const ic=isCr?'💀':'👤';
+          const cor=isCr?'#7c3aed':'#b8860b';
+          const sub=isCr?(e.tipo||''):(e.role||'');
+          return `<div style="background:#0d0b10;border:1px solid ${cor}44;border-left:2px solid ${cor};border-radius:2px;padding:5px 8px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:12px;flex-shrink:0">${ic}</span>
+              <span style="flex:1;color:#ede8dc;font-size:12px;font-weight:700">${esc(e.name)}</span>
+              ${sub?`<span style="color:#9a8e7a;font-size:10px;text-transform:uppercase">${esc(sub)}</span>`:''}
+              ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${e.pvMax||0}</span>`:''}
+              ${e._qtd>1?`<span style="color:#a78bfa;font-size:11px;font-family:'Share Tech Mono',monospace">×${e._qtd}</span>`:''}
+            </div>
+            ${isCr&&(e.defesa||e.resistencias||e.imunidades)?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
+              ${e.defesa?`<span style="font-size:9px;color:#67e8f9;background:#0e749018;border:1px solid #0e749033;border-radius:2px;padding:1px 5px">🛡 DEF ${e.defesa}</span>`:''}
+              ${e.resistencias?`<span style="font-size:9px;color:#b8860b;background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:1px 5px">⚖ ${esc(e.resistencias)}</span>`:''}
+              ${e.imunidades?`<span style="font-size:9px;color:#4ade80;background:#27674918;border:1px solid #27674933;border-radius:2px;padding:1px 5px">✦ ${esc(e.imunidades)}</span>`:''}
+            </div>`:''}
+          </div>`;
+        }).join('');
+        const totalInimigos=locEntries.reduce((s,e)=>s+(e.qtd||1),0);
+        return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${dc2};border-radius:2px;margin-top:6px;overflow:hidden">
           <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${locid}')">
             <span id="arr-${locid}" style="color:#9a8e7a;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
             <span style="color:#b8860b;font-size:12px">📍</span>
             <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(loc.name)||'Local'}</span>
             ${loc.type?`<span style="color:#9a8e7a;font-size:10px">${esc(loc.type)}</span>`:''}
-            <span style="display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>
+            ${loc.danger&&loc.danger!=='Sem Perigo'?`<span style="display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>`:''}
+            ${entriesSel.length?`<span style="color:#a78bfa;font-size:10px">💀 ${totalInimigos}</span>`:''}
+            ${items.length?`<span style="color:#9a8e7a;font-size:10px">${items.length} elem.</span>`:''}
+            ${entriesSel.length?`<button onclick="event.stopPropagation();abrirFichaCombate('${loc.id}')" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:2px 7px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">⚔</button>`:''}
           </div>
           <div id="${locid}" style="display:none;padding:0 10px 8px">
             ${loc.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:6px">${nl(loc.description)}</p>`:''}
+            ${loc.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(loc.atmosphere)}</div>`:''}
             ${loc.paranormal?`<div style="background:#7c3aed12;border:1px solid #7c3aed44;border-left:2px solid #7c3aed;border-radius:2px;padding:6px 10px;margin-bottom:6px"><div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:3px">👁 Outro Lado / Paranormal</div><div style="color:#c4b5fd;font-size:12px;line-height:1.5;font-family:Georgia,serif">${nl(loc.paranormal)}</div></div>`:''}
-            ${rooms.map(r=>{
-              const rdc=ROOM_DANGER_C[r.danger]||'#7a7060';
-              const items=r.items||[];
-              const roomid=pfx+'msr-'+r.id;
-              // criaturas e NPCs do cômodo
-              const criaturasSalvas=c.criaturas||[];
-              const npcsSalvos=c.npcs||[];
-              const rawEntries=r.criaturas||[];
-              const roomEntries=rawEntries.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
-              const entriesSel=roomEntries.map(entry=>{
-                const key=entry.key;
-                let obj=null,tipo='cr';
-                if(key.startsWith('cr:'))      {obj=criaturasSalvas.find(x=>x.id===key.slice(3));tipo='cr';}
-                else if(key.startsWith('npc:')){obj=npcsSalvos.find(x=>x.id===key.slice(4));tipo='npc';}
-                else                           {obj=criaturasSalvas.find(x=>x.id===key);tipo='cr';}
-                return obj?{...obj,_tipo:tipo,_qtd:entry.qtd||1}:null;
-              }).filter(Boolean);
-              const criaturasRoomHtml=entriesSel.map(e=>{
-                const isCr=e._tipo==='cr';
-                const ic=isCr?'💀':'👤';
-                const cor=isCr?'#7c3aed':'#b8860b';
-                const sub=isCr?(e.tipo||''):(e.role||'');
-                return `<div style="background:#0d0b10;border:1px solid ${cor}44;border-left:2px solid ${cor};border-radius:2px;padding:5px 8px;margin-bottom:4px">
-                  <div style="display:flex;align-items:center;gap:6px">
-                    <span style="font-size:12px;flex-shrink:0">${ic}</span>
-                    <span style="flex:1;color:#ede8dc;font-size:12px;font-weight:700">${esc(e.name)}</span>
-                    ${sub?`<span style="color:#9a8e7a;font-size:10px;text-transform:uppercase">${esc(sub)}</span>`:''}
-                    ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:'Share Tech Mono',monospace">PV ${e.pvMax||0}</span>`:''}
-                    ${e._qtd>1?`<span style="color:#a78bfa;font-size:11px;font-family:'Share Tech Mono',monospace">×${e._qtd}</span>`:''}
-                  </div>
-                  ${isCr&&(e.defesa||e.resistencias||e.imunidades)?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
-                    ${e.defesa?`<span style="font-size:9px;color:#67e8f9;background:#0e749018;border:1px solid #0e749033;border-radius:2px;padding:1px 5px">🛡 DEF ${e.defesa}</span>`:''}
-                    ${e.resistencias?`<span style="font-size:9px;color:#b8860b;background:#b8860b12;border:1px solid #b8860b33;border-radius:2px;padding:1px 5px">⚖ ${esc(e.resistencias)}</span>`:''}
-                    ${e.imunidades?`<span style="font-size:9px;color:#4ade80;background:#27674918;border:1px solid #27674933;border-radius:2px;padding:1px 5px">✦ ${esc(e.imunidades)}</span>`:''}
-                  </div>`:''}
-                </div>`;
-              }).join('');
-              const totalInimigos=roomEntries.reduce((s,e)=>s+(e.qtd||1),0);
-              return `<div style="background:#080706;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;margin-bottom:4px;overflow:hidden">
-                <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent" onclick="mesaToggle('${roomid}')">
-                  <span id="arr-${roomid}" style="color:#9a8e7a;font-size:10px;transition:transform .2s;display:inline-block">▶</span>
-                  <span style="font-size:13px">${ROOM_IC[r.type]||'📍'}</span>
-                  <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name)||'Cômodo'}</span>
-                  ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${rdc};font-size:10px;text-transform:uppercase">${esc(r.danger)}</span>`:''}
-                  ${entriesSel.length?`<span style="color:#a78bfa;font-size:10px">💀 ${totalInimigos}</span>`:''}
-                  ${items.length?`<span style="color:#9a8e7a;font-size:10px">${items.length} elem.</span>`:''}
-                  ${entriesSel.length?`<button onclick="event.stopPropagation();abrirFichaCombate('${r.id}')" style="background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:2px 7px;border-radius:2px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#c0392b44'" onmouseleave="this.style.background='#c0392b22'">⚔</button>`:''}
-                </div>
-                <div id="${roomid}" style="display:none;padding:0 10px 8px">
-                  ${r.description?`<p style="color:#c0b8b0;font-size:12px;line-height:1.6;font-family:Georgia,serif;margin-bottom:4px">${nl(r.description)}</p>`:''}
-                  ${r.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:4px">🌫 ${esc(r.atmosphere)}</div>`:''}
-                  ${r.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d55;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px">${nl(r.secret)}</div></div>`:''}
-                  ${r.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#e65c00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">⚡ Evento</div><div style="color:#fbbf7c;font-size:12px">${nl(r.evento)}</div></div>`:''}
-                  ${criaturasRoomHtml?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-bottom:5px">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                      <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;flex:1">💀 Inimigos & NPCs</div>
-                      <button onclick="abrirFichaCombate('${r.id}')" style="background:#c0392b;border:none;color:#fff;padding:4px 10px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;transition:opacity .15s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">⚔ Iniciar Combate</button>
-                    </div>
-                    ${criaturasRoomHtml}
-                  </div>`:''}
-                  ${items.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9a8e7a;font-weight:700;margin-bottom:4px">Objetos / Elementos</div>${items.map(it=>`<div style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #1c1a16">
-                    <span style="font-size:12px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
-                    <div style="flex:1;min-width:0">
-                      <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(it.name)}</div>
-                      ${it.desc?`<div style="color:#9a9088;font-size:11px;line-height:1.5">${nl(it.desc)}</div>`:''}
-                      ${it.secret?`<div style="color:#c0392b;font-size:11px;margin-top:2px">🔒 ${esc(it.secret)}</div>`:''}
-                    </div>
-                  </div>`).join('')}</div>`:''}
-                </div>
-              </div>`;
-            }).join('')}
+            ${loc.secret?`<div style="background:#7f1d1d18;border:1px solid #7f1d1d55;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">🔒 Segredo</div><div style="color:#c0a0a0;font-size:12px">${nl(loc.secret)}</div></div>`:''}
+            ${loc.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:5px 8px;margin-bottom:4px"><div style="font-size:9px;color:#e65c00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">⚡ Evento</div><div style="color:#fbbf7c;font-size:12px">${nl(loc.evento)}</div></div>`:''}
+            ${criaturasLocHtml?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-bottom:5px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;flex:1">💀 Inimigos & NPCs</div>
+                <button onclick="abrirFichaCombate('${loc.id}')" style="background:#c0392b;border:none;color:#fff;padding:4px 10px;border-radius:2px;font-size:10px;font-family:'Share Tech Mono',monospace;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;transition:opacity .15s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">⚔ Iniciar Combate</button>
+              </div>
+              ${criaturasLocHtml}
+            </div>`:''}
+            ${items.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px"><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9a8e7a;font-weight:700;margin-bottom:4px">Objetos / Elementos</div>${items.map(it=>`<div style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #1c1a16">
+              <span style="font-size:12px;flex-shrink:0">${ITEM_IC[it.cat]||'📦'}</span>
+              <div style="flex:1;min-width:0">
+                <div style="color:#ede8dc;font-size:12px;font-weight:700">${esc(it.name)}</div>
+                ${it.desc?`<div style="color:#9a9088;font-size:11px;line-height:1.5">${nl(it.desc)}</div>`:''}
+                ${it.secret?`<div style="color:#c0392b;font-size:11px;margin-top:2px">🔒 ${esc(it.secret)}</div>`:''}
+              </div>
+            </div>`).join('')}</div>`:''}
           </div>
         </div>`;
       }).join('');
@@ -2174,23 +2055,23 @@ function renderMesa() {
         onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
     </div>
 
-    ${s.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
+    ${c.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
-      <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
+      <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(c.opening)}</p>
     </div>`:''}
 
-    ${s.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
+    ${c.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:14px 18px;margin-bottom:16px">
       <div class="mesa-card-title">Sinopse</div>
-      <p class="body-text" style="margin:0;font-style:italic">${nl(s.synopsis)}</p>
+      <p class="body-text" style="margin:0;font-style:italic">${nl(c.synopsis)}</p>
     </div>`:''}
 
     <div class="mesa-grid mesa-busca-container">
 
-      ${s.objectives?`<div class="mesa-card"><div class="mesa-card-title">🎯 Objetivos</div><p class="body-text" style="margin:0">${nl(s.objectives)}</p></div>`:''}
+      ${c.objectives?`<div class="mesa-card"><div class="mesa-card-title">🎯 Objetivos</div><p class="body-text" style="margin:0">${nl(c.objectives)}</p></div>`:''}
 
-      ${(s.scenes||[]).length?`
+      ${(c.scenes||[]).length?`
         <div class="mesa-card mesa-card-cenas" style="grid-column:1/-1">
-          <div class="mesa-card-title">🎬 Cenas da Sessão</div>
+          <div class="mesa-card-title">🎬 Cenas</div>
           ${buildCenasHtml()}
         </div>`:''}
 
@@ -2200,11 +2081,10 @@ function renderMesa() {
       </div>
 
       ${antaHtml}
-      ${linkedNpcs.length?`<div class="mesa-card"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div><div class="mesa-busca-container">${npcsHtml}</div></div>`:''}
+      ${linkedNpcs.length?`<div class="mesa-card"><div class="mesa-card-title">👤 NPCs${(c.linkedNpcs||[]).length?' em destaque':'da campanha'}</div><div class="mesa-busca-container">${npcsHtml}</div></div>`:''}
       ${c.items.length?`<div class="mesa-card"><div class="mesa-card-title">🗡 Itens & Artefatos</div><div class="mesa-busca-container">${itemsHtml}</div></div>`:''}
-      ${s.rewards?`<div class="mesa-card"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0">${nl(s.rewards)}</p></div>`:''}
-      ${s.hook?`<div class="mesa-card" style="border-color:#0e749033"><div class="mesa-card-title" style="color:#67e8f9">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
-      ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}
+      ${c.rewards?`<div class="mesa-card"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0">${nl(c.rewards)}</p></div>`:''}
+      ${c.hook?`<div class="mesa-card" style="border-color:#0e749033"><div class="mesa-card-title" style="color:#67e8f9">🪝 Gancho para Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(c.hook)}</p></div>`:''}
 
     </div>`;
 
@@ -2225,28 +2105,28 @@ function renderMesa() {
         style="width:100%;background:#090807;border:1px solid #2c2820;color:#e8e2d6;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;border-radius:3px;outline:none;box-sizing:border-box;-webkit-appearance:none;transition:border-color .2s"
         onfocus="this.style.borderColor='#c0392b'" onblur="this.style.borderColor='#2c2820'"/>
     </div>
-    ${s.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
+    ${c.opening?`<div class="mesa-foco-hide" style="background:#c0392b12;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:3px;padding:14px 16px;margin-bottom:14px">
       <div class="mesa-card-title">🎬 Abertura — leia em voz alta</div>
-      <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(s.opening)}</p>
+      <p style="color:#eedada;font-size:14px;line-height:1.9;font-family:Georgia,serif;font-style:italic;margin:0">${nl(c.opening)}</p>
     </div>`:''}
-    ${s.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:12px 14px;margin-bottom:14px">
+    ${c.synopsis?`<div class="mesa-foco-hide" style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid #c0392b;border-radius:3px;padding:12px 14px;margin-bottom:14px">
       <div class="mesa-card-title">Sinopse</div>
-      <p class="body-text" style="margin:0;font-style:italic;font-size:13px">${nl(s.synopsis)}</p>
+      <p class="body-text" style="margin:0;font-style:italic;font-size:13px">${nl(c.synopsis)}</p>
     </div>`:''}
-    ${s.objectives?`<div class="mesa-card" style="margin-bottom:12px">
+    ${c.objectives?`<div class="mesa-card" style="margin-bottom:12px">
       <div class="mesa-card-title">🎯 Objetivos</div>
-      <p class="body-text" style="margin:0;font-size:13px">${nl(s.objectives)}</p>
+      <p class="body-text" style="margin:0;font-size:13px">${nl(c.objectives)}</p>
     </div>`:''}
     <div class="mesa-busca-container">
-    ${(s.scenes||[]).length?`<div class="mesa-card mesa-card-cenas" style="margin-bottom:12px">
-      <div class="mesa-card-title">🎬 Cenas da Sessão</div>
+    ${(c.scenes||[]).length?`<div class="mesa-card mesa-card-cenas" style="margin-bottom:12px">
+      <div class="mesa-card-title">🎬 Cenas</div>
       ${buildCenasHtml('mob-')}
     </div>`:''}
     ${antaHtml?`<div style="margin-bottom:12px">${antaHtml}</div>`:''}
-    ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(s.linkedNpcs||[]).length?' desta sessão':'da campanha'}</div>${buildNpcsHtml('mob-')}</div>`:''}
+    ${linkedNpcs.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">👤 NPCs${(c.linkedNpcs||[]).length?' em destaque':'da campanha'}</div>${buildNpcsHtml('mob-')}</div>`:''}
     ${c.items.length?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🗡 Itens & Artefatos</div>${itemsHtml}</div>`:''}
-    ${s.rewards?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0;font-size:13px">${nl(s.rewards)}</p></div>`:''}
-    ${s.hook?`<div class="mesa-card" style="border-color:#0e749033;margin-bottom:12px"><div class="mesa-card-title" style="color:#67e8f9">🪝 Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(s.hook)}</p></div>`:''}
+    ${c.rewards?`<div class="mesa-card" style="margin-bottom:12px"><div class="mesa-card-title">🏆 Recompensas</div><p class="body-text" style="margin:0;font-size:13px">${nl(c.rewards)}</p></div>`:''}
+    ${c.hook?`<div class="mesa-card" style="border-color:#0e749033;margin-bottom:12px"><div class="mesa-card-title" style="color:#67e8f9">🪝 Próxima Sessão</div><p style="color:#a5f3fc;font-size:13px;line-height:1.7;font-family:Georgia,serif;margin:0">${nl(c.hook)}</p></div>`:''}
     </div>`;
 
   // ⚔️ COMBATE — iniciativa + agentes (juntos, usados na mesma rodada)
@@ -2357,10 +2237,9 @@ function mesaEl(id) {
 // ── Toggle expandable sections in Mesa ────────────────────────
 function mesaMarcarCena(scId) {
   mesaCenaAtivaId = mesaCenaAtivaId === scId ? null : scId;
-  // persiste a cena atual na sessão
+  // persiste a cena atual na campanha
   const c = camps.find(x=>x.id===viewingId);
-  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (s) { s.cenaAtivaId = mesaCenaAtivaId; persist(); }
+  if (c) { c.cenaAtivaId = mesaCenaAtivaId; persist(); }
   if (mesaCenaAtivaId) mesaCenaTabId = mesaCenaAtivaId; // ao marcar, abre a aba dela
   renderMesa();
 }
@@ -2389,31 +2268,10 @@ function mesaToggle(id) {
   el.style.display  = open ? 'none' : 'block';
   if (arr) arr.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
 }
-function initMesaSwipe() {
-  const el = document.getElementById('mesa-overlay');
-  let startX=0, startY=0, moved=false;
-  el.addEventListener('touchstart', e=>{
-    startX=e.touches[0].clientX; startY=e.touches[0].clientY; moved=false;
-  },{passive:true});
-  el.addEventListener('touchmove', e=>{
-    const dx=Math.abs(e.touches[0].clientX-startX);
-    const dy=Math.abs(e.touches[0].clientY-startY);
-    if(dx>dy&&dx>20) moved=true;
-  },{passive:true});
-  el.addEventListener('touchend', e=>{
-    if(!moved) return;
-    const dx=e.changedTouches[0].clientX-startX;
-    if(Math.abs(dx)<60) return;
-    // swipe left = next, swipe right = prev
-    mesaNavSession(dx<0?1:-1);
-  },{passive:true});
-}
-
 function mesaSaveQuicknotes(val) {
   const c = camps.find(x=>x.id===viewingId);
-  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!s) return;
-  s.quicknotes = val;
+  if (!c) return;
+  c.quicknotes = val;
   persist();
 }
 
@@ -2521,22 +2379,20 @@ let iniciativaRodada = 1;
 // Criaturas: combatentes temporários (inimigos), vivem apenas na sessão ativa
 function getCriaturas() {
   const c = camps.find(x=>x.id===viewingId);
-  const sess = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!sess) return [];
-  if (!sess.criaturas) sess.criaturas = [];
-  return sess.criaturas;
+  if (!c) return [];
+  if (!c.combate) c.combate = [];
+  return c.combate;
 }
 function mesaAddCriatura(criaturaBaseId) {
   const c = camps.find(x=>x.id===viewingId);
-  const sess = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!sess) return;
-  if (!sess.criaturas) sess.criaturas = [];
+  if (!c) return;
+  if (!c.combate) c.combate = [];
   if (criaturaBaseId) {
     // adicionar a partir de uma criatura salva
     const base = (c.criaturas||[]).find(x=>x.id===criaturaBaseId);
-    if (base) sess.criaturas.push({ id:uid(), name:base.name, pv:base.pvMax||30, pvMax:base.pvMax||30, _ini:null, conditions:[], _baseId:base.id });
+    if (base) c.combate.push({ id:uid(), name:base.name, pv:base.pvMax||30, pvMax:base.pvMax||30, _ini:null, conditions:[], _baseId:base.id });
   } else {
-    sess.criaturas.push(blankCriatura());
+    c.combate.push(blankCriatura());
   }
   persist();
   renderIniciativa();
@@ -2545,20 +2401,17 @@ function mesaAddCriatura(criaturaBaseId) {
 
 /* ┌─────────────────────────────────────────────────────────────┐
    │ FICHA DE COMBATE — modal que exibe a ficha completa dos    │
-   │ inimigos de um cômodo com opção de iniciar combate         │
+   │ inimigos de um local com opção de iniciar combate          │
    └─────────────────────────────────────────────────────────────┘ */
 let _mesaFichaEntries = [];
 let _fichaRoomName = '';
-function abrirFichaCombate(roomId) {
+function abrirFichaCombate(locId) {
   const c = camps.find(x=>x.id===viewingId);
   if (!c) return;
   let foundRoom = null;
-  outer: for (const sess of (c.sessions_data||[])) {
-    for (const sc of (sess.scenes||[])) {
-      for (const loc of (sc.locations||[])) {
-        const r = (loc.rooms||[]).find(x=>x.id===roomId);
-        if (r) { foundRoom=r; break outer; }
-      }
+  outer: for (const sc of (c.scenes||[])) {
+    for (const loc of (sc.locations||[])) {
+      if (loc.id===locId) { foundRoom=loc; break outer; }
     }
   }
   if (!foundRoom) return;
@@ -2566,7 +2419,7 @@ function abrirFichaCombate(roomId) {
   const roomEntries = rawEntries.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
   const criaturasSalvas = c.criaturas||[];
   const npcsSalvos = c.npcs||[];
-  _fichaRoomName = foundRoom.name||'Cômodo';
+  _fichaRoomName = foundRoom.name||'Local';
   _mesaFichaEntries = roomEntries.map(entry=>{
     const key=entry.key;
     let obj=null,tipo='cr';
@@ -2814,9 +2667,8 @@ function mesaFecharPickerCriatura() {
 }
 function mesaDelCriatura(id) {
   const c = camps.find(x=>x.id===viewingId);
-  const sess = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!sess) return;
-  sess.criaturas = (sess.criaturas||[]).filter(x=>x.id!==id);
+  if (!c) return;
+  c.combate = (c.combate||[]).filter(x=>x.id!==id);
   persist();
   renderIniciativa();
   _refreshFichaModal();
@@ -2905,7 +2757,6 @@ function renderIniciativa() {
     ...agentes.map(a => ({...a, _tipo:'ag'})),
     ...criaturas.map(cr => ({...cr, _tipo:'cr'}))
   ];
-  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
   const combateAtivo = todos.some(x => x._ini != null);
   const sorted = [...todos].sort((a,b) => {
     if (a._ini==null && b._ini==null) return 0;
@@ -2913,7 +2764,7 @@ function renderIniciativa() {
     if (b._ini==null) return -1;
     return b._ini - a._ini;
   });
-  const turnIdx = (combateAtivo && sess?._iniTurn != null) ? sess._iniTurn : 0;
+  const turnIdx = (combateAtivo && c._iniTurn != null) ? c._iniTurn : 0;
 
   function iniRow(x, i) {
     const isAg = x._tipo === 'ag';
@@ -3008,8 +2859,7 @@ function mesaRolarTodos() {
   if (!c) return;
   (c.agentes||[]).forEach(a => { a._ini = Math.max(1, Math.ceil(Math.random()*20) + (a.agilidade||0)); });
   getCriaturas().forEach(cr => { cr._ini = Math.ceil(Math.random()*20); });
-  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
-  if (sess) sess._iniTurn = 0;
+  c._iniTurn = 0;
   persist(); renderIniciativa();
 }
 function mesaLimparIniciativa() {
@@ -3017,8 +2867,7 @@ function mesaLimparIniciativa() {
   if (!c) return;
   (c.agentes||[]).forEach(a => { delete a._ini; });
   getCriaturas().forEach(cr => { delete cr._ini; });
-  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
-  if (sess) { sess._iniTurn = 0; sess.criaturas = []; }
+  c._iniTurn = 0; c.combate = [];
   persist();
   iniciativaRodada = 1;
   renderIniciativa();
@@ -3031,11 +2880,9 @@ function mesaProximoTurno() {
     ...getCriaturas().map(cr=>({...cr,_tipo:'cr'}))
   ].filter(x => x._ini != null).sort((a,b)=>b._ini-a._ini);
   if (!todos.length) return;
-  const sess = c.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!sess) return;
-  if (sess._iniTurn == null) sess._iniTurn = 0;
-  sess._iniTurn = (sess._iniTurn+1) % todos.length;
-  if (sess._iniTurn === 0) iniciativaRodada++;
+  if (c._iniTurn == null) c._iniTurn = 0;
+  c._iniTurn = (c._iniTurn+1) % todos.length;
+  if (c._iniTurn === 0) iniciativaRodada++;
   persist(); renderIniciativa();
 }
 
@@ -3220,17 +3067,14 @@ function mesaSetRitual(agenteId, idx, field, val) {
    └─────────────────────────────────────────────────────────────┘ */
 function mesaSetStatus(st) {
   const c = camps.find(x=>x.id===viewingId);
-  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  if (!s) return;
-  s.status = st; persist(); renderMesa();
+  if (!c) return;
+  c.status = st; persist(); renderMesa();
 }
 function mesaToggleClue(clueId) {
   const c = camps.find(x=>x.id===viewingId);
-  const s = c?.sessions_data.find(x=>x.id===mesaSessionId);
-  const cl = s?.clues?.find(x=>x.id===clueId);
+  const cl = c?.clues?.find(x=>x.id===clueId);
   if (!cl) return;
   cl.found = !cl.found;
-  cl.foundSessId = cl.found ? mesaSessionId : null;
   persist(); renderMesa();
 }
 
@@ -3238,7 +3082,7 @@ function mesaToggleClue(clueId) {
    │ 18. NAVIGATION — troca de views e tabs                     │
    └─────────────────────────────────────────────────────────────┘ */
 function goList()   { view='list';   viewingId=null; editingId=null; activeDetailTab='overview'; render(); }
-function goCreate() { editingId=null; formData=blankCamp(); syncSessionsData(1); activeFormTab='info'; view='form'; render(); }
+function goCreate() { editingId=null; formData=blankCamp(); activeFormTab='info'; view='form'; render(); }
 function goDetail(id) { viewingId=id; activeDetailTab='overview'; view='detail'; render(); }
 function goEdit()   { editingId=viewingId; formData=JSON.parse(JSON.stringify(camps.find(c=>c.id===viewingId))); activeFormTab='info'; view='form'; render(); }
 function cancelForm(){ view = viewingId?'detail':'list'; render(); }
@@ -3249,18 +3093,22 @@ function switchDetailTab(tab) { activeDetailTab=tab; render(); window.scrollTo({
 document.getElementById('logo-btn').addEventListener('click', goList);
 
 /* ┌─────────────────────────────────────────────────────────────┐
-   │ 19. FORM OPS — salvar, sincronizar sessões, estado         │
+   │ 19. FORM OPS — salvar e restaurar estado do formulário     │
    └─────────────────────────────────────────────────────────────┘ */
 function saveFormState() {
   if (!formData) return;
   // info tab
   const t = v => document.getElementById(v);
   if (t('f-title'))    formData.title    = t('f-title').value;
-  if (t('f-sessions')) { const n=parseInt(t('f-sessions').value)||1; syncSessionsData(n); formData.sessions=n; }
   if (t('f-status'))   formData.status   = t('f-status').value;
   if (t('f-nex'))      formData.nex      = t('f-nex').value;
   if (t('f-synopsis')) formData.synopsis = t('f-synopsis').value;
   if (t('f-notes'))    formData.notes    = t('f-notes').value;
+  // cena/sessão (campanha = sessão)
+  if (t('f-opening'))    formData.opening    = t('f-opening').value;
+  if (t('f-objectives')) formData.objectives = t('f-objectives').value;
+  if (t('f-rewards'))    formData.rewards    = t('f-rewards').value;
+  if (t('f-hook'))       formData.hook       = t('f-hook').value;
   // antagonist
   if (t('a-name'))       formData.antagonist.name       = t('a-name').value;
   if (t('a-nature'))     formData.antagonist.nature     = t('a-nature').value;
@@ -3333,9 +3181,6 @@ function openOnlyLastScene(containerId) {
 function openOnlyLastLoc(containerId) {
   openOnlyLastCollapsible(containerId, 'scloc-', 'sclbody-', 'sclarr-');
 }
-function openOnlyLastRoom(containerId) {
-  openOnlyLastCollapsible(containerId, 'scroom-', 'scrbody-', 'scrarr-');
-}
 
 function addCriaturaBase() {
   saveFormState();
@@ -3380,20 +3225,18 @@ function setEntryField(type, id, field, val) {
   if (entry) entry[field] = val;
 }
 
-// Constantes de cômodos e itens de cena (parte do módulo 4 declaradas aqui
+// Constantes de locais e itens de cena (parte do módulo 4 declaradas aqui
 // por dependência com as funções de render de cena abaixo)
-const ROOM_TYPES  = ['sala','quarto','cozinha','banheiro','jardim','garagem','corredor','porao','sotao','escritorio','laboratorio','deposito','outro'];
-const ROOM_IC     = {sala:'🛋',quarto:'🛏',cozinha:'🍳',banheiro:'🚿',jardim:'🌿',garagem:'🚗',corredor:'🚪',porao:'🕯',sotao:'🕷',escritorio:'💼',laboratorio:'⚗️',deposito:'📦',outro:'📍'};
 const ITEM_CATS   = ['objeto','pista','perigo','npc','passagem','paranormal','nota'];
 const ITEM_IC     = {objeto:'📦',pista:'🔍',perigo:'⚠️',npc:'👤',passagem:'🚪',paranormal:'👁',nota:'📝'};
-const ROOM_DANGER = ['Sem Perigo','Baixo','Médio','Alto','Extremo'];
-const ROOM_DANGER_C = {'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
+const LOC_DANGER   = ['Sem Perigo','Baixo','Médio','Alto','Extremo'];
+const LOC_DANGER_C = {'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'};
 
 // ── Render de cenas no formulário ────────────────────────────
-function renderSceneRow(sessId, sc, idx) {
+function renderSceneRow(sc, idx) {
   const col = SCENE_COLORS[sc.type]||'#b8860b';
   const locs = sc.locations || [];
-  const locsHtml = locs.map((loc, li) => renderSceneLocCard(sessId, sc.id, loc, li)).join('');
+  const locsHtml = locs.map((loc, li) => renderSceneLocCard(sc.id, loc, li)).join('');
   const bodyId = 'scbody-'+sc.id;
   const arrId  = 'scarr-'+sc.id;
   return `
@@ -3406,88 +3249,44 @@ function renderSceneRow(sessId, sc, idx) {
         <span style="color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
         <span style="display:inline-block;align-self:flex-start;padding:1px 5px;border-radius:2px;font-size:9px;background:${col}22;border:1px solid ${col}44;color:${col};text-transform:uppercase">${SCENE_ICONS[sc.type]||'🎬'} ${sc.type}</span>
       </div>
-      <button class="btn-del" onclick="event.stopPropagation();delScene('${sessId}','${sc.id}')">✕</button>
+      <button class="btn-del" onclick="event.stopPropagation();delScene('${sc.id}')">✕</button>
     </div>
     <div id="${bodyId}" style="display:none;padding:0 12px 10px;border-top:1px solid #1c1a16">
       <div style="display:flex;gap:8px;align-items:center;padding-top:10px;flex-wrap:wrap;margin-bottom:8px">
-        <input value="${esc(sc.name)}" oninput="setSceneField('${sessId}','${sc.id}','name',this.value)"
+        <input value="${esc(sc.name)}" oninput="setSceneField('${sc.id}','name',this.value)"
           placeholder="Nome da cena..." style="flex:1;min-width:120px"/>
-        <select onchange="setSceneField('${sessId}','${sc.id}','type',this.value);refreshSceneRow('${sessId}','${sc.id}')"
+        <select onchange="setSceneField('${sc.id}','type',this.value);refreshSceneRow('${sc.id}')"
           style="min-width:100px;flex:1;font-size:11px;padding:5px 6px">
           ${SCENE_TYPES.map(t=>`<option value="${t}"${t===sc.type?' selected':''}>${SCENE_ICONS[t]} ${t}</option>`).join('')}
         </select>
       </div>
-      <textarea rows="2" oninput="setSceneField('${sessId}','${sc.id}','description',this.value)"
+      <textarea rows="2" oninput="setSceneField('${sc.id}','description',this.value)"
         placeholder="O que acontece nesta cena? Como o mestre narra? Qual o gatilho de início?"
         style="resize:vertical;margin-bottom:10px">${esc(sc.description)}</textarea>
       <!-- Locais da cena -->
       <div style="border-top:1px solid #1c1a16;padding-top:10px">
         <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#b8860b;font-weight:700;margin-bottom:8px">📍 Locais desta Cena</div>
         <div id="scene-locs-${sc.id}">${locsHtml}</div>
-        <button class="btn-add" style="border-color:#b8860b55;color:#b8860b" onclick="addSceneLoc('${sessId}','${sc.id}')">+ Adicionar Local</button>
+        <button class="btn-add" style="border-color:#b8860b55;color:#b8860b" onclick="addSceneLoc('${sc.id}')">+ Adicionar Local</button>
       </div>
     </div>
   </div>`;
 }
 
-function renderSceneLocCard(sessId, scId, loc, li) {
-  const dc = ROOM_DANGER_C[loc.danger]||'#7a7060';
-  const rooms = loc.rooms || [];
-  const roomsHtml = rooms.map((r, ri) => renderSceneRoomCard(sessId, scId, loc.id, r, ri)).join('');
+function renderSceneLocCard(scId, loc, li) {
+  const dc = LOC_DANGER_C[loc.danger]||'#7a7060';
+  const items = loc.items || [];
+  const itemsHtml = items.map((it, ii) => renderSceneItemRow(scId, loc.id, it, ii)).join('');
   const bodyId = 'sclbody-'+loc.id;
   const arrId  = 'sclarr-'+loc.id;
-  return `
-  <div id="scloc-${loc.id}" style="background:#111009;border:1px solid #2c2820;border-left:3px solid #b8860b;border-radius:2px;margin-bottom:8px;overflow:hidden">
-    <!-- cabeçalho clicável do local -->
-    <div style="display:flex;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
-      <span id="${arrId}" style="color:#9a8e7a;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
-      <span style="color:#b8860b;font-size:12px;flex-shrink:0">📍</span>
-      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(loc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
-      ${loc.type?`<span style="color:#9a8e7a;font-size:10px;flex-shrink:0">${esc(loc.type)}</span>`:''}
-      <span style="display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;background:${dc}22;border:1px solid ${dc}44;color:${dc};text-transform:uppercase;flex-shrink:0">${esc(loc.danger)}</span>
-      <button class="btn-del" onclick="event.stopPropagation();delSceneLoc('${sessId}','${scId}','${loc.id}')">✕</button>
-    </div>
-    <div id="${bodyId}" style="display:none;padding:0 10px 10px;border-top:1px solid #1c1a16">
-      <div style="display:flex;gap:8px;align-items:center;padding-top:8px;flex-wrap:wrap;margin-bottom:6px">
-        <input value="${esc(loc.name)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','name',this.value)"
-          placeholder="Nome do local..." style="flex:1;min-width:100px;font-size:13px;padding:7px 10px"/>
-        <input value="${esc(loc.type)}" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','type',this.value)"
-          placeholder="Tipo (ex: Urbano)" style="flex:1;min-width:90px;font-size:12px;padding:6px 8px"/>
-        <select onchange="setSceneLocField('${sessId}','${scId}','${loc.id}','danger',this.value)"
-          style="min-width:90px;flex:1;font-size:11px;padding:5px 6px">
-          ${['Baixo','Médio','Alto','Extremo'].map(d=>`<option${d===loc.danger?' selected':''}>${d}</option>`).join('')}
-        </select>
-      </div>
-      <textarea rows="2" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','description',this.value)"
-        placeholder="Descrição do local, atmosfera geral..."
-        style="resize:vertical;margin-bottom:6px;font-size:13px">${esc(loc.description)}</textarea>
-      <textarea rows="2" oninput="setSceneLocField('${sessId}','${scId}','${loc.id}','paranormal',this.value)"
-        placeholder="👁 Versão Paranormal / Outro Lado — como este local aparece no plano paranormal..."
-        style="resize:vertical;margin-bottom:8px;font-size:12px;border-color:#7c3aed44;color:#c4b5fd">${esc(loc.paranormal||'')}</textarea>
-      <!-- Cômodos -->
-      <div style="border-top:1px solid #1c1a16;padding-top:8px">
-        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#276749;font-weight:700;margin-bottom:6px">🚪 Cômodos</div>
-        <div id="scene-rooms-${loc.id}">${roomsHtml}</div>
-        <button class="btn-add" style="border-color:#27674955;color:#276749;font-size:12px;padding:10px" onclick="addSceneRoom('${sessId}','${scId}','${loc.id}')">+ Adicionar Cômodo</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function renderSceneRoomCard(sessId, scId, locId, r, ri) {
-  const dc = ROOM_DANGER_C[r.danger]||'#7a7060';
-  const items = r.items || [];
-  const itemsHtml = items.map((it, ii) => renderSceneItemRow(sessId, scId, locId, r.id, it, ii)).join('');
-  const bodyId = 'scrbody-'+r.id;
-  const arrId  = 'scrarr-'+r.id;
   // criaturas e NPCs disponíveis na campanha
   const campanha = camps.find(x=>x.id===viewingId);
   const criaturasSalvas = campanha?.criaturas||[];
   const npcsSalvos = campanha?.npcs||[];
   // normaliza entradas: suporte a strings legadas e objetos {key,qtd}
-  const rawEntries = r.criaturas||[];
-  const roomEntries = rawEntries.map(e=> typeof e==='string' ? {key:e,qtd:1} : e);
-  const entriesSelecionadas = roomEntries.map((entry,idx)=>{
+  const rawEntries = loc.criaturas||[];
+  const locEntries = rawEntries.map(e=> typeof e==='string' ? {key:e,qtd:1} : e);
+  const entriesSelecionadas = locEntries.map((entry,idx)=>{
     const key = entry.key;
     let obj=null, tipo='cr';
     if (key.startsWith('cr:'))       { obj=criaturasSalvas.find(x=>x.id===key.slice(3));  tipo='cr'; }
@@ -3509,287 +3308,230 @@ function renderSceneRoomCard(sessId, scId, locId, r, ri) {
       ${pv}
       <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
         <span style="color:#9a8e7a;font-size:10px">×</span>
-        <input type="number" min="1" max="99" value="${e._qtd}" onchange="setRoomCriaturaQtd('${sessId}','${scId}','${locId}','${r.id}',${e._idx},this.value)" style="width:36px;text-align:center;background:#0c0b09;border:1px solid #2c2820;color:#ede8dc;border-radius:2px;font-size:12px;padding:1px 3px;font-family:'Share Tech Mono',monospace"/>
+        <input type="number" min="1" max="99" value="${e._qtd}" onchange="setLocCriaturaQtd('${scId}','${loc.id}',${e._idx},this.value)" style="width:36px;text-align:center;background:#0c0b09;border:1px solid #2c2820;color:#ede8dc;border-radius:2px;font-size:12px;padding:1px 3px;font-family:'Share Tech Mono',monospace"/>
       </div>
-      <button onclick="removeRoomCriatura('${sessId}','${scId}','${locId}','${r.id}',${e._idx})" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
+      <button onclick="removeLocCriatura('${scId}','${loc.id}',${e._idx})" style="background:none;border:none;color:#4a4440;font-size:13px;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:color .15s;padding:0" onmouseenter="this.style.color='#c0392b'" onmouseleave="this.style.color='#4a4440'">✕</button>
     </div>`;
   }).join('');
   return `
-  <div id="scroom-${r.id}" style="background:#080706;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;margin-bottom:6px;overflow:hidden">
-    <!-- cabeçalho clicável do cômodo -->
-    <div style="display:flex;gap:6px;align-items:center;padding:7px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
+  <div id="scloc-${loc.id}" style="background:#111009;border:1px solid #2c2820;border-left:3px solid ${dc};border-radius:2px;margin-bottom:8px;overflow:hidden">
+    <!-- cabeçalho clicável do local -->
+    <div style="display:flex;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none" onclick="toggleEntry('${bodyId}','${arrId}')">
       <span id="${arrId}" style="color:#9a8e7a;font-size:10px;transition:transform .2s;display:inline-block;flex-shrink:0;transform:rotate(0deg)">▶</span>
-      <span style="font-size:14px;flex-shrink:0">${ROOM_IC[r.type]||'📍'}</span>
-      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
-      ${r.danger&&r.danger!=='Sem Perigo'?`<span style="color:${dc};font-size:10px;text-transform:uppercase;flex-shrink:0">${esc(r.danger)}</span>`:''}
+      <span style="color:#b8860b;font-size:12px;flex-shrink:0">📍</span>
+      <span style="flex:1;color:#ede8dc;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(loc.name)||'<em style="color:#4a4440">Sem nome</em>'}</span>
+      ${loc.type?`<span style="color:#9a8e7a;font-size:10px;flex-shrink:0">${esc(loc.type)}</span>`:''}
+      ${loc.danger&&loc.danger!=='Sem Perigo'?`<span style="display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;background:${dc}22;border:1px solid ${dc}44;color:${dc};text-transform:uppercase;flex-shrink:0">${esc(loc.danger)}</span>`:''}
       ${items.length?`<span style="color:#9a8e7a;font-size:10px;flex-shrink:0">${items.length} obj.</span>`:''}
-      ${roomEntries.length?`<span style="color:#a78bfa;font-size:10px;flex-shrink:0">💀 ${roomEntries.reduce((s,e)=>s+(e.qtd||1),0)}</span>`:''}
-      ${r.evento?`<span style="color:#e65c00;font-size:10px;flex-shrink:0">⚡ evento</span>`:''}
-      <button class="btn-del" style="width:32px;height:32px" onclick="event.stopPropagation();delSceneRoom('${sessId}','${scId}','${locId}','${r.id}')">✕</button>
+      ${locEntries.length?`<span style="color:#a78bfa;font-size:10px;flex-shrink:0">💀 ${locEntries.reduce((s,e)=>s+(e.qtd||1),0)}</span>`:''}
+      ${loc.evento?`<span style="color:#e65c00;font-size:10px;flex-shrink:0">⚡ evento</span>`:''}
+      <button class="btn-del" onclick="event.stopPropagation();delSceneLoc('${scId}','${loc.id}')">✕</button>
     </div>
-    <div id="${bodyId}" style="display:none;padding:0 10px 8px;border-top:1px solid #1c1a16">
-      <div style="display:flex;gap:6px;align-items:center;padding-top:7px;flex-wrap:wrap;margin-bottom:6px">
-        <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','type',this.value)"
-          style="width:44px;flex-shrink:0;font-size:14px;padding:4px 4px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px">
-          ${ROOM_TYPES.map(t=>`<option value="${t}"${t===r.type?' selected':''}>${ROOM_IC[t]}</option>`).join('')}
-        </select>
-        <input value="${esc(r.name)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','name',this.value)"
-          placeholder="Nome do cômodo..." style="flex:1;min-width:90px;font-size:13px;padding:6px 9px"/>
-        <select onchange="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','danger',this.value);refreshSceneRoom('${r.id}',this.value)"
-          style="flex:1;min-width:80px;font-size:11px;padding:4px 5px">
-          ${ROOM_DANGER.map(d=>`<option${d===r.danger?' selected':''}>${d}</option>`).join('')}
+    <div id="${bodyId}" style="display:none;padding:0 10px 10px;border-top:1px solid #1c1a16">
+      <div style="display:flex;gap:8px;align-items:center;padding-top:8px;flex-wrap:wrap;margin-bottom:6px">
+        <input value="${esc(loc.name)}" oninput="setSceneLocField('${scId}','${loc.id}','name',this.value)"
+          placeholder="Nome do local..." style="flex:1;min-width:100px;font-size:13px;padding:7px 10px"/>
+        <input value="${esc(loc.type)}" oninput="setSceneLocField('${scId}','${loc.id}','type',this.value)"
+          placeholder="Tipo (ex: Urbano)" style="flex:1;min-width:90px;font-size:12px;padding:6px 8px"/>
+        <select onchange="setSceneLocField('${scId}','${loc.id}','danger',this.value);refreshSceneLoc('${loc.id}',this.value)"
+          style="min-width:90px;flex:1;font-size:11px;padding:5px 6px">
+          ${LOC_DANGER.map(d=>`<option${d===loc.danger?' selected':''}>${d}</option>`).join('')}
         </select>
       </div>
-      <textarea rows="2" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','description',this.value)"
-        placeholder="O que os agentes veem ao entrar?" style="resize:vertical;font-size:12px;margin-bottom:5px">${esc(r.description)}</textarea>
-      <input value="${esc(r.atmosphere)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','atmosphere',this.value)"
-        placeholder="🌫 Atmosfera / sons / cheiros..." style="font-size:12px;padding:6px 9px;margin-bottom:5px"/>
-      <input value="${esc(r.secret)}" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','secret',this.value)"
-        placeholder="🔒 Segredo do cômodo (só mestre vê)..." style="font-size:12px;padding:6px 9px;margin-bottom:5px"/>
-      <textarea rows="2" oninput="setSceneRoomField('${sessId}','${scId}','${locId}','${r.id}','evento',this.value)"
-        placeholder="⚡ Evento — o que acontece neste cômodo..." style="resize:vertical;font-size:12px;margin-bottom:8px;border-color:#e65c0044;color:#fbbf7c">${esc(r.evento||'')}</textarea>
-      <!-- Criaturas / NPCs do cômodo -->
+      <textarea rows="2" oninput="setSceneLocField('${scId}','${loc.id}','description',this.value)"
+        placeholder="O que os agentes veem/sentem ao chegar aqui?"
+        style="resize:vertical;margin-bottom:6px;font-size:13px">${esc(loc.description)}</textarea>
+      <input value="${esc(loc.atmosphere)}" oninput="setSceneLocField('${scId}','${loc.id}','atmosphere',this.value)"
+        placeholder="🌫 Atmosfera / sons / cheiros..." style="font-size:12px;padding:6px 9px;margin-bottom:6px"/>
+      <textarea rows="2" oninput="setSceneLocField('${scId}','${loc.id}','paranormal',this.value)"
+        placeholder="👁 Versão Paranormal / Outro Lado — como este local aparece no plano paranormal..."
+        style="resize:vertical;margin-bottom:6px;font-size:12px;border-color:#7c3aed44;color:#c4b5fd">${esc(loc.paranormal||'')}</textarea>
+      <input value="${esc(loc.secret)}" oninput="setSceneLocField('${scId}','${loc.id}','secret',this.value)"
+        placeholder="🔒 Segredo do local (só mestre vê)..." style="font-size:12px;padding:6px 9px;margin-bottom:6px"/>
+      <textarea rows="2" oninput="setSceneLocField('${scId}','${loc.id}','evento',this.value)"
+        placeholder="⚡ Evento — o que acontece neste local..." style="resize:vertical;font-size:12px;margin-bottom:8px;border-color:#e65c0044;color:#fbbf7c">${esc(loc.evento||'')}</textarea>
+      <!-- Criaturas / NPCs do local -->
       <div style="border-top:1px solid #1c1a16;padding-top:6px;margin-bottom:6px">
-        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:5px">💀 Inimigos & NPCs do Cômodo</div>
-        <div id="room-criaturas-${r.id}">${criaturasHtml}</div>
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;margin-bottom:5px">💀 Inimigos & NPCs do Local</div>
+        <div id="loc-criaturas-${loc.id}">${criaturasHtml}</div>
         ${!temDisponiveis
           ? `<div style="color:#4a4440;font-size:11px;font-style:italic">Nenhuma criatura ou NPC cadastrado na campanha.</div>`
           : `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-              <select id="room-cr-select-${r.id}" style="flex:1;min-width:140px;font-size:12px;padding:5px 7px;background:#0c0b09;border:1px solid #4c1d9533;color:#c4b5fd;border-radius:2px">
+              <select id="loc-cr-select-${loc.id}" style="flex:1;min-width:140px;font-size:12px;padding:5px 7px;background:#0c0b09;border:1px solid #4c1d9533;color:#c4b5fd;border-radius:2px">
                 <option value="">Selecionar...</option>
                 ${criaturasSalvas.length?`<optgroup label="💀 Criaturas">${criaturasSalvas.map(cr=>`<option value="cr:${cr.id}">${esc(cr.name)}${cr.tipo?' — '+esc(cr.tipo):''} (PV ${cr.pvMax||0})</option>`).join('')}</optgroup>`:''}
                 ${npcsSalvos.length?`<optgroup label="👤 NPCs">${npcsSalvos.map(n=>`<option value="npc:${n.id}">${esc(n.name)}${n.role?' — '+esc(n.role):''}</option>`).join('')}</optgroup>`:''}
               </select>
-              <button onclick="addRoomCriatura('${sessId}','${scId}','${locId}','${r.id}')" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">+ Adicionar</button>
+              <button onclick="addLocCriatura('${scId}','${loc.id}')" style="background:none;border:1px solid #4c1d9555;color:#a78bfa;padding:5px 10px;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .15s" onmouseenter="this.style.background='#4c1d9518'" onmouseleave="this.style.background='none'">+ Adicionar</button>
             </div>`
         }
       </div>
-      <!-- Objetos/Itens -->
+      <!-- Objetos -->
       <div style="border-top:1px solid #1c1a16;padding-top:6px">
         <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9a8e7a;font-weight:700;margin-bottom:5px">Objetos / Elementos</div>
-        <div id="scene-items-${r.id}">${itemsHtml}</div>
-        <button class="btn-add" style="font-size:11px;padding:8px;min-height:36px" onclick="addSceneItem('${sessId}','${scId}','${locId}','${r.id}')">+ Objeto</button>
+        <div id="scene-items-${loc.id}">${itemsHtml}</div>
+        <button class="btn-add" style="font-size:11px;padding:8px;min-height:36px" onclick="addSceneItem('${scId}','${loc.id}')">+ Objeto</button>
       </div>
     </div>
   </div>`;
 }
 
-function renderSceneItemRow(sessId, scId, locId, roomId, it, ii) {
+function renderSceneItemRow(scId, locId, it, ii) {
   const col = ({objeto:'#7a7060',pista:'#b8860b',perigo:'#c0392b',npc:'#276749',passagem:'#0e7490',paranormal:'#7c3aed',nota:'#4a4440'})[it.cat]||'#7a7060';
   return `
   <div id="scitem-${it.id}" style="display:flex;gap:6px;align-items:flex-start;padding:6px 8px;background:#0c0b09;border:1px solid #2c2820;border-radius:2px;margin-bottom:5px">
-    <select onchange="setSceneItemField('${sessId}','${scId}','${locId}','${roomId}','${it.id}','cat',this.value)"
+    <select onchange="setSceneItemField('${scId}','${locId}','${it.id}','cat',this.value)"
       style="width:38px;flex-shrink:0;font-size:13px;padding:4px 2px;background:#0c0b09;border:1px solid #2c2820;color:#e8e2d6;border-radius:2px;margin-top:2px">
       ${ITEM_CATS.map(c=>`<option value="${c}"${c===it.cat?' selected':''}>${ITEM_IC[c]}</option>`).join('')}
     </select>
     <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-      <input value="${esc(it.name)}" oninput="setSceneItemField('${sessId}','${scId}','${locId}','${roomId}','${it.id}','name',this.value)"
+      <input value="${esc(it.name)}" oninput="setSceneItemField('${scId}','${locId}','${it.id}','name',this.value)"
         placeholder="Nome do objeto/elemento..." style="font-size:12px;padding:5px 8px"/>
-      <input value="${esc(it.desc)}" oninput="setSceneItemField('${sessId}','${scId}','${locId}','${roomId}','${it.id}','desc',this.value)"
+      <input value="${esc(it.desc)}" oninput="setSceneItemField('${scId}','${locId}','${it.id}','desc',this.value)"
         placeholder="Descrição..." style="font-size:11px;padding:4px 8px;color:#9a9088"/>
-      <input value="${esc(it.secret)}" oninput="setSceneItemField('${sessId}','${scId}','${locId}','${roomId}','${it.id}','secret',this.value)"
+      <input value="${esc(it.secret)}" oninput="setSceneItemField('${scId}','${locId}','${it.id}','secret',this.value)"
         placeholder="🔒 Segredo..." style="font-size:11px;padding:4px 8px;color:#c0a0a0"/>
     </div>
-    <button class="btn-del" style="width:28px;height:28px;font-size:13px;flex-shrink:0;margin-top:2px" onclick="delSceneItem('${sessId}','${scId}','${locId}','${roomId}','${it.id}')">✕</button>
+    <button class="btn-del" style="width:28px;height:28px;font-size:13px;flex-shrink:0;margin-top:2px" onclick="delSceneItem('${scId}','${locId}','${it.id}')">✕</button>
   </div>`;
 }
 
 /* ── Scene Location CRUD ── */
-function addSceneLoc(sessId, scId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+function addSceneLoc(scId) {
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   if (!sc) return;
   if (!sc.locations) sc.locations=[];
   sc.locations.push(blankSceneLoc());
   const container = document.getElementById('scene-locs-'+scId);
   if (container) {
-    container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
+    container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(scId,loc,li)).join('');
     openOnlyLastLoc('scene-locs-'+scId);
   }
 }
-function delSceneLoc(sessId, scId, locId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+function delSceneLoc(scId, locId) {
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   if (!sc) return;
   sc.locations = (sc.locations||[]).filter(x=>x.id!==locId);
   const container = document.getElementById('scene-locs-'+scId);
-  if (container) container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(sessId,scId,loc,li)).join('');
+  if (container) container.innerHTML = sc.locations.map((loc,li)=>renderSceneLocCard(scId,loc,li)).join('');
 }
-function setSceneLocField(sessId, scId, locId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+function setSceneLocField(scId, locId, field, val) {
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   const loc = (sc?.locations||[]).find(x=>x.id===locId);
   if (loc) loc[field] = val;
 }
-
-/* ── Scene Room CRUD ── */
-function addSceneRoom(sessId, scId, locId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+function refreshSceneLoc(locId, danger) {
+  const el = document.getElementById('scloc-'+locId);
+  if (!el) return;
+  const dc = LOC_DANGER_C[danger]||'#7a7060';
+  el.style.borderLeftColor = dc;
+}
+function _getLoc(scId, locId) {
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   const loc = (sc?.locations||[]).find(x=>x.id===locId);
+  return loc;
+}
+function addLocCriatura(scId, locId) {
+  const loc = _getLoc(scId, locId);
   if (!loc) return;
-  if (!loc.rooms) loc.rooms=[];
-  loc.rooms.push(blankSceneRoom());
-  const container = document.getElementById('scene-rooms-'+locId);
-  if (container) {
-    container.innerHTML = loc.rooms.map((r,ri)=>renderSceneRoomCard(sessId,scId,locId,r,ri)).join('');
-    openOnlyLastRoom('scene-rooms-'+locId);
-  }
-}
-function delSceneRoom(sessId, scId, locId, roomId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  if (!loc) return;
-  loc.rooms = (loc.rooms||[]).filter(x=>x.id!==roomId);
-  const container = document.getElementById('scene-rooms-'+locId);
-  if (container) container.innerHTML = loc.rooms.map((r,ri)=>renderSceneRoomCard(sessId,scId,locId,r,ri)).join('');
-}
-function setSceneRoomField(sessId, scId, locId, roomId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
-  if (r) r[field] = val;
-}
-function _reopenRoom(locId, roomId) {
-  const bodyId = 'scrbody-'+roomId;
-  const arrId  = 'scrarr-'+roomId;
-  const body = document.getElementById(bodyId);
-  const arr  = document.getElementById(arrId);
+  const sel = document.getElementById('loc-cr-select-'+locId);
+  if (!sel || !sel.value) return;
+  if (!loc.criaturas) loc.criaturas = [];
+  // normaliza entradas legadas
+  loc.criaturas = loc.criaturas.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+  loc.criaturas.push({key:sel.value, qtd:1});
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
+  const container = document.getElementById('scene-locs-'+scId);
+  if (container) container.innerHTML = sc.locations.map((l,li)=>renderSceneLocCard(scId,l,li)).join('');
+  const body = document.getElementById('sclbody-'+locId);
+  const arr  = document.getElementById('sclarr-'+locId);
   if (body) body.style.display = 'block';
   if (arr)  arr.style.transform = 'rotate(90deg)';
 }
-function _getRoom(sessId, scId, locId, roomId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
-  return {loc,r};
+function removeLocCriatura(scId, locId, idx) {
+  const loc = _getLoc(scId, locId);
+  if (!loc) return;
+  loc.criaturas = (loc.criaturas||[]).map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+  loc.criaturas.splice(idx, 1);
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
+  const container = document.getElementById('scene-locs-'+scId);
+  if (container) container.innerHTML = sc.locations.map((l,li)=>renderSceneLocCard(scId,l,li)).join('');
+  const body = document.getElementById('sclbody-'+locId);
+  const arr  = document.getElementById('sclarr-'+locId);
+  if (body) body.style.display = 'block';
+  if (arr)  arr.style.transform = 'rotate(90deg)';
 }
-function addRoomCriatura(sessId, scId, locId, roomId) {
-  const sel = document.getElementById('room-cr-select-'+roomId);
-  if (!sel || !sel.value) return;
-  const {loc,r} = _getRoom(sessId,scId,locId,roomId);
-  if (!r) return;
-  if (!r.criaturas) r.criaturas = [];
-  // normaliza entradas legadas
-  r.criaturas = r.criaturas.map(e=>typeof e==='string'?{key:e,qtd:1}:e);
-  r.criaturas.push({key:sel.value, qtd:1});
-  const container = document.getElementById('scene-rooms-'+locId);
-  if (container) container.innerHTML = loc.rooms.map((rm,ri)=>renderSceneRoomCard(sessId,scId,locId,rm,ri)).join('');
-  _reopenRoom(locId, roomId);
-}
-function removeRoomCriatura(sessId, scId, locId, roomId, idx) {
-  const {loc,r} = _getRoom(sessId,scId,locId,roomId);
-  if (!r) return;
-  r.criaturas = (r.criaturas||[]).map(e=>typeof e==='string'?{key:e,qtd:1}:e);
-  r.criaturas.splice(idx, 1);
-  const container = document.getElementById('scene-rooms-'+locId);
-  if (container) container.innerHTML = loc.rooms.map((rm,ri)=>renderSceneRoomCard(sessId,scId,locId,rm,ri)).join('');
-  _reopenRoom(locId, roomId);
-}
-function setRoomCriaturaQtd(sessId, scId, locId, roomId, idx, val) {
-  const {r} = _getRoom(sessId,scId,locId,roomId);
-  if (!r) return;
-  r.criaturas = (r.criaturas||[]).map(e=>typeof e==='string'?{key:e,qtd:1}:e);
-  if (r.criaturas[idx]) r.criaturas[idx].qtd = Math.max(1, parseInt(val)||1);
-}
-function refreshSceneRoom(roomId, danger) {
-  const el = document.getElementById('scroom-'+roomId);
-  if (!el) return;
-  const dc = ROOM_DANGER_C[danger]||'#7a7060';
-  el.style.borderLeftColor = dc;
+function setLocCriaturaQtd(scId, locId, idx, val) {
+  const loc = _getLoc(scId, locId);
+  if (!loc) return;
+  loc.criaturas = (loc.criaturas||[]).map(e=>typeof e==='string'?{key:e,qtd:1}:e);
+  if (loc.criaturas[idx]) loc.criaturas[idx].qtd = Math.max(1, parseInt(val)||1);
 }
 
 /* ── Scene Item CRUD ── */
-function addSceneItem(sessId, scId, locId, roomId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
-  if (!r) return;
-  if (!r.items) r.items=[];
-  r.items.push(blankSceneItem());
-  const container = document.getElementById('scene-items-'+roomId);
-  if (container) container.innerHTML = r.items.map((it,ii)=>renderSceneItemRow(sessId,scId,locId,roomId,it,ii)).join('');
+function addSceneItem(scId, locId) {
+  const loc = _getLoc(scId, locId);
+  if (!loc) return;
+  if (!loc.items) loc.items=[];
+  loc.items.push(blankSceneItem());
+  const container = document.getElementById('scene-items-'+locId);
+  if (container) container.innerHTML = loc.items.map((it,ii)=>renderSceneItemRow(scId,locId,it,ii)).join('');
 }
-function delSceneItem(sessId, scId, locId, roomId, itemId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
-  if (!r) return;
-  r.items = (r.items||[]).filter(x=>x.id!==itemId);
-  const container = document.getElementById('scene-items-'+roomId);
-  if (container) container.innerHTML = r.items.map((it,ii)=>renderSceneItemRow(sessId,scId,locId,roomId,it,ii)).join('');
+function delSceneItem(scId, locId, itemId) {
+  const loc = _getLoc(scId, locId);
+  if (!loc) return;
+  loc.items = (loc.items||[]).filter(x=>x.id!==itemId);
+  const container = document.getElementById('scene-items-'+locId);
+  if (container) container.innerHTML = loc.items.map((it,ii)=>renderSceneItemRow(scId,locId,it,ii)).join('');
 }
-function setSceneItemField(sessId, scId, locId, roomId, itemId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
-  const loc = (sc?.locations||[]).find(x=>x.id===locId);
-  const r = (loc?.rooms||[]).find(x=>x.id===roomId);
-  const it = (r?.items||[]).find(x=>x.id===itemId);
+function setSceneItemField(scId, locId, itemId, field, val) {
+  const loc = _getLoc(scId, locId);
+  const it = (loc?.items||[]).find(x=>x.id===itemId);
   if (it) it[field] = val;
 }
-function addScene(sessId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  if (!s.scenes) s.scenes=[];
-  s.scenes.push(blankScene(s.scenes.length+1));
-  const container = document.getElementById('scenes-'+sessId);
+function addScene() {
+  if (!formData.scenes) formData.scenes=[];
+  formData.scenes.push(blankScene(formData.scenes.length+1));
+  const container = document.getElementById('scenes-list');
   if (container) {
-    container.innerHTML = s.scenes.map((sc,i)=>renderSceneRow(sessId,sc,i)).join('');
-    openOnlyLastScene('scenes-'+sessId);
+    container.innerHTML = formData.scenes.map((sc,i)=>renderSceneRow(sc,i)).join('');
+    openOnlyLastScene('scenes-list');
   }
 }
-function delScene(sessId, scId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  s.scenes = (s.scenes||[]).filter(x=>x.id!==scId);
-  // re-render container with updated numbers
-  const container = document.getElementById('scenes-'+sessId);
+function delScene(scId) {
+  formData.scenes = (formData.scenes||[]).filter(x=>x.id!==scId);
+  const container = document.getElementById('scenes-list');
   if (container) {
-    container.innerHTML = s.scenes.map((sc,i)=>renderSceneRow(sessId,sc,i)).join('');
+    container.innerHTML = formData.scenes.map((sc,i)=>renderSceneRow(sc,i)).join('');
   }
 }
-function setSceneField(sessId, scId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+function setSceneField(scId, field, val) {
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   if (sc) sc[field] = val;
 }
-function refreshSceneRow(sessId, scId) {
+function refreshSceneRow(scId) {
   // update border color when type changes
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const sc = (s?.scenes||[]).find(x=>x.id===scId);
+  const sc = (formData.scenes||[]).find(x=>x.id===scId);
   const el = document.getElementById('scrow-'+scId);
   if (!sc||!el) return;
   const col = SCENE_COLORS[sc.type]||'#b8860b';
   el.style.borderLeftColor = col;
 }
-// ── Campos de sessão e pistas ────────────────────────────────
-function setSessField(sessId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (s) s[field] = val;
+// ── NPCs vinculados e pistas ──────────────────────────────────
+function toggleLinked(type, itemId, checked) {
+  if (!formData.linkedNpcs) formData.linkedNpcs = [];
+  if (checked) { if (!formData.linkedNpcs.includes(itemId)) formData.linkedNpcs.push(itemId); }
+  else { formData.linkedNpcs = formData.linkedNpcs.filter(id=>id!==itemId); }
 }
-function toggleLinked(type, sessId, itemId, checked) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  if (!s.linkedNpcs) s.linkedNpcs = [];
-  if (checked) { if (!s.linkedNpcs.includes(itemId)) s.linkedNpcs.push(itemId); }
-  else { s.linkedNpcs = s.linkedNpcs.filter(id=>id!==itemId); }
-}
-function toggleLinkedRow(type, sessId, itemId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  if (!s.linkedNpcs) s.linkedNpcs = [];
-  const isLinked = s.linkedNpcs.includes(itemId);
-  if (isLinked) s.linkedNpcs = s.linkedNpcs.filter(id=>id!==itemId);
-  else s.linkedNpcs.push(itemId);
+function toggleLinkedRow(type, itemId) {
+  if (!formData.linkedNpcs) formData.linkedNpcs = [];
+  const isLinked = formData.linkedNpcs.includes(itemId);
+  if (isLinked) formData.linkedNpcs = formData.linkedNpcs.filter(id=>id!==itemId);
+  else formData.linkedNpcs.push(itemId);
   // atualiza visual do row sem rerenderizar tudo
-  const row = document.getElementById('npc-link-row-'+sessId+'-'+itemId);
+  const row = document.getElementById('npc-link-row-'+itemId);
   if (!row) return;
-  const nowLinked = s.linkedNpcs.includes(itemId);
+  const nowLinked = formData.linkedNpcs.includes(itemId);
   row.style.background = nowLinked ? '#c0392b12' : '#0a0908';
   row.style.borderColor = nowLinked ? '#c0392b44' : '#2c2820';
   const box = row.querySelector('div');
@@ -3799,29 +3541,24 @@ function toggleLinkedRow(type, sessId, itemId) {
     box.innerHTML = nowLinked ? '<span style="color:#fff;font-size:11px;line-height:1">✓</span>' : '';
   }
 }
-function addClue(sessId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  s.clues.push(blankClue());
-  const container = document.getElementById('clues-'+sessId);
+function addClue() {
+  if (!formData.clues) formData.clues=[];
+  formData.clues.push(blankClue());
+  const container = document.getElementById('clues-list');
   if (container) {
-    container.innerHTML = s.clues.map(cl=>clueRowHtml(sessId,cl)).join('');
+    container.innerHTML = formData.clues.map(cl=>clueRowHtml(cl)).join('');
   }
 }
-function setClue(sessId, clueId, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const cl = s?.clues?.find(x=>x.id===clueId);
+function setClue(clueId, val) {
+  const cl = (formData.clues||[]).find(x=>x.id===clueId);
   if (cl) cl.text = val;
 }
-function setClueField(sessId, clueId, field, val) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  const cl = s?.clues?.find(x=>x.id===clueId);
+function setClueField(clueId, field, val) {
+  const cl = (formData.clues||[]).find(x=>x.id===clueId);
   if (cl) cl[field] = val;
 }
-function delClue(sessId, clueId) {
-  const s = formData.sessions_data.find(x=>x.id===sessId);
-  if (!s) return;
-  s.clues = s.clues.filter(x=>x.id!==clueId);
+function delClue(clueId) {
+  formData.clues = (formData.clues||[]).filter(x=>x.id!==clueId);
   const row = document.getElementById('clue-row-'+clueId);
   if (row) row.remove();
 }
@@ -3841,17 +3578,6 @@ function delTimeline(id) {
   const r = document.getElementById('tl-row-'+id);
   if (r) r.remove();
 }
-function syncSessionsData(n) {
-  const cur = formData.sessions_data || [];
-  if (n > cur.length) {
-    for (let i=cur.length; i<n; i++) cur.push(blankSess(i+1));
-  } else {
-    cur.splice(n);
-  }
-  formData.sessions_data = cur;
-  formData.sessions = n;
-}
-
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 21. MODAL / DELETE — confirmação de exclusão               │
    └─────────────────────────────────────────────────────────────┘ */
@@ -3901,8 +3627,6 @@ function exportPDF() {
   const block = (l,v,col='#7a7060') => v ? `<div style="margin-bottom:10px"><div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:${col};font-weight:700;margin-bottom:3px">${l}</div><div style="color:#c8c0b8;font-size:13px;line-height:1.7;font-family:Georgia,serif">${nl(v)}</div></div>` : '';
   const sColor = s => ({'Em Andamento':'#276749','Concluída':'#b8860b','Pausada':'#7a7060','Planejada':'#c0392b'}[s]||'#7a7060');
   const dColor = d => ({'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'}[d]||'#7a7060');
-  const stColor= s => ({'Jogada':'#276749','Pulada':'#b8860b','Pendente':'#7a7060'}[s]||'#7a7060');
-  const jogadas = (c.sessions_data||[]).filter(s=>s.status==='Jogada').length;
 
   const cover = `
 <div style="page-break-after:always;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:60px;background:linear-gradient(135deg,#0c0b09 60%,#1a0a08)">
@@ -3910,10 +3634,10 @@ function exportPDF() {
   <div style="font-family:'Playfair Display',Georgia,serif;font-size:52px;font-weight:900;color:#ede8dc;line-height:1.05;margin-bottom:18px;max-width:680px">${esc(c.title||'Sem Título')}</div>
   ${c.synopsis?`<div style="font-size:15px;color:#a09890;line-height:1.8;max-width:580px;font-style:italic;margin-bottom:28px;border-left:3px solid #c0392b;padding-left:16px;font-family:Georgia,serif">${nl(c.synopsis)}</div>`:''}
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px">
-    ${pill(c.status,sColor(c.status))} ${pill('NEX '+c.nex,'#7a7060')} ${pill(c.sessions+' sessão'+(c.sessions!==1?'s':''),'#7a7060')}
+    ${pill(c.status,sColor(c.status))} ${pill('NEX '+c.nex,'#7a7060')}
   </div>
   <div style="display:flex;gap:32px;flex-wrap:wrap;padding-top:28px;border-top:1px solid #2c2820">
-    ${[['NPCs',c.npcs.length],['Itens',c.items.length],['Sessões',c.sessions],['Jogadas',jogadas]].map(([l,v])=>`<div style="text-align:center"><div style="font-size:26px;color:#c0392b;font-weight:700;font-family:'Share Tech Mono',monospace">${v}</div><div style="font-size:9px;color:#9a8e7a;letter-spacing:.15em;text-transform:uppercase;margin-top:2px">${l}</div></div>`).join('')}
+    ${[['NPCs',c.npcs.length],['Itens',c.items.length],['Cenas',(c.scenes||[]).length]].map(([l,v])=>`<div style="text-align:center"><div style="font-size:26px;color:#c0392b;font-weight:700;font-family:'Share Tech Mono',monospace">${v}</div><div style="font-size:9px;color:#9a8e7a;letter-spacing:.15em;text-transform:uppercase;margin-top:2px">${l}</div></div>`).join('')}
   </div>
   <div style="margin-top:40px;font-size:10px;color:#302c24;font-family:'Share Tech Mono',monospace">Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
 </div>`;
@@ -4024,110 +3748,76 @@ ${sc('Notas Gerais','#7a7060')}
 ${cover}
 <div class="wrap">
 
-  ${(c.sessions_data||[]).length > 1 ? `
-  ${sc('Índice de Sessões','#302c24')}
-  <table class="index-table">
-    ${c.sessions_data.map(s=>`<tr>
-      <td>${String(s.number).padStart(2,'0')}</td>
-      <td>${esc(s.title||'Sem título')}</td>
-      <td>${pill(s.status||'Pendente',stColor(s.status))}</td>
-    </tr>`).join('')}
-  </table>` : ''}
-
   ${timeline}${anta}${npcs}${items}
 
-  ${c.sessions_data.length ? `
-  ${sc('Sessões','#c0392b')}
-  ${c.sessions_data.map(s=>{
-    const big = (s.scenes||[]).length > 3 || (s.clues||[]).length > 4;
-    return `<div class="sess-block ${big?'big':''}" style="background:#141210;border:1px solid #2c2820;border-radius:3px;margin-bottom:20px;overflow:hidden">
-    <div style="background:linear-gradient(135deg,#1a1814,#c0392b12);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #302c24">
-      <div style="width:42px;height:42px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b44;display:flex;align-items:center;justify-content:center;color:#c0392b;font-size:16px;font-weight:700;font-family:'Share Tech Mono',monospace;flex-shrink:0">${String(s.number).padStart(2,'0')}</div>
-      <div style="flex:1">
-        <div style="font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:700;color:#ede8dc;line-height:1.2">${esc(s.title||'Sem título')}</div>
-      </div>
-      ${pill(s.status||'Pendente',stColor(s.status))}
-    </div>
+  ${(c.scenes||[]).length || c.opening || c.objectives || (c.clues||[]).length ? `
+  ${sc('Cenas','#c0392b')}
+  <div class="sess-block" style="background:#141210;border:1px solid #2c2820;border-radius:3px;margin-bottom:20px;overflow:hidden">
     <div style="padding:16px 18px">
-      ${s.opening?`<div style="background:#c0392b10;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:2px;padding:12px 16px;margin-bottom:14px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">🎬 Abertura — leia em voz alta</div><div style="color:#eedada;font-size:13px;line-height:1.8;font-family:Georgia,serif;font-style:italic">${nl(s.opening)}</div></div>`:''}
-      ${s.synopsis?`${block('Sinopse',s.synopsis)}`:''}
-      ${s.objectives?`${block('Objetivos dos Agentes',s.objectives)}`:''}
-      ${(s.scenes||[]).length?`
+      ${c.opening?`<div style="background:#c0392b10;border:1px solid #c0392b33;border-left:3px solid #c0392b;border-radius:2px;padding:12px 16px;margin-bottom:14px"><div style="font-size:9px;color:#c0392b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">🎬 Abertura — leia em voz alta</div><div style="color:#eedada;font-size:13px;line-height:1.8;font-family:Georgia,serif;font-style:italic">${nl(c.opening)}</div></div>`:''}
+      ${c.objectives?`${block('Objetivos dos Agentes',c.objectives)}`:''}
+      ${(c.scenes||[]).length?`
         <div style="margin-bottom:12px">
           <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a8e7a;font-weight:700;margin-bottom:8px">🎬 Cenas</div>
-          ${(s.scenes||[]).map((sc2,i)=>{
+          ${c.scenes.map((sc2,i)=>{
             const col=SCENE_COLORS[sc2.type]||'#b8860b';
             const ic=SCENE_ICONS[sc2.type]||'🎬';
             const sceneLocs=sc2.locations||[];
             const locsHtml=sceneLocs.map(loc=>{
-              const rooms=loc.rooms||[];
-              const dc2=({'Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'})[loc.danger]||'#7a7060';
-              const roomsHtml=rooms.map(r=>{
-                const rdc=({'Sem Perigo':'#7a7060','Baixo':'#276749','Médio':'#b8860b','Alto':'#e65c00','Extremo':'#c0392b'})[r.danger]||'#7a7060';
-                const its=r.items||[];
-                const RIIC={'sala':'🛋','quarto':'🛏','cozinha':'🍳','banheiro':'🚿','jardim':'🌿','garagem':'🚗','corredor':'🚪','porao':'🕯','sotao':'🕷','escritorio':'💼','laboratorio':'⚗️','deposito':'📦','outro':'📍'};
-                const IIIC={'objeto':'📦','pista':'🔍','perigo':'⚠️','npc':'👤','passagem':'🚪','paranormal':'👁','nota':'📝'};
-                const IICOL={'objeto':'#7a7060','pista':'#b8860b','perigo':'#c0392b','npc':'#276749','passagem':'#0e7490','paranormal':'#7c3aed','nota':'#4a4440'};
-                const rawRoomCr = r.criaturas||[];
-                const campCriaturas = c.criaturas||[];
-                const campNpcs = c.npcs||[];
-                const roomCrObjs = rawRoomCr.map(entry=>{
-                  const key = typeof entry==='string'?entry:entry.key;
-                  const qtd = typeof entry==='string'?1:(entry.qtd||1);
-                  let obj=null,tipo='cr';
-                  if (key.startsWith('cr:'))       { obj=campCriaturas.find(x=>x.id===key.slice(3)); tipo='cr'; }
-                  else if (key.startsWith('npc:')) { obj=campNpcs.find(x=>x.id===key.slice(4));      tipo='npc'; }
-                  else                             { obj=campCriaturas.find(x=>x.id===key);           tipo='cr'; }
-                  return obj?{...obj,_tipo:tipo,_qtd:qtd}:null;
-                }).filter(Boolean);
-                return `<div style="background:#060504;border:1px solid #2c2820;border-left:2px solid ${rdc};border-radius:2px;padding:7px 10px;margin-bottom:4px">
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:${r.description||r.atmosphere||r.secret||its.length||roomCrObjs.length?'5px':'0'}">
-                    <span>${RIIC[r.type]||'📍'}</span>
-                    <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(r.name||'Sem nome')}</span>
-                    ${r.danger&&r.danger!=='Sem Perigo'?`<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${rdc}22;border:1px solid ${rdc}44;color:${rdc};text-transform:uppercase">${esc(r.danger)}</span>`:''}
-                  </div>
-                  ${r.description?`<div style="color:#c0b8b0;font-size:11px;line-height:1.6;font-family:Georgia,serif;margin-bottom:3px">${nl(r.description)}</div>`:''}
-                  ${r.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:3px">🌫 ${esc(r.atmosphere)}</div>`:''}
-                  ${r.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:4px 8px;margin-bottom:4px"><span style="font-size:9px;color:#e65c00;text-transform:uppercase;font-weight:700">⚡ Evento </span><span style="color:#fbbf7c;font-size:11px;line-height:1.6;white-space:pre-line">${nl(r.evento)}</span></div>`:''}
-                  ${r.secret?`<div style="background:#7f1d1d12;border:1px solid #7f1d1d44;border-radius:2px;padding:4px 8px;margin-bottom:4px"><span style="font-size:9px;color:#c0392b;text-transform:uppercase">🔒 </span><span style="color:#c0a0a0;font-size:11px">${nl(r.secret)}</span></div>`:''}
-                  ${its.map(it=>`<div style="display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-top:1px solid #1c1a16">
-                    <span>${IIIC[it.cat]||'📦'}</span>
-                    <div style="flex:1;min-width:0">
-                      <span style="color:#ede8dc;font-size:11px;font-weight:700">${esc(it.name)}</span>
-                      ${it.desc?`<div style="color:#9a9088;font-size:10px;line-height:1.5">${nl(it.desc)}</div>`:''}
-                      ${it.secret?`<div style="color:#c0392b;font-size:10px">🔒 ${nl(it.secret)}</div>`:''}
-                    </div>
-                    <span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${IICOL[it.cat]||'#7a7060'}22;border:1px solid ${IICOL[it.cat]||'#7a7060'}44;color:${IICOL[it.cat]||'#7a7060'};text-transform:uppercase;flex-shrink:0">${it.cat}</span>
-                  </div>`).join('')}
-                  ${roomCrObjs.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-top:4px">
-                    <div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">💀 Inimigos & NPCs</div>
-                    ${roomCrObjs.map(e=>{
-                      const isCr=e._tipo==='cr';
-                      return `<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid #1a0e20">
-                        <span style="font-size:11px">${isCr?'💀':'👤'}</span>
-                        <div style="flex:1;min-width:0">
-                          <span style="color:#ede8dc;font-size:11px;font-weight:700">${esc(e.name)}</span>
-                          ${e._qtd>1?`<span style="color:#a78bfa;font-size:10px;font-family:monospace;margin-left:4px">×${e._qtd}</span>`:''}
-                          ${isCr&&e.tipo?`<span style="color:#9a8e7a;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.tipo)}</span>`:''}
-                          ${!isCr&&e.role?`<span style="color:#b8860b;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.role)}</span>`:''}
-                          ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:monospace;margin-left:5px">PV ${e.pvMax||0}</span>`:''}
-                          ${isCr&&e.ataque?`<div style="color:#9a9088;font-size:10px;white-space:pre-line;margin-top:1px">${esc(e.ataque)}</div>`:''}
-                          ${!isCr&&e.description?`<div style="color:#9a9088;font-size:10px;margin-top:1px">${nl(e.description)}</div>`:''}
-                        </div>
-                      </div>`;
-                    }).join('')}
-                  </div>`:''}
-                </div>`;
-              }).join('');
+              const dc2=LOC_DANGER_C[loc.danger]||'#7a7060';
+              const its=loc.items||[];
+              const IIIC={'objeto':'📦','pista':'🔍','perigo':'⚠️','npc':'👤','passagem':'🚪','paranormal':'👁','nota':'📝'};
+              const IICOL={'objeto':'#7a7060','pista':'#b8860b','perigo':'#c0392b','npc':'#276749','passagem':'#0e7490','paranormal':'#7c3aed','nota':'#4a4440'};
+              const rawLocCr = loc.criaturas||[];
+              const campCriaturas = c.criaturas||[];
+              const campNpcs = c.npcs||[];
+              const locCrObjs = rawLocCr.map(entry=>{
+                const key = typeof entry==='string'?entry:entry.key;
+                const qtd = typeof entry==='string'?1:(entry.qtd||1);
+                let obj=null,tipo='cr';
+                if (key.startsWith('cr:'))       { obj=campCriaturas.find(x=>x.id===key.slice(3)); tipo='cr'; }
+                else if (key.startsWith('npc:')) { obj=campNpcs.find(x=>x.id===key.slice(4));      tipo='npc'; }
+                else                             { obj=campCriaturas.find(x=>x.id===key);           tipo='cr'; }
+                return obj?{...obj,_tipo:tipo,_qtd:qtd}:null;
+              }).filter(Boolean);
               return `<div style="background:#0a0908;border:1px solid #b8860b33;border-left:2px solid #b8860b;border-radius:2px;padding:8px 10px;margin-bottom:5px">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:${loc.description||rooms.length?'5px':'0'}">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:${loc.description||its.length||locCrObjs.length?'5px':'0'}">
                   <span style="color:#b8860b">📍</span>
                   <span style="color:#ede8dc;font-size:12px;font-weight:700;flex:1">${esc(loc.name||'Sem nome')}</span>
                   ${loc.type?`<span style="color:#9a8e7a;font-size:10px">${esc(loc.type)}</span>`:''}
-                  <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>
+                  ${loc.danger&&loc.danger!=='Sem Perigo'?`<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${dc2}22;border:1px solid ${dc2}44;color:${dc2};text-transform:uppercase">${esc(loc.danger)}</span>`:''}
                 </div>
-                ${loc.description?`<div style="color:#c0b8b0;font-size:11px;line-height:1.6;font-family:Georgia,serif;margin-bottom:5px">${nl(loc.description)}</div>`:''}
-                ${roomsHtml}
+                ${loc.description?`<div style="color:#c0b8b0;font-size:11px;line-height:1.6;font-family:Georgia,serif;margin-bottom:3px">${nl(loc.description)}</div>`:''}
+                ${loc.atmosphere?`<div style="color:#9a8e7a;font-size:11px;font-style:italic;margin-bottom:3px">🌫 ${esc(loc.atmosphere)}</div>`:''}
+                ${loc.evento?`<div style="background:#e65c0012;border:1px solid #e65c0044;border-radius:2px;padding:4px 8px;margin-bottom:4px"><span style="font-size:9px;color:#e65c00;text-transform:uppercase;font-weight:700">⚡ Evento </span><span style="color:#fbbf7c;font-size:11px;line-height:1.6;white-space:pre-line">${nl(loc.evento)}</span></div>`:''}
+                ${loc.secret?`<div style="background:#7f1d1d12;border:1px solid #7f1d1d44;border-radius:2px;padding:4px 8px;margin-bottom:4px"><span style="font-size:9px;color:#c0392b;text-transform:uppercase">🔒 </span><span style="color:#c0a0a0;font-size:11px">${nl(loc.secret)}</span></div>`:''}
+                ${its.map(it=>`<div style="display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-top:1px solid #1c1a16">
+                  <span>${IIIC[it.cat]||'📦'}</span>
+                  <div style="flex:1;min-width:0">
+                    <span style="color:#ede8dc;font-size:11px;font-weight:700">${esc(it.name)}</span>
+                    ${it.desc?`<div style="color:#9a9088;font-size:10px;line-height:1.5">${nl(it.desc)}</div>`:''}
+                    ${it.secret?`<div style="color:#c0392b;font-size:10px">🔒 ${nl(it.secret)}</div>`:''}
+                  </div>
+                  <span style="font-size:8px;padding:1px 4px;border-radius:2px;background:${IICOL[it.cat]||'#7a7060'}22;border:1px solid ${IICOL[it.cat]||'#7a7060'}44;color:${IICOL[it.cat]||'#7a7060'};text-transform:uppercase;flex-shrink:0">${it.cat}</span>
+                </div>`).join('')}
+                ${locCrObjs.length?`<div style="border-top:1px solid #1c1a16;padding-top:5px;margin-top:4px">
+                  <div style="font-size:9px;color:#a78bfa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">💀 Inimigos & NPCs</div>
+                  ${locCrObjs.map(e=>{
+                    const isCr=e._tipo==='cr';
+                    return `<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid #1a0e20">
+                      <span style="font-size:11px">${isCr?'💀':'👤'}</span>
+                      <div style="flex:1;min-width:0">
+                        <span style="color:#ede8dc;font-size:11px;font-weight:700">${esc(e.name)}</span>
+                        ${e._qtd>1?`<span style="color:#a78bfa;font-size:10px;font-family:monospace;margin-left:4px">×${e._qtd}</span>`:''}
+                        ${isCr&&e.tipo?`<span style="color:#9a8e7a;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.tipo)}</span>`:''}
+                        ${!isCr&&e.role?`<span style="color:#b8860b;font-size:9px;text-transform:uppercase;margin-left:5px">${esc(e.role)}</span>`:''}
+                        ${isCr?`<span style="color:#c0392b;font-size:10px;font-family:monospace;margin-left:5px">PV ${e.pvMax||0}</span>`:''}
+                        ${isCr&&e.ataque?`<div style="color:#9a9088;font-size:10px;white-space:pre-line;margin-top:1px">${esc(e.ataque)}</div>`:''}
+                        ${!isCr&&e.description?`<div style="color:#9a9088;font-size:10px;margin-top:1px">${nl(e.description)}</div>`:''}
+                      </div>
+                    </div>`;
+                  }).join('')}
+                </div>`:''}
               </div>`;
             }).join('');
             return `<div style="background:#0f0e0c;border:1px solid #2c2820;border-left:3px solid ${col};border-radius:2px;padding:10px 12px;margin-bottom:6px">
@@ -4141,10 +3831,10 @@ ${cover}
             </div>`;
           }).join('')}
         </div>` : ''}
-      ${(s.clues||[]).length?`
+      ${(c.clues||[]).length?`
         <div style="margin-bottom:12px">
           <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a8e7a;font-weight:700;margin-bottom:8px">🔍 Pistas</div>
-          ${s.clues.map(cl=>{
+          ${c.clues.map(cl=>{
             const cc=({'Física':'#b8860b','Testemunhal':'#276749','Ocultista':'#7c3aed','Documental':'#0e7490','Tecnológica':'#6b7280'})[cl.type||'Física']||'#b8860b';
             return `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1c1a16;align-items:flex-start">
               <span style="color:${cl.found?'#4ade80':'#7a7060'};font-size:13px;flex-shrink:0;margin-top:1px">${cl.found?'✓':'○'}</span>
@@ -4156,12 +3846,10 @@ ${cover}
             </div>`;
           }).join('')}
         </div>` : ''}
-      ${s.rewards?`${block('Recompensas / Consequências',s.rewards)}`:''}
-      ${s.hook?`<div style="padding:10px 14px;background:#0e749015;border:1px solid #0e749033;border-radius:2px;margin-bottom:10px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🪝 Gancho para Próxima Sessão</div><div style="color:#a5f3fc;font-size:12px;line-height:1.6">${nl(s.hook)}</div></div>`:''}
-      ${s.notes?`<div style="padding:10px 14px;background:#b8860b10;border:1px solid #b8860b33;border-radius:2px"><div style="font-size:9px;color:#b8860b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">📝 Notas do Mestre</div><div style="color:#d4b26a;font-size:12px;line-height:1.6">${nl(s.notes)}</div></div>`:''}
+      ${c.rewards?`${block('Recompensas / Consequências',c.rewards)}`:''}
+      ${c.hook?`<div style="padding:10px 14px;background:#0e749015;border:1px solid #0e749033;border-radius:2px;margin-bottom:10px"><div style="font-size:9px;color:#67e8f9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🪝 Gancho para Próxima Sessão</div><div style="color:#a5f3fc;font-size:12px;line-height:1.6">${nl(c.hook)}</div></div>`:''}
     </div>
-  </div>`;
-  }).join('')}` : ''}
+  </div>` : ''}
 
   ${notes}
 </div>
@@ -4216,14 +3904,9 @@ function updateDrawerItems() {
   if (mesaEl && mesaBtn) {
     if (isDetail) {
       const c = camps.find(x => x.id === viewingId);
-      const sessAtiva = c && ((c.sessions_data||[]).find(s=>s.status==='Em Andamento') || (c.sessions_data||[]).find(s=>s.status!=='Jogada') || (c.sessions_data||[])[0]);
-      if (sessAtiva) {
+      if (c) {
         mesaEl.style.display = 'block';
-        const label = sessAtiva.status === 'Em Andamento'
-          ? `▶ Continuar — Sessão ${String(sessAtiva.number).padStart(2,'0')}`
-          : `▶ Iniciar Mesa — Sessão ${String(sessAtiva.number).padStart(2,'0')}`;
-        mesaBtn.textContent = label;
-        mesaBtn._sessId = sessAtiva.id;
+        mesaBtn.textContent = c.status === 'Em Andamento' ? '▶ Continuar Mesa' : '▶ Iniciar Mesa';
       } else {
         mesaEl.style.display = 'none';
       }
@@ -4237,8 +3920,7 @@ function updateDrawerItems() {
 }
 
 function _drawerOpenMesa() {
-  const btn = document.getElementById('drawer-mesa-btn');
-  if (btn && btn._sessId) openMesa(btn._sessId);
+  openMesa();
 }
 
 /* ┌─────────────────────────────────────────────────────────────┐

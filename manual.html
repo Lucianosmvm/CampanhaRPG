@@ -424,8 +424,8 @@ code {
   <a class="nav-item sub" href="#aba-antagonista">Aba Antagonista</a>
   <a class="nav-item sub" href="#aba-npcs">Aba NPCs</a>
   <a class="nav-item sub" href="#aba-itens">Aba Itens</a>
-  <a class="nav-item sub" href="#aba-sessoes">Aba Sessões</a>
-  <a class="nav-item sub" href="#cenas">Cenas, Locais e Cômodos</a>
+  <a class="nav-item sub" href="#aba-sessoes">Aba Cenas</a>
+  <a class="nav-item sub" href="#cenas">Cenas, Locais e Objetos</a>
   <a class="nav-item sub" href="#aba-notas">Aba Notas</a>
 
   <div class="nav-section" style="margin-top:12px">Na Sessão</div>
@@ -464,7 +464,7 @@ code {
   <ul class="index-list">
     <li><a href="#criar-campanha">Criando uma Campanha</a><span class="pg">Preparação</span></li>
     <li><a href="#aba-antagonista">Ficha de Ameaça — Criaturas e Bestiário</a><span class="pg">Preparação</span></li>
-    <li><a href="#aba-sessoes">Planejando Sessões, Cenas e Cômodos</a><span class="pg">Preparação</span></li>
+    <li><a href="#aba-sessoes">Planejando Cenas, Locais e Objetos</a><span class="pg">Preparação</span></li>
     <li><a href="#modo-mesa">Modo Mesa — Usar Durante a Sessão</a><span class="pg">Jogo</span></li>
     <li><a href="#iniciar-combate">⚔ Iniciar Combate — Ficha e Controle de PV</a><span class="pg">Jogo</span></li>
     <li><a href="#mesa-agentes">Tracker de Agentes (PV / PE / SAN / NEX)</a><span class="pg">Jogo</span></li>
@@ -487,12 +487,12 @@ code {
     <div class="feature-card">
       <div class="feature-card-icon">📁</div>
       <div class="feature-card-title">Múltiplas Campanhas</div>
-      <div class="feature-card-desc">Gerencie várias campanhas simultâneas. Cada uma com seus NPCs, criaturas, itens e sessões independentes.</div>
+      <div class="feature-card-desc">Cada campanha representa uma sessão/capítulo de jogo, com seus NPCs, criaturas, itens e cenas independentes.</div>
     </div>
     <div class="feature-card">
       <div class="feature-card-icon">🎬</div>
       <div class="feature-card-title">Estrutura de Cenas</div>
-      <div class="feature-card-desc">Organize sessões em cenas, cenas em locais, locais em cômodos — com itens, criaturas e NPCs por cômodo.</div>
+      <div class="feature-card-desc">Organize a sessão em cenas, cenas em locais — com itens, criaturas e NPCs por local.</div>
     </div>
     <div class="feature-card">
       <div class="feature-card-icon">🎭</div>
@@ -532,7 +532,7 @@ code {
     <div class="feature-card">
       <div class="feature-card-icon">⚔</div>
       <div class="feature-card-title">Iniciar Combate</div>
-      <div class="feature-card-desc">Ao chegar em um cômodo com inimigos, abra a ficha de combate — controle PV, condições e morte de cada criatura sem sair da tela.</div>
+      <div class="feature-card-desc">Ao chegar em um local com inimigos, abra a ficha de combate — controle PV, condições e morte de cada criatura sem sair da tela.</div>
     </div>
   </div>
 
@@ -605,14 +605,14 @@ code {
   ══════════════════════════════════════ -->
   <h2 id="criar-campanha">Criando uma Campanha</h2>
 
-  <p>Na tela inicial (Arquivo de Campanhas), clique em <strong>＋ Nova Campanha</strong> ou no botão flutuante ＋ no celular. O formulário de criação tem seis abas:</p>
+  <p>Cada campanha cadastrada representa uma <strong>sessão/capítulo</strong> de jogo (ex: "Despertar — Parte 1", "Despertar — Parte 2"). Na tela inicial (Arquivo de Campanhas), clique em <strong>＋ Nova Campanha</strong> ou no botão flutuante ＋ no celular. O formulário de criação tem seis abas:</p>
 
   <div class="tab-demo">
     <span class="active">📋 Info</span>
     <span>☠ Antagonista</span>
     <span>👤 NPCs</span>
     <span>🗡 Itens</span>
-    <span>📅 Sessões</span>
+    <span>🎬 Cenas</span>
     <span>📝 Notas</span>
   </div>
 
@@ -630,11 +630,10 @@ code {
   <table class="field-table">
     <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
     <tbody>
-      <tr><td class="field-name">Título</td><td class="field-desc">Nome da campanha</td><td class="field-note">Ex: "O Silêncio da Carne", "Legado da Carne"</td></tr>
-      <tr><td class="field-name">Número de Sessões</td><td class="field-desc">Total de sessões planejadas</td><td class="field-note">Gera os cartões de sessão automaticamente</td></tr>
-      <tr><td class="field-name">Status</td><td class="field-desc">Em Andamento / Planejada / Pausada / Concluída</td><td class="field-note">Aparece na lista de campanhas</td></tr>
+      <tr><td class="field-name">Título</td><td class="field-desc">Nome da campanha/sessão</td><td class="field-note">Ex: "Despertar — Parte 1", "Despertar — Parte 2"</td></tr>
+      <tr><td class="field-name">Status</td><td class="field-desc">Em Andamento / Planejada / Pausada / Concluída</td><td class="field-note">Aparece na lista de campanhas e no Modo Mesa</td></tr>
       <tr><td class="field-name">NEX dos Agentes</td><td class="field-desc">Nível de Exposição Paranormal do grupo</td><td class="field-note">De 0% a 99%</td></tr>
-      <tr><td class="field-name">Sinopse / Premissa</td><td class="field-desc">O arco central e o mistério principal da campanha</td><td class="field-note">Use como referência rápida durante a sessão</td></tr>
+      <tr><td class="field-name">Sinopse desta Sessão</td><td class="field-desc">O que acontece nesta sessão, o mistério/gancho central</td><td class="field-note">Use como referência rápida durante a sessão</td></tr>
     </tbody>
   </table>
 
@@ -763,7 +762,7 @@ code {
   <!-- ABA ITENS -->
   <h3 id="aba-itens">Aba Itens</h3>
 
-  <p>Itens, artefatos e relíquias da campanha como um todo. Itens específicos de uma cena ou cômodo são adicionados diretamente no cômodo, na aba Sessões.</p>
+  <p>Itens, artefatos e relíquias da campanha como um todo. Objetos específicos de uma cena são adicionados diretamente no local, na aba Cenas.</p>
 
   <table class="field-table">
     <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
@@ -776,41 +775,34 @@ code {
   </table>
 
   <!-- ABA SESSÕES -->
-  <h3 id="aba-sessoes">Aba Sessões — Planejando Cada Sessão</h3>
+  <h3 id="aba-sessoes">Aba Cenas — Planejando a Sessão</h3>
 
-  <p>Cada sessão tem seu próprio cartão expansível. O número de sessões é definido na aba Info. Clique no cabeçalho do cartão para expandir.</p>
+  <p>Essa aba reúne tudo sobre esta sessão/capítulo: abertura, objetivos, cenas, pistas e recompensas. Como cada campanha já representa uma sessão, não há mais um cartão por sessão dentro da campanha — os campos abaixo ficam direto na aba.</p>
 
   <table class="field-table">
     <thead><tr><th>Campo</th><th>Descrição</th><th>Observação</th></tr></thead>
     <tbody>
-      <tr><td class="field-name">Título</td><td class="field-desc">Nome da sessão</td><td class="field-note">Ex: "A Noite do Coletor"</td></tr>
-      <tr><td class="field-name">Status</td><td class="field-desc">Pendente / Jogada / Pulada</td><td class="field-note">Atualizado após jogar</td></tr>
       <tr><td class="field-name">Abertura</td><td class="field-desc">Texto lido em voz alta para abrir a sessão</td><td class="field-note">Destaque vermelho no Modo Mesa</td></tr>
-      <tr><td class="field-name">Sinopse</td><td class="field-desc">O que acontece nessa sessão</td><td class="field-note">Resumo para o mestre</td></tr>
       <tr><td class="field-name">Objetivos</td><td class="field-desc">O que os agentes devem descobrir ou fazer</td><td class="field-note">Visível no Modo Mesa</td></tr>
-      <tr><td class="field-name">Cenas da Sessão</td><td class="field-desc">Lista de cenas que compõem a sessão</td><td class="field-note">Ver seção Cenas abaixo</td></tr>
-      <tr><td class="field-name">Recompensas</td><td class="field-desc">XP, itens, mudanças no mundo ao concluir</td><td class="field-note"></td></tr>
-      <tr><td class="field-name">Gancho</td><td class="field-desc">Como a sessão termina e deixa os jogadores curiosos</td><td class="field-note">Aparecer no Modo Mesa como lembrete</td></tr>
-      <tr><td class="field-name">Notas do Mestre</td><td class="field-desc">Observações internas, segredos, alternativas</td><td class="field-note">Só o mestre vê</td></tr>
+      <tr><td class="field-name">Cenas</td><td class="field-desc">Lista de cenas que compõem a sessão</td><td class="field-note">Ver seção Cenas abaixo</td></tr>
       <tr><td class="field-name">Pistas / Evidências</td><td class="field-desc">Pistas que os agentes podem encontrar</td><td class="field-note">Com tipo: Física, Testemunhal, Ocultista, Documental, Tecnológica</td></tr>
       <tr><td class="field-name">NPCs desta Sessão</td><td class="field-desc">Marque quais NPCs aparecem nessa sessão</td><td class="field-note">Aparecem primeiro no Modo Mesa</td></tr>
+      <tr><td class="field-name">Recompensas</td><td class="field-desc">XP, itens, mudanças no mundo ao concluir</td><td class="field-note"></td></tr>
+      <tr><td class="field-name">Gancho</td><td class="field-desc">Como a sessão termina e deixa os jogadores curiosos</td><td class="field-note">Aparece no Modo Mesa como lembrete</td></tr>
     </tbody>
   </table>
 
   <!-- CENAS -->
-  <h3 id="cenas">Cenas, Locais e Cômodos</h3>
+  <h3 id="cenas">Cenas, Locais e Objetos</h3>
 
   <p>A estrutura de uma sessão em três níveis:</p>
 
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:16px;margin:12px 0;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:2">
-    <div style="color:var(--red)">📅 Sessão 03 — A Noite do Coletor</div>
-    <div style="color:var(--gold);padding-left:20px">🎬 Cena 01 — Investigação — Hospital Abandonado</div>
-    <div style="color:var(--text);padding-left:40px">📍 Local — Ala Psiquiátrica</div>
-    <div style="color:var(--muted);padding-left:60px">🛏 Cômodo — Quarto 7 → itens, criaturas, segredo</div>
-    <div style="color:var(--muted);padding-left:60px">🚪 Cômodo — Corredor → evento, atmosfera</div>
-    <div style="color:var(--text);padding-left:40px">📍 Local — Porão</div>
-    <div style="color:var(--muted);padding-left:60px">🕯 Cômodo — Câmara do Ritual → criaturas, itens</div>
-    <div style="color:var(--gold);padding-left:20px">🎬 Cena 02 — Combate — Confronto Final</div>
+    <div style="color:var(--gold)">🎬 Cena 01 — Investigação — Hospital Abandonado</div>
+    <div style="color:var(--text);padding-left:20px">📍 Local — Ala Psiquiátrica → itens, criaturas, segredo</div>
+    <div style="color:var(--text);padding-left:20px">📍 Local — Corredor → evento, atmosfera</div>
+    <div style="color:var(--text);padding-left:20px">📍 Local — Câmara do Ritual → criaturas, itens</div>
+    <div style="color:var(--gold)">🎬 Cena 02 — Combate — Confronto Final</div>
   </div>
 
   <h4>Tipos de Cena</h4>
@@ -832,26 +824,15 @@ code {
     <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
     <tbody>
       <tr><td class="field-name">Nome</td><td class="field-desc">Nome do local — ex: "Ala Psiquiátrica"</td></tr>
-      <tr><td class="field-name">Tipo</td><td class="field-desc">Urbano, Rural, Outro Lado, Subterrâneo...</td></tr>
-      <tr><td class="field-name">Nível de Perigo</td><td class="field-desc"><span class="pill pill-green">Baixo</span> <span class="pill pill-gold">Médio</span> <span class="pill pill-orange">Alto</span> <span class="pill pill-red">Extremo</span></td></tr>
-      <tr><td class="field-name">Descrição</td><td class="field-desc">Ambiente e atmosfera geral do local</td></tr>
-      <tr><td class="field-name">Versão Paranormal</td><td class="field-desc"><span class="pill pill-purple">Novo</span> Como esse local aparece no Outro Lado — visível no Modo Mesa com destaque roxo</td></tr>
-    </tbody>
-  </table>
-
-  <h4>Campos do Cômodo</h4>
-  <table class="field-table">
-    <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
-    <tbody>
-      <tr><td class="field-name">Tipo</td><td class="field-desc">Ícone do cômodo: 🛋 Sala, 🛏 Quarto, 🍳 Cozinha, 🕯 Porão, ⚗️ Laboratório...</td></tr>
-      <tr><td class="field-name">Nome</td><td class="field-desc">Nome do cômodo</td></tr>
-      <tr><td class="field-name">Nível de Perigo</td><td class="field-desc">Perigo específico deste cômodo</td></tr>
-      <tr><td class="field-name">Descrição</td><td class="field-desc">O que os agentes veem ao entrar</td></tr>
+      <tr><td class="field-name">Tipo</td><td class="field-desc">Texto livre — Urbano, Rural, Outro Lado, Subterrâneo...</td></tr>
+      <tr><td class="field-name">Nível de Perigo</td><td class="field-desc"><span class="pill">Sem Perigo</span> <span class="pill pill-green">Baixo</span> <span class="pill pill-gold">Médio</span> <span class="pill pill-orange">Alto</span> <span class="pill pill-red">Extremo</span></td></tr>
+      <tr><td class="field-name">Descrição</td><td class="field-desc">O que os agentes veem/sentem ao chegar aqui</td></tr>
       <tr><td class="field-name">Atmosfera</td><td class="field-desc">Sons, cheiros, sensações — narrado em voz alta</td></tr>
+      <tr><td class="field-name">Versão Paranormal</td><td class="field-desc"><span class="pill pill-purple">Novo</span> Como esse local aparece no Outro Lado — visível no Modo Mesa com destaque roxo</td></tr>
       <tr><td class="field-name">Segredo</td><td class="field-desc">O que está oculto — só o mestre vê no Modo Mesa</td></tr>
-      <tr><td class="field-name">Evento</td><td class="field-desc">O que acontece quando os agentes entram neste cômodo</td></tr>
+      <tr><td class="field-name">Evento</td><td class="field-desc">O que acontece quando os agentes chegam neste local</td></tr>
       <tr><td class="field-name">Inimigos &amp; NPCs</td><td class="field-desc">Criaturas e NPCs presentes — com quantidade</td></tr>
-      <tr><td class="field-name">Objetos / Elementos</td><td class="field-desc">Itens, pistas, passagens — com tipo e segredo</td></tr>
+      <tr><td class="field-name">Objetos</td><td class="field-desc">Itens, pistas, passagens encontradas no local — com tipo e segredo</td></tr>
     </tbody>
   </table>
 
@@ -866,7 +847,7 @@ code {
   ══════════════════════════════════════ -->
   <h2 id="modo-mesa">Modo Mesa</h2>
 
-  <p>O Modo Mesa é a interface de jogo — tudo que você precisa durante uma sessão em uma tela só. Para acessar, vá até a aba <strong>Sessões</strong> na view de detalhe da campanha e clique em <strong>▶ Modo Mesa</strong> ao lado da sessão desejada.</p>
+  <p>O Modo Mesa é a interface de jogo — tudo que você precisa durante uma sessão em uma tela só. Para acessar, abra a campanha e clique em <strong>▶ Iniciar Mesa</strong> no topo da view de detalhe.</p>
 
   <!-- LAYOUT PC -->
   <h3 id="mesa-pc">Layout no PC (tela maior que 900px)</h3>
@@ -874,9 +855,6 @@ code {
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:12px 0">
     <div style="background:var(--bg-deep);border-bottom:1px solid var(--border);padding:10px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">
       ── Barra Superior: título, cronômetro, status da sessão, fechar ──
-    </div>
-    <div style="background:var(--bg-deep);border-bottom:1px solid var(--border);padding:8px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);text-align:center">
-      ── Navegação entre sessões: ◀ Anterior · 2/6 · Próxima ▶ ──
     </div>
     <div style="display:flex;min-height:100px">
       <div style="width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:12px;font-size:11px;color:var(--muted)">
@@ -889,7 +867,7 @@ code {
       <div style="flex:1;padding:12px;font-size:11px;color:var(--muted)">
         <div style="color:var(--red);font-size:10px;margin-bottom:8px">🎬 CONTEÚDO DA SESSÃO</div>
         <div>Abertura · Sinopse · Objetivos</div>
-        <div>Cenas → Locais → Cômodos</div>
+        <div>Cenas → Locais → Objetos</div>
         <div>NPCs da Sessão</div>
         <div>Itens · Recompensas · Gancho · Notas</div>
         <div style="margin-top:8px">🔍 Pistas</div>
@@ -910,24 +888,22 @@ code {
     <span>🔍 Pistas</span>
   </div>
 
-  <p>Deslize horizontalmente sobre a área principal para navegar entre sessões.</p>
-
   <!-- CENAS NA MESA -->
   <h3 id="mesa-cenas">Cenas e Locais no Modo Mesa</h3>
 
-  <p>O painel de Cenas mostra toda a estrutura planejada de forma colapsável. Clique no nome de uma cena para expandir, clique no local para ver os cômodos, clique no cômodo para ver todo o conteúdo.</p>
+  <p>O painel de Cenas mostra toda a estrutura planejada em abas — uma por cena. Clique na aba para trocar de cena, clique no local para expandir e ver todo o conteúdo.</p>
 
   <h4>Marcar Cena Atual</h4>
-  <p>Clique no botão 📍 ao lado do nome da cena para marcá-la como <span class="pill pill-red">● Atual</span>. A cena ativa fica no topo da lista e com destaque vermelho — ótimo para não perder o fio durante a sessão.</p>
+  <p>Clique no botão 📍 ao lado do nome da cena para marcá-la como <span class="pill pill-red">● Atual</span>. A cena ativa fica com destaque vermelho na aba — ótimo para não perder o fio durante a sessão.</p>
 
-  <h4>O que aparece ao abrir um cômodo</h4>
+  <h4>O que aparece ao abrir um local</h4>
   <ul>
-    <li><strong>Descrição</strong> — o que narrar ao entrar</li>
+    <li><strong>Descrição</strong> — o que narrar ao chegar</li>
     <li><strong>🌫 Atmosfera</strong> — sons, cheiros, sensações</li>
     <li><strong>🔒 Segredo</strong> — informação oculta, só o mestre vê</li>
-    <li><strong>⚡ Evento</strong> — o que acontece ao entrar</li>
-    <li><strong>💀 Inimigos &amp; NPCs</strong> — com Defesa, Resistências e Imunidades. Cômodos com criaturas exibem o botão <span class="pill pill-red">⚔ Iniciar Combate</span></li>
-    <li><strong>Objetos / Elementos</strong> — itens e pistas do cômodo</li>
+    <li><strong>⚡ Evento</strong> — o que acontece quando os agentes chegam</li>
+    <li><strong>💀 Inimigos &amp; NPCs</strong> — com Defesa, Resistências e Imunidades. Locais com criaturas exibem o botão <span class="pill pill-red">⚔ Iniciar Combate</span></li>
+    <li><strong>Objetos</strong> — itens e pistas encontrados no local</li>
   </ul>
 
   <h4>Versão Paranormal</h4>
@@ -939,14 +915,14 @@ code {
   <!-- INICIAR COMBATE -->
   <h3 id="iniciar-combate">⚔ Iniciar Combate — Ficha de Ameaça no Modo Mesa</h3>
 
-  <p>Quando os agentes chegam a um cômodo com inimigos, aparece o botão <span class="pill pill-red">⚔</span> no cabeçalho do cômodo e o botão <span class="pill pill-red">⚔ Iniciar Combate</span> dentro do cômodo expandido. Clicar em qualquer um deles abre a <strong>Ficha de Combate</strong> — um modal com a ficha completa de cada criatura do cômodo e os controles de batalha.</p>
+  <p>Quando os agentes chegam a um local com inimigos, aparece o botão <span class="pill pill-red">⚔</span> no cabeçalho do local e o botão <span class="pill pill-red">⚔ Iniciar Combate</span> dentro do local expandido. Clicar em qualquer um deles abre a <strong>Ficha de Combate</strong> — um modal com a ficha completa de cada criatura do local e os controles de batalha.</p>
 
   <h4>O que a ficha de combate mostra</h4>
   <ul>
     <li><strong>Ficha de Ameaça completa</strong> — tipo, NEX, elementos, VD, Fort/Ref/Von, atributos, resistências, ataques, habilidades e descrição</li>
-    <li><strong>Botão + Iniciativa</strong> — adiciona a criatura (com a quantidade definida no cômodo) à fila de iniciativa</li>
+    <li><strong>Botão + Iniciativa</strong> — adiciona a criatura (com a quantidade definida no local) à fila de iniciativa</li>
     <li><strong>Badge ✓ Na ini</strong> — aparece quando a criatura já foi adicionada à iniciativa (evita duplicatas)</li>
-    <li><strong>⚔ Todos à Ini</strong> — adiciona todas as criaturas do cômodo de uma vez</li>
+    <li><strong>⚔ Todos à Ini</strong> — adiciona todas as criaturas do local de uma vez</li>
   </ul>
 
   <h4>Controle de combate inline</h4>
@@ -976,14 +952,14 @@ code {
   </div>
 
   <h4>Múltiplas instâncias</h4>
-  <p>Se o cômodo tiver, por exemplo, <strong>×3 Cultistas</strong>, cada um aparece como <strong>#1, #2, #3</strong> com sua própria barra de PV e controles independentes — o mestre controla cada indivíduo separadamente.</p>
+  <p>Se o local tiver, por exemplo, <strong>×3 Cultistas</strong>, cada um aparece como <strong>#1, #2, #3</strong> com sua própria barra de PV e controles independentes — o mestre controla cada indivíduo separadamente.</p>
 
   <h4>Controles do modal</h4>
   <p>O cabeçalho da ficha de combate tem três botões:</p>
   <ul>
     <li><span class="pill pill-gold">🎲 Rolar</span> — rola iniciativa para todos (agentes + criaturas no tracker)</li>
     <li><span class="pill pill-red">▶ Próximo</span> — avança para o próximo turno na ordem de iniciativa</li>
-    <li><span class="pill pill-red">⚔ Todos à Ini</span> — adiciona todas as criaturas do cômodo (só adiciona o que ainda falta, sem duplicar)</li>
+    <li><span class="pill pill-red">⚔ Todos à Ini</span> — adiciona todas as criaturas do local (só adiciona o que ainda falta, sem duplicar)</li>
   </ul>
 
   <div class="tip">
@@ -997,7 +973,7 @@ code {
   <!-- TRACKER DE AGENTES -->
   <h3 id="mesa-agentes">Tracker de Agentes</h3>
 
-  <p>Clique em <strong>+ Adicionar Agente</strong> para registrar cada jogador. Os dados persistem entre sessões da mesma campanha.</p>
+  <p>Clique em <strong>+ Adicionar Agente</strong> para registrar cada jogador. Os dados ficam salvos nesta campanha/sessão — para continuar em outra parte da história, crie uma nova campanha e recadastre os agentes.</p>
 
   <h4>Recursos rastreados por agente</h4>
 
@@ -1068,7 +1044,7 @@ code {
 
   <h4>Fluxo de combate recomendado</h4>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a ficha de combate do cômodo</strong>No cômodo com inimigos, clique em <span class="pill pill-red">⚔ Iniciar Combate</span>. A ficha de ameaça abre com todos os inimigos do local.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a ficha de combate do local</strong>No local com inimigos, clique em <span class="pill pill-red">⚔ Iniciar Combate</span>. A ficha de ameaça abre com todos os inimigos do local.</div></li>
     <li><div class="step-num">2</div><div class="step-body"><strong>Adicionar à iniciativa</strong>Clique em <strong>+ Iniciativa</strong> por criatura ou <strong>⚔ Todos à Ini</strong> para adicionar tudo de uma vez. O badge muda para ✓ Na ini.</div></li>
     <li><div class="step-num">3</div><div class="step-body"><strong>Rolar iniciativa</strong>Clique em <strong>🎲 Rolar</strong> no modal (ou 🎲 Rolar Todos na aba) para rolar d20 + AGI dos agentes e d20 para as criaturas.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Avançar os turnos</strong>Clique em <strong>▶ Próximo</strong>. O combatente ativo fica destacado em vermelho. O número da rodada aparece acima da lista.</div></li>
@@ -1114,14 +1090,13 @@ code {
 
   <ul>
     <li>Pistas encontradas ficam com <strong>texto riscado</strong> e ícone ✓</li>
-    <li>Pistas descobertas em <strong>outra sessão</strong> mostram o badge <span class="pill pill-green">✓ Sessão N</span> — assim o mestre sabe exatamente quando foi revelada</li>
     <li>Tipos de pista: <span class="pill pill-gold">Física</span> <span class="pill pill-green">Testemunhal</span> <span class="pill pill-purple">Ocultista</span> <span class="pill pill-cyan">Documental</span> <span class="pill" style="background:#6b728022;border:1px solid #6b728055;color:#9ca3af">Tecnológica</span></li>
   </ul>
 
   <!-- NOTAS RÁPIDAS -->
   <h3 id="mesa-notas">Notas Rápidas</h3>
 
-  <p>O campo de texto no painel esquerdo (PC) ou na aba 📖 Cena → final (mobile) é para <strong>improvisos da sessão</strong> — nomes criados na hora, decisões dos jogadores, reviravoltas. O conteúdo é salvo automaticamente e persiste entre sessões.</p>
+  <p>O campo de texto no painel esquerdo (PC) ou na aba 📖 Cena → final (mobile) é para <strong>improvisos da sessão</strong> — nomes criados na hora, decisões dos jogadores, reviravoltas. O conteúdo é salvo automaticamente.</p>
 
   <!-- CRONÔMETRO -->
   <h3 id="mesa-timer">Cronômetro de Sessão</h3>
@@ -1175,7 +1150,7 @@ code {
   <p>Menu ☰ → <strong>Importar Campanhas</strong>. Selecione um arquivo <code>.json</code> exportado anteriormente. Os dados são <em>mesclados</em> — campanhas existentes não são apagadas.</p>
 
   <h3>Exportar PDF</h3>
-  <p>Menu ☰ → <strong>Exportar PDF</strong> (disponível quando uma campanha está aberta). Gera um documento formatado com toda a campanha: antagonista, criaturas, NPCs, itens, sessões, cenas e pistas. Use para impressão ou envio aos jogadores.</p>
+  <p>Menu ☰ → <strong>Exportar PDF</strong> (disponível quando uma campanha está aberta). Gera um documento formatado com toda a campanha: antagonista, criaturas, NPCs, itens, cenas e pistas. Use para impressão ou envio aos jogadores.</p>
 
   <div class="warn">
     <div class="warn-icon">⚠️</div>
@@ -1194,7 +1169,7 @@ code {
 
   <h3>Antes da campanha começar</h3>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Criar a campanha</strong>Título, sinopse, número de sessões, NEX inicial.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Criar a campanha</strong>Título, sinopse, NEX inicial. Cada campanha representa uma sessão/capítulo — para uma história maior, crie uma campanha por parte (ex: "Parte 1", "Parte 2").</div></li>
     <li><div class="step-num">2</div><div class="step-body"><strong>Cadastrar o antagonista e as criaturas</strong>Aba Antagonista → preencher vilão principal e adicionar todas as criaturas do bestiário com PV, Defesa, Resistências e Imunidades.</div></li>
     <li><div class="step-num">3</div><div class="step-body"><strong>Cadastrar os NPCs</strong>Aba NPCs → todos os personagens com papel narrativo, incluindo segredos e impacto na sanidade.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Cadastrar itens e artefatos</strong>Aba Itens → relíquias, artefatos, itens de trama.</div></li>
@@ -1203,9 +1178,9 @@ code {
 
   <h3>Preparando cada sessão</h3>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a sessão na aba Sessões</strong>Preencher título, abertura, sinopse e objetivos.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir a aba Cenas</strong>Preencher abertura, sinopse (aba Info) e objetivos.</div></li>
     <li><div class="step-num">2</div><div class="step-body"><strong>Criar as cenas</strong>Botão + Adicionar Cena → definir tipo, nome e descrição.</div></li>
-    <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar locais e cômodos</strong>Cada cena pode ter locais físicos com cômodos detalhados: descrição, atmosfera, segredo, evento, criaturas e itens.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar locais</strong>Cada cena pode ter locais detalhados: descrição, atmosfera, segredo, evento, criaturas e objetos.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Preencher as pistas</strong>Botão + Adicionar Pista com tipo e texto.</div></li>
     <li><div class="step-num">5</div><div class="step-body"><strong>Marcar NPCs da sessão</strong>Na seção "NPCs desta Sessão", marcar os que aparecem — eles ficam em destaque no Modo Mesa.</div></li>
     <li><div class="step-num">6</div><div class="step-body"><strong>Salvar e fazer backup</strong>Botão 💾 Salvar → menu ☰ → Backup Rápido.</div></li>
@@ -1213,18 +1188,18 @@ code {
 
   <h3>Durante a sessão</h3>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir o Modo Mesa</strong>Aba Sessões → botão ▶ Modo Mesa ao lado da sessão atual.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Abrir o Modo Mesa</strong>Botão ▶ Iniciar Mesa no topo da view de detalhe da campanha.</div></li>
     <li><div class="step-num">2</div><div class="step-body"><strong>Iniciar o cronômetro</strong>Botão ▶ na barra superior para registrar o tempo de sessão.</div></li>
     <li><div class="step-num">3</div><div class="step-body"><strong>Adicionar os agentes</strong>+ Adicionar Agente → nome, ícone, PV/PE/SAN/NEX/AGI. Adicionar rituais com + Ritual.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Marcar a cena atual</strong>Botão 📍 ao lado da cena para mantê-la no topo e destacada.</div></li>
-    <li><div class="step-num">5</div><div class="step-body"><strong>No combate: abrir ficha do cômodo e iniciar</strong>Clicar no botão ⚔ no cômodo com inimigos → ⚔ Todos à Ini → 🎲 Rolar → ▶ Próximo para avançar turnos. Aplicar dano com o campo e botão −Dano na ficha ou na aba de Iniciativa.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>No combate: abrir ficha do local e iniciar</strong>Clicar no botão ⚔ no local com inimigos → ⚔ Todos à Ini → 🎲 Rolar → ▶ Próximo para avançar turnos. Aplicar dano com o campo e botão −Dano na ficha ou na aba de Iniciativa.</div></li>
     <li><div class="step-num">6</div><div class="step-body"><strong>Marcar pistas encontradas</strong>Aba 🔍 Pistas → toque na pista para marcar como descoberta.</div></li>
     <li><div class="step-num">7</div><div class="step-body"><strong>Anotar improvisos</strong>Campo Notas Rápidas para nomes criados na hora, decisões dos jogadores, mudanças no roteiro.</div></li>
   </ol>
 
   <h3>Após a sessão</h3>
   <ol class="step-list">
-    <li><div class="step-num">1</div><div class="step-body"><strong>Atualizar o status da sessão</strong>Na barra do Modo Mesa → clicar em "Jogada". Ou na edição da campanha → aba Sessões → status.</div></li>
+    <li><div class="step-num">1</div><div class="step-body"><strong>Atualizar o status da sessão</strong>Na barra do Modo Mesa → clicar em "Concluída". Ou na edição da campanha → aba Info → status.</div></li>
     <li><div class="step-num">2</div><div class="step-body"><strong>Atualizar NEX dos agentes</strong>Se o NEX subiu, atualizar no tracker de cada agente.</div></li>
     <li><div class="step-num">3</div><div class="step-body"><strong>Fechar o Modo Mesa</strong>Botão ✕ Fechar na barra superior.</div></li>
     <li><div class="step-num">4</div><div class="step-body"><strong>Fazer backup</strong>Menu ☰ → Backup Rápido — sempre após cada sessão.</div></li>
@@ -1248,7 +1223,7 @@ code {
       <tr><td class="field-name">NEX</td><td class="field-desc">Nível de Exposição Paranormal — de 0% a 99%</td><td class="field-note">Campanha, agentes, ficha de criatura</td></tr>
       <tr><td class="field-name">AGI</td><td class="field-desc">Agilidade — bônus somado ao d20 na iniciativa dos agentes</td><td class="field-note">Tracker de agentes, botão 🎲</td></tr>
       <tr><td class="field-name">FOR / INT / PRE / VIG</td><td class="field-desc">Força, Intelecto, Presença, Vigor — atributos das criaturas</td><td class="field-note">Ficha de ameaça</td></tr>
-      <tr><td class="field-name">VD</td><td class="field-desc">Valor de Defesa — número que o ataque deve superar para acertar</td><td class="field-note">Ficha de criatura, picker de combate, cômodos</td></tr>
+      <tr><td class="field-name">VD</td><td class="field-desc">Valor de Defesa — número que o ataque deve superar para acertar</td><td class="field-note">Ficha de criatura, picker de combate, locais</td></tr>
       <tr><td class="field-name">PT</td><td class="field-desc">Presença Perturbadora — dano de SAN ao ver a criatura</td><td class="field-note">Ficha de ameaça, ficha de combate</td></tr>
       <tr><td class="field-name">Fort / Ref / Von</td><td class="field-desc">Fortitude / Reflexos / Vontade — testes de resistência da criatura</td><td class="field-note">Ficha de ameaça, ficha de combate</td></tr>
       <tr><td class="field-name">Resistências</td><td class="field-desc">Tipos de dano reduzidos ou modificados</td><td class="field-note">Ficha de criatura, modo mesa</td></tr>
@@ -1259,14 +1234,7 @@ code {
     </tbody>
   </table>
 
-  <h3>Status de Sessão</h3>
-  <p>
-    <span class="pill" style="background:#7a706022;border:1px solid #7a706055;color:#7a7060">Pendente</span> — ainda não foi jogada.
-    <span class="pill pill-green">Jogada</span> — concluída.
-    <span class="pill pill-gold">Pulada</span> — descartada ou pulada.
-  </p>
-
-  <h3>Status de Campanha</h3>
+  <h3>Status de Campanha / Sessão</h3>
   <p>
     <span class="pill pill-green">Em Andamento</span>
     <span class="pill pill-gold">Concluída</span>
