@@ -2194,7 +2194,7 @@ function renderMesa() {
       <div class="mesa-card-title">🔍 Pistas</div>
       ${cluesHtml||'<div style="color:#9a8e7a;font-size:13px;text-align:center;padding:20px 0">Nenhuma pista cadastrada</div>'}
     </div>
-    ${s.notes?`<div class="mesa-card" style="border-color:#b8860b44;margin-top:12px"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(s.notes)}</p></div>`:''}`;
+    ${c.notes?`<div class="mesa-card" style="border-color:#b8860b44;margin-top:12px"><div class="mesa-card-title">📝 Notas do Mestre</div><p style="color:#d4b26a;font-size:13px;line-height:1.7;margin:0;font-family:Georgia,serif">${nl(c.notes)}</p></div>`:''}`;
 
   // restore active tab state and re-render trackers in the correct pane
   if (_mobActiveTab === 'cena') _mobActiveTab = 'narrar';
