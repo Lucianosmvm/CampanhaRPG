@@ -4344,7 +4344,11 @@ async function gdriveLoad() {
     gdriveSetSyncStatus('Sincronizando...');
     const folderId = await gdriveGetOrCreateFolder();
     const fileId   = await gdriveGetFileId(folderId);
-    if (!fileId) { gdriveSetSyncStatus('Nenhum dado no Drive'); return; }
+    if (!fileId) {
+      // Primeiro login: ainda não existe campanhas.json no Drive — cria já, sem esperar edição
+      await gdriveSave();
+      return;
+    }
     const r = await gdriveApiFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
     const text = await r.text();
     const remote = JSON.parse(text);
