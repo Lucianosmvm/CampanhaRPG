@@ -848,6 +848,15 @@ const KEY = 'op_v3';
 let camps = [];
 try { camps = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { camps = []; }
 
+// Tombstones: ids de campanhas excluídas, para não voltarem ao sincronizar com o Drive
+const DELETED_KEY = 'op_deleted_ids';
+let deletedIds = [];
+try { deletedIds = JSON.parse(localStorage.getItem(DELETED_KEY)) || []; } catch(e) { deletedIds = []; }
+function markDeleted(id) {
+  if (!deletedIds.includes(id)) deletedIds.push(id);
+  try { localStorage.setItem(DELETED_KEY, JSON.stringify(deletedIds)); } catch(e) {}
+}
+
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 3. ESTADO GLOBAL — view e controle de mesa                  │
    └─────────────────────────────────────────────────────────────┘ */
@@ -3591,8 +3600,13 @@ function askDelete(id) {
 function closeDelModal() { document.getElementById('modal-del').style.display='none'; }
 document.getElementById('btn-del-confirm').onclick = () => {
   camps = camps.filter(c=>c.id!==delTargetId);
+  markDeleted(delTargetId);
   if (viewingId===delTargetId) { viewingId=null; view='list'; }
   persist(); closeDelModal(); render();
+  if (typeof gdriveSave === 'function' && gdriveIsLoggedIn && gdriveIsLoggedIn()) {
+    clearTimeout(_gdriveSaveTimer);
+    gdriveSave();
+  }
 };
 
 /* ┌─────────────────────────────────────────────────────────────┐
@@ -4353,14 +4367,18 @@ async function gdriveLoad() {
     const text = await r.text();
     const remote = JSON.parse(text);
     if (!Array.isArray(remote)) { gdriveSetSyncStatus('Arquivo inválido'); return; }
-    // Merge: remoto tem prioridade para campanhas com mesmo id
-    const merged = [...remote, ...camps.filter(c => !remote.find(r => r.id === c.id))];
+    // Merge: remoto tem prioridade para campanhas com mesmo id, exceto as excluídas localmente (tombstones)
+    const remoteFiltered = remote.filter(r => !deletedIds.includes(r.id));
+    const merged = [...remoteFiltered, ...camps.filter(c => !remoteFiltered.find(r => r.id === c.id))];
+    const remoteHadDeleted = remote.some(r => deletedIds.includes(r.id));
     camps = merged;
     persist();
     render();
     const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     gdriveSetSyncStatus('Sincronizado às ' + now);
-    if (remote.length > 0) showToast('Drive sincronizado: ' + remote.length + ' campanha' + (remote.length !== 1 ? 's' : ''));
+    if (remote.length > 0) showToast('Drive sincronizado: ' + remoteFiltered.length + ' campanha' + (remoteFiltered.length !== 1 ? 's' : ''));
+    // Se o Drive ainda tinha campanhas excluídas localmente, reenvia o arquivo já sem elas
+    if (remoteHadDeleted) await gdriveSave();
   } catch(e) {
     gdriveSetSyncStatus('Erro: ' + e.message);
     console.error('gdriveLoad', e);
