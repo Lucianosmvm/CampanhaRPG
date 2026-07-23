@@ -685,7 +685,10 @@ input:focus,textarea:focus,select:focus{scroll-margin-top:80px}
     </button>
     <div id="gdrive-sync-btn-wrap" style="display:none;margin-top:6px">
       <button onclick="gdriveSyncNow()" style="width:100%;padding:7px 12px;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:all .15s" onmouseenter="this.style.color='var(--text)'" onmouseleave="this.style.color='var(--text-muted)'">
-        ↕ Sincronizar agora
+        ↓ Sincronizar (trazer do Drive)
+      </button>
+      <button onclick="gdriveSaveNow()" style="width:100%;padding:7px 12px;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:all .15s;margin-top:6px" onmouseenter="this.style.color='var(--text)'" onmouseleave="this.style.color='var(--text-muted)'">
+        ↑ Salvar no Drive
       </button>
     </div>
   </div>
@@ -4367,16 +4370,22 @@ async function gdriveLoad() {
     const text = await r.text();
     const remote = JSON.parse(text);
     if (!Array.isArray(remote)) { gdriveSetSyncStatus('Arquivo inválido'); return; }
-    // Merge: remoto tem prioridade para campanhas com mesmo id, exceto as excluídas localmente (tombstones)
-    const remoteFiltered = remote.filter(r => !deletedIds.includes(r.id));
-    const merged = [...remoteFiltered, ...camps.filter(c => !remoteFiltered.find(r => r.id === c.id))];
-    const remoteHadDeleted = remote.some(r => deletedIds.includes(r.id));
-    camps = merged;
-    persist();
-    render();
+    // Merge: campanha local (atual) sempre prevalece quando o id já existe aqui — nunca
+    // sobrescreve edições recentes. Só traz do Drive as campanhas que ainda não existem
+    // localmente, exceto as que já foram excluídas neste dispositivo (tombstones).
+    const localIds = new Set(camps.map(c => c.id));
+    const novasDoRemoto = remote.filter(rc => !deletedIds.includes(rc.id) && !localIds.has(rc.id));
+    const remoteHadDeleted = remote.some(rc => deletedIds.includes(rc.id));
+    if (novasDoRemoto.length > 0) {
+      camps = [...camps, ...novasDoRemoto];
+      persist();
+      render();
+    }
     const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     gdriveSetSyncStatus('Sincronizado às ' + now);
-    if (remote.length > 0) showToast('Drive sincronizado: ' + remoteFiltered.length + ' campanha' + (remoteFiltered.length !== 1 ? 's' : ''));
+    showToast(novasDoRemoto.length > 0
+      ? 'Drive sincronizado: ' + novasDoRemoto.length + ' campanha' + (novasDoRemoto.length !== 1 ? 's' : '') + ' nova' + (novasDoRemoto.length !== 1 ? 's' : '')
+      : 'Drive sincronizado: nenhuma campanha nova');
     // Se o Drive ainda tinha campanhas excluídas localmente, reenvia o arquivo já sem elas
     if (remoteHadDeleted) await gdriveSave();
   } catch(e) {
@@ -4388,6 +4397,13 @@ async function gdriveLoad() {
 async function gdriveSyncNow() {
   closeDrawer();
   await gdriveLoad();
+}
+
+async function gdriveSaveNow() {
+  closeDrawer();
+  clearTimeout(_gdriveSaveTimer);
+  await gdriveSave();
+  showToast('Campanhas salvas no Drive');
 }
 
 // Aguarda APIs carregarem e inicializa
