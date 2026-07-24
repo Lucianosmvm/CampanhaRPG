@@ -326,6 +326,10 @@ button{cursor:pointer;font-family:'Share Tech Mono',monospace;border:none;outlin
 .field-hint{font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:var(--border-sub)}
 .gm-note{display:inline-block;background:#b8860b1a;border:1px solid #b8860b55;border-radius:3px;padding:1px 7px;margin:1px 0;color:#d9c69a;font-size:0.9em;font-style:normal;font-family:'Share Tech Mono',monospace}
 .gm-note b{color:#e8d4a0}
+.test-note{display:block;background:#0a0908;border:1px solid #b8860b55;border-left:3px solid #b8860b;border-radius:3px;padding:8px 12px;margin:6px 0;font-family:'Share Tech Mono',monospace;font-size:0.85em}
+.test-note-head{color:#b8860b;font-weight:700;margin-bottom:4px;text-transform:uppercase;font-size:0.9em;letter-spacing:.04em}
+.test-pass{color:#4ade80;margin:2px 0}
+.test-fail{color:#f87171;margin:2px 0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid2 .span2{grid-column:1/-1}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}.grid2 .span2{grid-column:1}}
@@ -971,7 +975,27 @@ function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function nl(t)  {
   return esc(t)
     .replace(/\[\[([\s\S]*?)\]\]/g, '<span class="gm-note">🔒 <b>Mestre:</b> $1</span>')
+    .replace(/&lt;&lt;([\s\S]*?)&gt;&gt;/g, (_, inner) => fmtTestNote(inner))
     .replace(/\n/g,'<br>');
+}
+
+// <<Teste DT X Passou: ... , se não/Falhou: ...>> vira caixa de teste com resultado
+function fmtTestNote(inner) {
+  const pIdx = inner.search(/passou\s*:/i);
+  if (pIdx === -1) return '<div class="test-note"><div class="test-note-head">🎲 '+inner.trim()+'</div></div>';
+  const fIdx = inner.search(/,?\s*(?:se\s*n[ãa]o|senão|falhou)\s*:/i);
+  const header = inner.slice(0, pIdx).trim();
+  let passText, failText = '';
+  if (fIdx > pIdx) {
+    passText = inner.slice(pIdx, fIdx).replace(/^passou\s*:\s*/i,'').replace(/,\s*$/,'').trim();
+    failText = inner.slice(fIdx).replace(/^,?\s*(?:se\s*n[ãa]o|senão|falhou)\s*:\s*/i,'').trim();
+  } else {
+    passText = inner.slice(pIdx).replace(/^passou\s*:\s*/i,'').trim();
+  }
+  return '<div class="test-note"><div class="test-note-head">🎲 '+(header||'Teste')+'</div>'
+    + (passText?'<div class="test-pass">✅ Passou: '+passText+'</div>':'')
+    + (failText?'<div class="test-fail">❌ Falhou: '+failText+'</div>':'')
+    + '</div>';
 }
 
 // Backup rápido
@@ -3282,7 +3306,7 @@ function renderSceneRow(sc, idx) {
         </select>
       </div>
       <textarea rows="2" oninput="setSceneField('${sc.id}','description',this.value)"
-        placeholder="O que acontece nesta cena? Como o mestre narra? Use [[texto]] p/ notas só do mestre."
+        placeholder="O que acontece nesta cena? Como o mestre narra? Use [[texto]] p/ notas só do mestre e <<Teste DT X Passou: ... , se não: ...>> p/ marcar testes."
         style="resize:vertical;margin-bottom:10px">${esc(sc.description)}</textarea>
       <!-- Locais da cena -->
       <div style="border-top:1px solid #1c1a16;padding-top:10px">
