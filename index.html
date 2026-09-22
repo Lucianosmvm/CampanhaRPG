@@ -4228,10 +4228,12 @@ ${continuidade}
 Cada sessão deve conter conteúdo suficiente para aproximadamente ${horas} hora(s) de mesa. Quando houver mais de uma sessão, a sessão N deve conectar com o gancho ("hook") da sessão N-1.
 
 REGRAS:
+- Cada sessão deve ter no mínimo ${Math.max(3, Math.round(horas))} cenas ("scenes"), cobrindo abertura, investigação/desenvolvimento, confronto ou clímax e desfecho — nunca gere sessão com só 1 cena.
 - Não invente personagens dos jogadores (agentes) — isso é preenchido pelo mestre depois com as fichas reais. Deixe "agentes" como array vazio.
 - Use nomes brasileiros para NPCs e locais.
 - Tom: horror, mistério, investigação, tensão crescente.
 - Cada sessão avança a trama do antagonista principal (pode se repetir entre sessões, ou surgir um secundário se fizer sentido).
+- O campo "criaturas" de cada local de cena referencia pelo NOME uma criatura já listada no array "criaturas" da sessão (o nome precisa bater exatamente) — não descreva a criatura de novo ali, só referencie.
 
 Responda APENAS com um array JSON válido (sem markdown, sem comentários, sem texto fora do JSON) com exatamente ${numSessoes} objeto(s), seguindo ESTRITAMENTE este formato por sessão (não inclua campos "id"):
 
@@ -4252,7 +4254,7 @@ Responda APENAS com um array JSON válido (sem markdown, sem comentários, sem t
   "items": [ { "name": string, "type": string, "description": string, "effect": string } ],
   "clues": [ { "text": string, "type": "Física"|"Testemunhal"|"Ocultista"|"Documental"|"Tecnológica", "onde": string, "como": string, "revela": string, "levaPara": string } ],
   "criaturas": [ { "name": string, "tipo": string, "defesa": number, "elementos": string, "nex": number, "danoMental": string, "iniciativa": number, "fortitude": number, "reflexos": number, "vontade": number, "pvMax": number, "resimunidades": string, "agi": number, "for_": number, "int_": number, "pre": number, "vig": number, "deslocamento": number, "ataque": string, "habilidades": string, "descricao": string } ],
-  "scenes": [ { "number": number, "name": string, "type": "Investigação"|"Combate"|"Roleplay"|"Revelação"|"Exploração"|"Armadilha"|"Ritual"|"Fuga"|"Social"|"Perseguição", "description": string, "locations": [ { "name": string, "type": string, "description": string, "atmosphere": string, "paranormal": string, "danger": "Baixo"|"Médio"|"Alto"|"Extremo", "secret": string, "evento": string, "items": [ { "name": string, "cat": string, "desc": string, "secret": string } ], "criaturas": [ { "name": string } ] } ] } ],
+  "scenes": [ { "number": number, "name": string, "type": "Investigação"|"Combate"|"Roleplay"|"Revelação"|"Exploração"|"Armadilha"|"Ritual"|"Fuga"|"Social"|"Perseguição", "description": string, "locations": [ { "name": string, "type": string, "description": string, "atmosphere": string, "paranormal": string, "danger": "Baixo"|"Médio"|"Alto"|"Extremo", "secret": string, "evento": string, "items": [ { "name": string, "cat": string, "desc": string, "secret": string } ], "criaturas": [ { "name": string (deve bater com um nome do array "criaturas" da sessão), "qtd": number } ] } ] } ],
   "agentes": []
 }
 
@@ -4284,7 +4286,12 @@ function _hydrateAiSession(s, idx) {
     scene.locations = (sc.locations||[]).map(sl => {
       const loc = Object.assign(blankSceneLoc(), sl);
       loc.items = (sl.items||[]).map(it => Object.assign(blankSceneItem(), it));
-      loc.criaturas = (sl.criaturas||[]).map(cr => Object.assign(blankCriatura(), { name: cr.name||'' }));
+      // formato esperado pelo Modo Mesa: referência {key,qtd} pro id em c.criaturas, não o objeto inteiro
+      loc.criaturas = (sl.criaturas||[]).map(cr => {
+        let match = c.criaturas.find(x => x.name === cr.name);
+        if (!match) { match = Object.assign(blankCriaturaBase(), { name: cr.name || 'Criatura' }); c.criaturas.push(match); }
+        return { key: match.id, qtd: cr.qtd || 1 };
+      });
       return loc;
     });
     return scene;
