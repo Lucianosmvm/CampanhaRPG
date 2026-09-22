@@ -4179,10 +4179,19 @@ function npcGenSalvarCampanha() {
    │ 25. MESTRE IA — gerador de campanha via Gemini              │
    └─────────────────────────────────────────────────────────────┘ */
 const AI_KEY_STORAGE = 'op_gemini_key';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const AI_MODEL_STORAGE = 'op_gemini_model';
+const GEMINI_MODELS = [
+  { id:'gemini-3.8-flash',       label:'Gemini 3.8 Flash — rápido (padrão)' },
+  { id:'gemini-3-flash-preview', label:'Gemini 3 Flash — preview' },
+  { id:'gemini-3.1-pro-preview', label:'Gemini 3.1 Pro — mais capaz, mais lento' },
+  { id:'gemini-3.5-flash-lite',  label:'Gemini 3.5 Flash Lite — mais barato' },
+  { id:'gemini-2.5-flash',       label:'Gemini 2.5 Flash — legado' },
+];
 
 function getGeminiKey() { try { return localStorage.getItem(AI_KEY_STORAGE) || ''; } catch(e) { return ''; } }
 function setGeminiKey(k) { try { localStorage.setItem(AI_KEY_STORAGE, k); } catch(e) {} }
+function getGeminiModel() { try { return localStorage.getItem(AI_MODEL_STORAGE) || GEMINI_MODELS[0].id; } catch(e) { return GEMINI_MODELS[0].id; } }
+function setGeminiModel(m) { try { localStorage.setItem(AI_MODEL_STORAGE, m); } catch(e) {} }
 
 let _aiGenState = 'form'; // 'form' | 'loading'
 let _aiGenError = '';
@@ -4211,12 +4220,14 @@ function _renderAiGenBody() {
     return;
   }
   const savedKey = getGeminiKey();
+  const savedModel = getGeminiModel();
   const f = _aiGenForm;
   const options = camps.map(c => `<option value="${c.id}"${c.id===f.continuarId?' selected':''}>${esc(c.title)||'Sem título'}</option>`).join('');
   el.innerHTML = `
     ${_aiGenError?`<div style="background:#7f1d1d18;border:1px solid #c0392b55;color:#e07a6b;padding:10px 12px;border-radius:2px;font-size:12px;margin-bottom:14px">⚠️ ${esc(_aiGenError)}</div>`:''}
     <div style="display:flex;flex-direction:column;gap:14px">
       ${fieldHtml('🔑 Chave da API Gemini', `<input type="password" id="ai-key" value="${esc(savedKey)}" placeholder="Cole sua API key do Google AI Studio"/>`, '<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold)">Pegar chave grátis</a>')}
+      ${fieldHtml('🧠 Modelo', `<select id="ai-model">${GEMINI_MODELS.map(m=>`<option value="${m.id}"${m.id===savedModel?' selected':''}>${esc(m.label)}</option>`).join('')}</select>`)}
       ${fieldHtml('📖 Tema / Premissa da Campanha', `<textarea id="ai-tema" rows="3" placeholder="Ex: desaparecimentos numa cidade litorânea ligados a um culto do mar...">${esc(f.tema)}</textarea>`)}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         ${fieldHtml('🔢 Nº de Sessões', `<input type="number" id="ai-num" min="1" max="12" value="${f.numSessoes}"/>`)}
@@ -4322,6 +4333,7 @@ function _hydrateAiSession(s, idx) {
 
 async function gerarCampanhaIA() {
   const key = document.getElementById('ai-key').value.trim();
+  const modelo = document.getElementById('ai-model').value;
   const tema = document.getElementById('ai-tema').value.trim();
   const numSessoes = Math.max(1, Math.min(12, parseInt(document.getElementById('ai-num').value) || 1));
   const horas = parseFloat(document.getElementById('ai-horas').value) || 4;
@@ -4331,6 +4343,7 @@ async function gerarCampanhaIA() {
   if (!tema) { _aiGenError = 'Descreva o tema da campanha.'; _renderAiGenBody(); return; }
 
   setGeminiKey(key);
+  setGeminiModel(modelo);
   _aiGenForm = { tema, numSessoes, horas, continuarId };
   _aiGenError = '';
   _aiGenState = 'loading';
@@ -4340,7 +4353,7 @@ async function gerarCampanhaIA() {
   const prompt = _buildAiGenPrompt(tema, numSessoes, horas, campAnterior);
 
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(key)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
