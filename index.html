@@ -871,6 +871,25 @@ const KEY = 'op_v3';
 let camps = [];
 try { camps = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { camps = []; }
 
+// Cenas geradas pela IA antes do fix guardavam a criatura inteira em loc.criaturas;
+// Mesa, form de cenas e PDF esperam a referência {key,qtd} e quebram sem ela.
+function migrarRefsCriaturas(lista) {
+  let reparos = 0;
+  (lista||[]).forEach(c => (c.scenes||[]).forEach(sc => (sc.locations||[]).forEach(loc => {
+    if (!Array.isArray(loc.criaturas)) return;
+    loc.criaturas = loc.criaturas.map(e => {
+      if (typeof e === 'string' || !e || e.key) return e;
+      reparos++;
+      if (!e.name) return null;
+      c.criaturas = c.criaturas || [];
+      let base = c.criaturas.find(x => x.name === e.name);
+      if (!base) { base = Object.assign(blankCriaturaBase(), { name: e.name, pvMax: e.pvMax || e.pv || 30 }); c.criaturas.push(base); }
+      return { key: base.id, qtd: e.qtd || 1 };
+    }).filter(Boolean);
+  })));
+  return reparos;
+}
+
 // Tombstones: ids de campanhas excluídas, para não voltarem ao sincronizar com o Drive
 const DELETED_KEY = 'op_deleted_ids';
 let deletedIds = [];
@@ -3676,7 +3695,7 @@ function importJSON(input) {
       const imp = JSON.parse(e.target.result);
       if (!Array.isArray(imp)) throw 0;
       const merged = [...imp, ...camps.filter(c=>!imp.find(i=>i.id===c.id))];
-      camps = merged; persist(); render();
+      camps = merged; migrarRefsCriaturas(camps); persist(); render();
       showToast(imp.length+' campanha'+(imp.length!==1?'s':'')+' importada'+(imp.length!==1?'s':'')+'!');
     } catch { showToast('Arquivo inválido.','err'); }
   };
@@ -4619,6 +4638,7 @@ async function gdriveLoad() {
     const remoteHadDeleted = remote.some(rc => deletedIds.includes(rc.id));
     if (novasDoRemoto.length > 0) {
       camps = [...camps, ...novasDoRemoto];
+      migrarRefsCriaturas(camps);
       persist();
       render();
     }
@@ -4663,6 +4683,7 @@ gdriveWaitForAPIs();
 /* ┌─────────────────────────────────────────────────────────────┐
    │ 27. INIT — bootstrap da aplicação                          │
    └─────────────────────────────────────────────────────────────┘ */
+if (migrarRefsCriaturas(camps)) persist();
 render();
 </script>
 </body>
